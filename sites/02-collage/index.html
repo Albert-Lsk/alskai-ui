@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloudrift 云隙 · Research with the source showing</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/instrument-serif@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/instrument-serif@5/400-italic.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/600.css">
+<script src="../../shared/lang.js"></script>
+<style>
+:root {
+  --paper: #f3eee4;
+  --paper-2: #e8e1d3;
+  --ink: #14182b;
+  --ink-2: #4b4f60;
+  --ink-3: #8a8c97;
+  --sky: #2f6fd6;
+  --tape: rgba(236, 224, 186, .78);
+  --serif: "Instrument Serif", "Noto Serif SC", Georgia, serif;
+  --serif-zh: "Noto Serif SC", "Songti SC", serif;
+  --sans: "Inter", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+  --wrap: min(1200px, calc(100vw - 48px));
+}
+* { box-sizing: border-box; margin: 0; }
+body { font: 16px/1.6 var(--sans); color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+.wrap { width: var(--wrap); margin: 0 auto; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -.01em; }
+html[data-lang="zh"] h1, html[data-lang="zh"] h2, html[data-lang="zh"] h3 { font-family: var(--serif-zh); font-weight: 600; letter-spacing: .01em; }
+
+/* torn paper scrap: the rough edge is a filtered pseudo-element, the text stays crisp */
+.scrap { position: relative; isolation: isolate; }
+.scrap::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--paper); filter: url(#ripSmall) drop-shadow(0 10px 18px rgba(20,24,43,.22)); }
+.tape { position: absolute; width: 92px; height: 26px; background: var(--tape); box-shadow: 0 1px 2px rgba(0,0,0,.08); filter: url(#ripTape); z-index: 2; }
+
+/* ---------- nav ---------- */
+nav.scrap { position: fixed; z-index: 20; top: 18px; left: 50%; translate: -50% 0; width: var(--wrap); display: flex; align-items: center; gap: 28px; padding: 10px 12px 10px 18px; }
+nav.scrap::before { filter: url(#ripSmall) drop-shadow(0 6px 14px rgba(20,24,43,.18)); }
+.brand { display: flex; align-items: center; gap: 10px; font: 500 17px var(--sans); }
+.brand i { width: 24px; height: 24px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff 0 22%, #9cc0f5 23% 48%, var(--sky) 49%); box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+nav ul { list-style: none; display: flex; gap: 26px; padding: 0; margin-left: auto; font-size: 14px; color: var(--ink-2); }
+nav ul a:hover { color: var(--ink); }
+.lang { font-size: 13px; border: 1px solid #cfc8b8; border-radius: 99px; padding: 4px 11px; color: var(--ink-2); white-space: nowrap; }
+.btn { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: var(--paper); padding: 10px 18px; font-size: 14px; border-radius: 2px; white-space: nowrap; transition: transform .15s ease, background-color .2s; }
+.btn:hover { background: #262b45; }
+.btn:active { transform: scale(.97); }
+.btn.light { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px rgba(20,24,43,.35); }
+
+/* ---------- tear component ---------- */
+.tear { position: absolute; inset: 0; overflow: hidden; }
+.tear svg, .tear-card svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* ---------- hero ---------- */
+.hero { height: 280vh; position: relative; background: #2a63c4; }
+.hero-stick { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+.fg-clouds { position: absolute; left: -6%; right: -6%; bottom: -8%; height: 46%; background: url(img/clouds-fg.webp) center bottom / cover no-repeat; pointer-events: none; will-change: transform; -webkit-mask-image: linear-gradient(transparent, #000 40%); mask-image: linear-gradient(transparent, #000 40%); }
+.hero-copy { position: absolute; left: max(24px, calc((100vw - 1200px) / 2)); top: 22vh; width: min(560px, calc(100vw - 48px)); will-change: transform, opacity; }
+.hero-copy .scrap { padding: 34px 38px 32px; transform: rotate(-1.2deg); }
+.hero-copy .tape { top: -12px; left: 38%; transform: rotate(3deg); }
+.eyebrow { font: 500 12px var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
+.hero h1 { font-size: clamp(52px, 6vw, 84px); line-height: .98; margin: 12px 0 16px; }
+.hero h1 em { font-style: italic; color: var(--sky); }
+html[data-lang="zh"] .hero h1 { font-size: clamp(40px, 4.6vw, 62px); line-height: 1.18; }
+.hero p { color: var(--ink-2); max-width: 29em; }
+.hero .row { display: flex; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
+.hint { position: absolute; left: 50%; bottom: 26px; translate: -50% 0; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 6px rgba(0,30,80,.5); transition: opacity .3s; }
+.cite { position: absolute; right: max(24px, calc((100vw - 1200px) / 2)); bottom: 10vh; width: 300px; padding: 18px 20px 16px; opacity: 0; transform: translateY(14px) rotate(1.4deg); transition: opacity .5s, transform .6s cubic-bezier(.2,.8,.2,1); }
+.cite.on { opacity: 1; transform: rotate(1.4deg); }
+.cite .tape { top: -12px; right: 20px; width: 70px; transform: rotate(-6deg); }
+.cite small { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--sky); font-weight: 500; }
+.cite b { display: block; font: 400 22px/1.2 var(--serif); margin: 6px 0 4px; }
+.cite span { font-size: 13px; color: var(--ink-2); }
+
+/* ---------- answer demo ---------- */
+.demo { padding: 140px 0 120px; display: grid; grid-template-columns: .9fr 1.1fr; gap: 72px; align-items: center; }
+.demo h2 { font-size: clamp(40px, 4.4vw, 64px); line-height: 1.02; }
+html[data-lang="zh"] .demo h2 { font-size: clamp(32px, 3.4vw, 48px); line-height: 1.25; }
+.demo .lead { color: var(--ink-2); margin: 18px 0 0; max-width: 28em; }
+.answer { position: relative; padding: 34px 36px 30px; background: #fbf8f2; box-shadow: 0 1px 0 #ddd5c4, 0 30px 60px -34px rgba(20,24,43,.35); }
+.answer .q { display: flex; gap: 12px; align-items: flex-start; padding-bottom: 18px; border-bottom: 1px dashed #d8d0bf; font-weight: 500; }
+.answer .q i { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--paper); font: 500 12px/26px var(--sans); text-align: center; font-style: normal; }
+.answer .a { padding-top: 18px; color: #2c3042; font-size: 16.5px; line-height: 1.75; }
+html[data-lang="en"] .answer .a { font: 22px/1.42 var(--serif); }
+.chip { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; margin: 0 2px; vertical-align: 3px; border-radius: 4px; background: #e4ecfa; color: var(--sky); font: 500 12px var(--sans); cursor: pointer; transition: background-color .2s, color .2s, transform .15s; }
+.chip:hover, .chip.on { background: var(--sky); color: #fff; }
+.chip:active { transform: scale(.94); }
+.answer .meta { display: flex; justify-content: space-between; margin-top: 22px; font-size: 12px; color: var(--ink-3); letter-spacing: .04em; }
+.pop { position: absolute; width: 260px; height: 230px; pointer-events: none; z-index: 5; }
+.pop .tear { inset: 0; }
+.pop figcaption { position: absolute; left: 22px; right: 22px; bottom: -6px; padding: 8px 12px 9px; font-size: 12px; line-height: 1.4; color: var(--ink-2); opacity: 0; transition: opacity .3s .25s; }
+.pop figcaption.scrap::before { filter: url(#ripSmall) drop-shadow(0 4px 8px rgba(20,24,43,.2)); }
+.pop.on figcaption { opacity: 1; }
+
+/* ---------- how it works ---------- */
+.how-head { display: flex; justify-content: space-between; align-items: end; gap: 40px; padding-bottom: 44px; }
+.how-head h2 { font-size: clamp(40px, 4.4vw, 64px); line-height: 1; max-width: 9em; }
+html[data-lang="zh"] .how-head h2 { font-size: clamp(32px, 3.4vw, 48px); line-height: 1.25; }
+.how-head p { max-width: 26em; color: var(--ink-2); }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; padding-bottom: 150px; }
+.card { position: relative; background: #fbf8f2; padding: 18px 18px 24px; box-shadow: 0 1px 0 #ddd5c4, 0 24px 50px -34px rgba(20,24,43,.4); }
+.card:nth-child(1) { transform: rotate(-.6deg); } .card:nth-child(3) { transform: rotate(.5deg); }
+.card .win { position: relative; aspect-ratio: 4 / 3.1; }
+.card .n { font: italic 400 15px var(--serif); color: var(--sky); margin: 18px 4px 2px; }
+.card h3 { font-size: 30px; line-height: 1.1; margin: 0 4px 8px; }
+html[data-lang="zh"] .card h3 { font-size: 22px; line-height: 1.4; }
+.card p { margin: 0 4px; color: var(--ink-2); font-size: 15px; }
+.card .tape { top: -11px; left: 50%; translate: -50% 0; transform: rotate(-2deg); }
+
+/* ---------- closing ---------- */
+.closing { position: relative; height: 92vh; min-height: 620px; background: #2a63c4; overflow: hidden; }
+.closing-copy { position: absolute; left: 50%; bottom: 7%; translate: -50% 0; text-align: center; width: min(620px, calc(100vw - 48px)); padding: 36px 40px 34px; }
+.closing-copy .tape { top: -12px; left: calc(50% - 46px); transform: rotate(-3deg); }
+.closing h2 { font-size: clamp(48px, 5.6vw, 80px); line-height: 1; }
+html[data-lang="zh"] .closing h2 { font-size: clamp(34px, 3.8vw, 54px); line-height: 1.25; }
+.closing p { color: var(--ink-2); margin: 14px 0 22px; }
+
+footer { padding: 46px 0 60px; font-size: 13px; line-height: 1.85; color: var(--ink-3); }
+footer b { color: var(--ink-2); font-weight: 500; }
+footer .top { display: flex; justify-content: space-between; gap: 20px; margin-bottom: 16px; color: var(--ink-2); }
+
+@media (max-width: 900px) {
+  nav { gap: 12px; }
+  nav ul, nav .btn { display: none; }
+  .lang { margin-left: auto; }
+  .hero-copy { top: 16vh; }
+  .fg-clouds { height: 30%; bottom: -10%; }
+  .hero-copy .scrap { padding: 26px 24px 24px; }
+  .cite { left: 24px; right: 24px; width: auto; bottom: 7vh; }
+  .demo { grid-template-columns: 1fr; gap: 40px; padding: 100px 0 90px; }
+  .answer { padding: 26px 22px 22px; }
+  .pop { width: 210px; height: 190px; }
+  .how-head { display: block; } .how-head p { margin-top: 14px; }
+  .cards { grid-template-columns: 1fr; gap: 34px; padding-bottom: 110px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- small torn edge for paper scraps and tape -->
+  <filter id="ripSmall" x="-5%" y="-10%" width="110%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" result="d"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".5" numOctaves="1" seed="2" result="f"/>
+    <feDisplacementMap in="d" in2="f" scale="2.4"/>
+  </filter>
+  <filter id="ripTape" x="-10%" y="-30%" width="120%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency=".3 .05" numOctaves="2" seed="6"/>
+    <feDisplacementMap in="SourceGraphic" scale="5"/>
+  </filter>
+</svg>
+
+<nav class="scrap">
+  <a class="brand" href="#"><i></i>Cloudrift <span lang="zh" style="color:var(--ink-3);font-weight:400">云隙</span></a>
+  <ul>
+    <li><a href="#answer"><span lang="en">Answers</span><span lang="zh">回答</span></a></li>
+    <li><a href="#how"><span lang="en">How it works</span><span lang="zh">怎么用</span></a></li>
+    <li><a href="#begin"><span lang="en">Pricing</span><span lang="zh">价格</span></a></li>
+  </ul>
+  <button class="lang" data-lang-toggle><span lang="en">中文</span><span lang="zh">EN</span></button>
+  <a class="btn" href="#begin"><span lang="en">Try it free</span><span lang="zh">免费试用</span></a>
+</nav>
+
+<section class="hero">
+  <div class="hero-stick">
+    <div class="tear" id="heroTear" data-art="img/vermeer.jpg" data-cover="img/sky.jpg" data-seed="3"></div>
+    <div class="fg-clouds" id="fg"></div>
+    <div class="hero-copy" id="heroCopy">
+      <div class="scrap">
+        <span class="tape"></span>
+        <div class="eyebrow"><span lang="en">AI research, sources attached</span><span lang="zh">带出处的 AI 研究助手</span></div>
+        <h1><span lang="en">Every answer has a <em>source</em> behind it.</span><span lang="zh">每个答案背后，<br>都该有个出处。</span></h1>
+        <p><span lang="en">Cloudrift reads the papers, archives and pages for you, then tears the summary open so you can see exactly where each sentence came from.</span><span lang="zh">云隙替你读论文、档案和网页，然后把总结撕开一道口子：每句话从哪来，你都能亲眼看到。</span></p>
+        <div class="row">
+          <a class="btn" href="#begin"><span lang="en">Ask your first question</span><span lang="zh">问第一个问题</span></a>
+          <a class="btn light" href="#answer"><span lang="en">See an answer</span><span lang="zh">看一个回答</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="cite scrap" id="heroCite">
+      <span class="tape"></span>
+      <small><span lang="en">Source [1]</span><span lang="zh">出处 [1]</span></small>
+      <b>Girl with a Pearl Earring</b>
+      <span><span lang="en">Johannes Vermeer, c. 1665. Mauritshuis, The Hague.</span><span lang="zh">维米尔，约 1665 年，海牙莫瑞泰斯皇家美术馆藏。</span></span>
+    </div>
+    <div class="hint" id="hint"><span lang="en">Scroll to tear the sky open</span><span lang="zh">往下滚，把天撕开</span></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="demo" id="answer">
+    <div>
+      <div class="eyebrow"><span lang="en">An answer, torn open</span><span lang="zh">撕开一个回答</span></div>
+      <h2 style="margin-top:14px"><span lang="en">Don't trust the summary. Check the tear.</span><span lang="zh">别急着信总结，<br>先看撕口里是什么。</span></h2>
+      <p class="lead"><span lang="en">Each claim carries a small numbered chip. Hover one and the page rips open on the exact passage, image or table it rests on.</span><span lang="zh">每个说法后面都跟着一个小编号。把鼠标放上去，页面就在它依据的那段原文、那张图或那张表上撕开。</span></p>
+    </div>
+    <div class="answer" id="answerCard">
+      <div class="q"><i>Q</i><span><span lang="en">Why does the earring in Vermeer's painting look so bright?</span><span lang="zh">维米尔画里那颗耳环，为什么看起来那么亮？</span></span></div>
+      <div class="a">
+        <span lang="en">Because very little of it is actually painted. The pearl is a few strokes: one sharp white highlight on top <span class="chip" data-src="img/pearl.jpg" data-pos="45% 35%" data-cap-en="Detail: the highlight, a single stroke of lead white." data-cap-zh="细节：顶上的高光，就是一笔铅白。">1</span> and a soft reflection of her white collar below <span class="chip" data-src="img/pearl.jpg" data-pos="50% 85%" data-cap-en="Detail: the collar reflected in the lower half of the pearl." data-cap-zh="细节：珍珠下半部映出的白色衣领。">2</span>. Your eye fills in the rest. The turban's blue, ground from costly ultramarine, keeps the cool light consistent across her face <span class="chip" data-src="img/turban.jpg" data-pos="40% 40%" data-cap-en="Detail: the ultramarine turban." data-cap-zh="细节：群青色的头巾。">3</span>.</span>
+        <span lang="zh">因为它其实没画几笔。整颗珍珠只有寥寥几笔：顶上一点锐利的白色高光 <span class="chip" data-src="img/pearl.jpg" data-pos="45% 35%" data-cap-en="Detail: the highlight, a single stroke of lead white." data-cap-zh="细节：顶上的高光，就是一笔铅白。">1</span>，底下一抹衣领的柔和反光 <span class="chip" data-src="img/pearl.jpg" data-pos="50% 85%" data-cap-en="Detail: the collar reflected in the lower half of the pearl." data-cap-zh="细节：珍珠下半部映出的白色衣领。">2</span>，剩下的由你的眼睛自己补上。头巾用的是昂贵的群青，让整张脸的冷光保持一致 <span class="chip" data-src="img/turban.jpg" data-pos="40% 40%" data-cap-en="Detail: the ultramarine turban." data-cap-zh="细节：群青色的头巾。">3</span>。</span>
+      </div>
+      <div class="meta"><span><span lang="en">3 sources · read in 4 s</span><span lang="zh">3 处出处 · 读了 4 秒</span></span><span><span lang="en">Hover a number</span><span lang="zh">把鼠标放在编号上</span></span></div>
+      <figure class="pop" id="pop"><div class="tear" id="popTear"></div><figcaption class="scrap" id="popCap"></figcaption></figure>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="how-head">
+      <h2><span lang="en">Three steps, all of them visible</span><span lang="zh">三步，每一步都看得见</span></h2>
+      <p><span lang="en">Nothing happens behind a curtain. Hover a card to see what is underneath each step.</span><span lang="zh">没有哪一步藏在幕后。把鼠标放到卡片上，看看每一步底下是什么。</span></p>
+    </div>
+    <div class="cards">
+      <article class="card"><span class="tape"></span>
+        <div class="win tear-card" data-art="img/sky.jpg" data-seed="11"></div>
+        <div class="n">i.</div>
+        <h3><span lang="en">Ask in plain words</span><span lang="zh">用大白话提问</span></h3>
+        <p><span lang="en">No search operators, no prompt tricks. Ask the way you would ask a well-read friend.</span><span lang="zh">不用搜索语法，也不用提示词技巧。像问一个读书多的朋友那样问就行。</span></p></article>
+      <article class="card"><span class="tape"></span>
+        <div class="win tear-card" data-art="img/hands.jpg" data-seed="17"></div>
+        <div class="n">ii.</div>
+        <h3><span lang="en">It reads everything</span><span lang="zh">它替你通读</span></h3>
+        <p><span lang="en">Papers, archives, scanned books and the open web, connected to your question one fingertip at a time.</span><span lang="zh">论文、档案、扫描古籍和公开网页，一处一处地和你的问题接上。</span></p></article>
+      <article class="card"><span class="tape"></span>
+        <div class="win tear-card" data-art="img/psyche.jpg" data-seed="23"></div>
+        <div class="n">iii.</div>
+        <h3><span lang="en">Every line is signed</span><span lang="zh">每句话都有落款</span></h3>
+        <p><span lang="en">Each sentence keeps its source attached, so you can quote it, check it, or throw it out.</span><span lang="zh">每句话都带着它的出处，你可以直接引用、亲自核对，或者干脆不要。</span></p></article>
+    </div>
+  </section>
+</div>
+
+<section class="closing" id="begin">
+  <div class="tear" id="closeTear" data-art="img/hands.jpg" data-cover="img/sky.jpg" data-seed="31"></div>
+  <div class="closing-copy scrap">
+    <span class="tape"></span>
+    <h2><span lang="en">Tear open the sky.</span><span lang="zh">把天撕开看看。</span></h2>
+    <p><span lang="en">Free for your first 50 questions. No card, no curtain.</span><span lang="zh">前 50 个问题免费。不用绑卡，也没有幕后。</span></p>
+    <a class="btn" href="#"><span lang="en">Start researching</span><span lang="zh">开始研究</span></a>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <div class="top"><span class="brand"><i></i>Cloudrift</span><span><span lang="en">A fictional product, built as a design study.</span><span lang="zh">虚构产品，仅作设计练习。</span></span></div>
+    <b>图源</b>：维米尔《戴珍珠耳环的少女》（约 1665 年，海牙莫瑞泰斯皇家美术馆藏，公有领域）；米开朗基罗《创造亚当》（约 1512 年，梵蒂冈西斯廷礼拜堂，公有领域）；
+    安东尼奥·卡诺瓦《丘比特与赛姬》陶土模型（大都会艺术博物馆藏，CC0）；天空照片 “Bright blue sky with scenic white cloud patterns”（Trixia Lao，CC0）；
+    均经 Wikimedia Commons 获取，经裁切、调色、抠出云层与撕纸遮罩合成处理。
+    字体：Instrument Serif、Inter、Noto Serif SC（均为 OFL-1.1）。本页为学习用 demo，品牌与文案均为虚构；版式灵感来自 @uisabor 分享的拼贴风格页面截图，布局与内容为重新设计。<br>
+    侵权请联系删除。
+  </footer>
+</div>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NS = "http://www.w3.org/2000/svg";
+const ease = t => 1 - Math.pow(1 - t, 3);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const VERMEER_ASPECT = 2200 / 1452;
+
+// Torn hole: art underneath, a paper rim, then the cover (image or paper) with a rougher, slightly larger hole.
+// Two noise seeds so the inner and outer tears never line up; both cast a shadow onto the art.
+// scrap: no cover; a torn-out piece of the art on a paper rim (for popovers)
+function makeTear(host, { art, cover, seed = 1, rim = 18, rough = 70, aspect = 0, scrap = false }) {
+  let w = 1, h = 1;
+  const id = "t" + Math.random().toString(36).slice(2, 8);
+  host.innerHTML = `<svg xmlns="${NS}" preserveAspectRatio="none">
+    <defs>
+      <filter id="${id}a" x="-35%" y="-35%" width="170%" height="170%">
+        <feTurbulence type="fractalNoise" baseFrequency=".011" numOctaves="3" seed="${seed}" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="${rough}" xChannelSelector="R" yChannelSelector="G" result="d"/>
+        <feTurbulence type="fractalNoise" baseFrequency=".22" numOctaves="2" seed="${seed + 1}" result="f"/>
+        <feDisplacementMap in="d" in2="f" scale="7" xChannelSelector="R" yChannelSelector="B"/>
+      </filter>
+      <filter id="${id}b" x="-35%" y="-35%" width="170%" height="170%">
+        <feTurbulence type="fractalNoise" baseFrequency=".013" numOctaves="3" seed="${seed + 7}" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="${rough * 1.15}" xChannelSelector="G" yChannelSelector="R" result="d"/>
+        <feTurbulence type="fractalNoise" baseFrequency=".3" numOctaves="2" seed="${seed + 3}" result="f"/>
+        <feDisplacementMap in="d" in2="f" scale="9" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+      <filter id="${id}s" x="-45%" y="-45%" width="190%" height="190%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0b1430" flood-opacity=".45"/></filter>
+      ${scrap ? "" : `<mask id="${id}mi" maskUnits="userSpaceOnUse" x="-2%" y="-2%" width="104%" height="104%"><rect class="full" fill="#fff"/><ellipse class="hi" fill="#000" filter="url(#${id}a)"/></mask>
+      <mask id="${id}mo" maskUnits="userSpaceOnUse" x="-2%" y="-2%" width="104%" height="104%"><rect class="full" fill="#fff"/><ellipse class="ho" fill="#000" filter="url(#${id}b)"/></mask>`}
+    </defs>
+    ${scrap ? `<mask id="${id}ms" maskUnits="userSpaceOnUse" x="-2%" y="-2%" width="104%" height="104%"><ellipse class="hi" fill="#fff" filter="url(#${id}a)"/></mask>
+    <g filter="url(#${id}s)"><ellipse class="ho" fill="#f7f3ea" filter="url(#${id}b)"/></g>
+    <image class="art" href="${art}" preserveAspectRatio="xMidYMid slice" mask="url(#${id}ms)"/>` : `
+    <image class="art" href="${art}" preserveAspectRatio="xMidYMid slice"/>
+    <g class="lid" filter="url(#${id}s)"><rect class="full rim" fill="#f7f3ea" mask="url(#${id}mi)"/></g>
+    <g class="lid" filter="url(#${id}s)"><g mask="url(#${id}mo)">${cover ? `<image class="cover" href="${cover}" preserveAspectRatio="xMidYMid slice"/>` : `<rect class="full" fill="#fbf8f2"/>`}</g></g>`}
+  </svg>`;
+  const svg = host.firstElementChild, $ = s => svg.querySelectorAll(s);
+  // aspect given: the art gets a camera (focus point fx,fy in image space placed at tx,ty on screen, zoom >= 1)
+  const st = { cx: .5, cy: .5, rx: 0, ry: 0, ax: 0, ay: 0, cxo: 0, cyo: 0, fx: .5, fy: .5, tx: .5, ty: .5, zoom: 1 };
+  if (aspect) svg.querySelector(".art").setAttribute("preserveAspectRatio", "none");
+  function size() {
+    const r = host.getBoundingClientRect(); w = Math.max(1, r.width); h = Math.max(1, r.height);
+    svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    $(".full").forEach(e => { e.setAttribute("x", -10); e.setAttribute("y", -10); e.setAttribute("width", w + 20); e.setAttribute("height", h + 20); });
+    draw();
+  }
+  function draw() {
+    const pad = 60; // oversize images so parallax never shows an edge
+    const art = $(".art")[0];
+    if (aspect) {
+      const s = Math.max((w + pad * 2) / aspect, h + pad * 2) * st.zoom, iw = s * aspect, ih = s;
+      const x = clamp(st.tx * w - st.fx * iw + st.ax, w + pad - iw, -pad), y = clamp(st.ty * h - st.fy * ih + st.ay, h + pad - ih, -pad);
+      art.setAttribute("x", x); art.setAttribute("y", y); art.setAttribute("width", iw); art.setAttribute("height", ih);
+    } else {
+      art.setAttribute("x", -pad + st.ax); art.setAttribute("y", -pad + st.ay); art.setAttribute("width", w + pad * 2); art.setAttribute("height", h + pad * 2);
+    }
+    const c = $(".cover")[0];
+    if (c) { c.setAttribute("x", -pad + st.cxo); c.setAttribute("y", -pad + st.cyo); c.setAttribute("width", w + pad * 2); c.setAttribute("height", h + pad * 2); }
+    const cx = st.cx * w, cy = st.cy * h;
+    // once the hole contains the whole frame there is nothing left to tear: drop the filtered layers
+    const open = st.rx > 0 && st.ry > 0 && ((Math.max(cx, w - cx) / (st.rx - rim - rough)) ** 2 + (Math.max(cy, h - cy) / (st.ry - rim - rough)) ** 2) < 1 && st.rx > rim + rough && st.ry > rim + rough;
+    $(".lid").forEach(e => e.style.display = open ? "none" : "");
+    for (const [sel, d] of [[".ho", 0], [".hi", -rim]]) {
+      const e = $(sel)[0];
+      e.setAttribute("cx", cx); e.setAttribute("cy", cy);
+      e.setAttribute("rx", Math.max(0, st.rx + (st.rx > 0 ? d : 0))); e.setAttribute("ry", Math.max(0, st.ry + (st.ry > 0 ? d : 0)));
+    }
+  }
+  new ResizeObserver(size).observe(host);
+  return { st, draw, get w() { return w; }, get h() { return h; } };
+}
+
+
+// ---- hero: the tear opens on load, then grows with scroll until the painting fills the screen
+const hero = makeTear(document.getElementById("heroTear"), { art: "img/vermeer.jpg", cover: "img/sky.jpg", seed: 3, rim: 20, rough: 80, aspect: VERMEER_ASPECT });
+const heroSec = document.querySelector(".hero"), copy = document.getElementById("heroCopy"), cite = document.getElementById("heroCite"),
+      fg = document.getElementById("fg"), hint = document.getElementById("hint");
+let intro = reduce ? 1 : 0, mx = 0, my = 0, sp = 0;
+function heroFrame() {
+  const W = hero.w, H = hero.h, mobile = W < 700;
+  const p = clamp((scrollY - heroSec.offsetTop) / (heroSec.offsetHeight - innerHeight));
+  const g = ease(clamp(p / .85));
+  const r0 = Math.min(W, H) * (mobile ? .2 : .17) * ease(intro);
+  const rFull = Math.hypot(W, H) * .62;
+  hero.st.rx = r0 * 1.25 + (rFull - r0 * 1.25) * g;
+  hero.st.ry = r0 + (rFull - r0) * g;
+  hero.st.cx = (mobile ? .55 : .7) + ((mobile ? .5 : .52) - (mobile ? .55 : .7)) * g;
+  hero.st.cy = (mobile ? .66 : .44) + (.46 - (mobile ? .66 : .44)) * g;
+  // camera: start close on her eye inside the small tear, pull back to the whole face as it opens
+  hero.st.fx = .45 + (.5 - .45) * g; hero.st.fy = .52 - .02 * g;
+  hero.st.tx = hero.st.cx; hero.st.ty = hero.st.cy;
+  hero.st.zoom = (mobile ? 1.15 : 1.7) - (mobile ? .15 : .7) * g;
+  hero.st.ax = -mx * 22; hero.st.ay = -my * 14;
+  hero.st.cxo = mx * 12; hero.st.cyo = my * 8;
+  hero.draw();
+  fg.style.transform = `translate(${mx * 30}px, ${my * 10 + g * 220}px)`;
+  fg.style.opacity = 1 - clamp(g * 1.6);
+  const fly = ease(clamp(p / .3));
+  copy.style.transform = `translate(${-fly * 120}px, ${-fly * 360}px) rotate(${-fly * 9}deg)`;
+  copy.style.opacity = 1 - clamp((p - .06) / .18);
+  cite.classList.toggle("on", p > .8);
+  hint.style.opacity = p > .05 ? 0 : 1;
+}
+if (!reduce) {
+  const t0 = performance.now();
+  (function open(t) { intro = clamp((t - t0 - 250) / 1100); heroFrame(); if (intro < 1) requestAnimationFrame(open); })(t0);
+  addEventListener("pointermove", e => {
+    mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5;
+    sp ||= requestAnimationFrame(() => { sp = 0; heroFrame(); closeFrame(); });
+  });
+}
+addEventListener("scroll", () => { heroFrame(); closeFrame(); }, { passive: true });
+addEventListener("resize", () => requestAnimationFrame(() => { heroFrame(); closeFrame(); }));
+
+// ---- closing: a long horizontal tear across the sky that opens as the section scrolls into view
+const closeSec = document.getElementById("begin");
+const close = makeTear(document.getElementById("closeTear"), { art: "img/hands.jpg", cover: "img/sky.jpg", seed: 31, rim: 16, rough: 64 });
+function closeFrame() {
+  const r = closeSec.getBoundingClientRect();
+  const p = reduce ? 1 : ease(clamp((innerHeight - r.top) / (innerHeight * .9)));
+  // keep the two fingertips (upper middle of the fresco) inside the tear, copy sits on its lower lip
+  close.st.cx = .5; close.st.cy = .4;
+  close.st.rx = close.w * .6 * p; close.st.ry = close.h * .3 * p;
+  close.st.ax = -mx * 18; close.st.cxo = mx * 10;
+  close.draw();
+}
+
+// ---- cards: a torn window that widens on hover
+document.querySelectorAll(".tear-card").forEach(el => {
+  const t = makeTear(el, { art: el.dataset.art, seed: +el.dataset.seed, rim: 9, rough: 34 });
+  let cur = .3, target = .3, raf = 0;
+  const step = () => {
+    cur += (target - cur) * .14;
+    t.st.rx = t.w * cur; t.st.ry = t.h * cur * .95; t.draw();
+    raf = Math.abs(target - cur) > .002 ? requestAnimationFrame(step) : 0;
+  };
+  const set = v => { target = v; if (reduce) { cur = v; } raf ||= requestAnimationFrame(step); };
+  const card = el.closest(".card");
+  card.addEventListener("pointerenter", () => set(.5));
+  card.addEventListener("pointerleave", () => set(.3));
+  // touch screens have no hover: open the tear while the card sits in the middle of the screen
+  if (matchMedia("(hover: none)").matches)
+    new IntersectionObserver(([e]) => set(e.isIntersecting ? .5 : .3), { rootMargin: "-35% 0px -35% 0px" }).observe(card);
+  new ResizeObserver(() => set(target)).observe(el);
+});
+
+// ---- citation chips: a scrap of the source tears open next to the chip
+const pop = document.getElementById("pop"), popCap = document.getElementById("popCap"), card = document.getElementById("answerCard");
+const popTear = makeTear(document.getElementById("popTear"), { art: "img/pearl.jpg", seed: 41, rim: 8, rough: 26, scrap: true });
+let popCur = 0, popTarget = 0, popRaf = 0, auto = true;
+function popStep() {
+  popCur += (popTarget - popCur) * (reduce ? 1 : .18);
+  popTear.st.rx = popTear.w * .44 * popCur; popTear.st.ry = popTear.h * .42 * popCur; popTear.draw();
+  popRaf = Math.abs(popTarget - popCur) > .002 ? requestAnimationFrame(popStep) : 0;
+}
+function showChip(chip) {
+  document.querySelectorAll(".chip.on").forEach(c => c.classList.remove("on"));
+  if (!chip) { popTarget = 0; pop.classList.remove("on"); popRaf ||= requestAnimationFrame(popStep); return; }
+  chip.classList.add("on");
+  const art = document.querySelector("#popTear .art");
+  art.setAttribute("href", chip.dataset.src);
+  const [px, py] = chip.dataset.pos.split(" ").map(v => parseFloat(v) / 100);
+  art.setAttribute("preserveAspectRatio", `x${px < .34 ? "Min" : px > .66 ? "Max" : "Mid"}Y${py < .34 ? "Min" : py > .66 ? "Max" : "Mid"} slice`);
+  const lang = document.documentElement.dataset.lang;
+  popCap.textContent = chip.dataset["cap" + (lang === "zh" ? "Zh" : "En")];
+  const cr = chip.getBoundingClientRect(), ar = card.getBoundingClientRect();
+  const pw = pop.offsetWidth, ph = pop.offsetHeight;
+  let left = cr.left - ar.left + cr.width / 2 - pw / 2, top = cr.top - ar.top - ph - 6;
+  left = clamp(left, -10, ar.width - pw + 10);
+  if (top < -ph * .6) top = cr.bottom - ar.top + 6;
+  pop.style.left = left + "px"; pop.style.top = top + "px";
+  pop.classList.add("on");
+  popCur = 0; popTarget = 1; popRaf ||= requestAnimationFrame(popStep);
+}
+card.addEventListener("pointerover", e => { const c = e.target.closest(".chip"); if (c) { auto = false; showChip(c); } });
+card.addEventListener("pointerleave", () => { if (!auto) showChip(null); });
+card.addEventListener("click", e => { const c = e.target.closest(".chip"); if (c) { auto = false; showChip(c); } });
+// demo cycles through the chips until the reader takes over
+let ci = 0, timer = 0;
+new IntersectionObserver(([e]) => {
+  clearInterval(timer);
+  if (!e.isIntersecting || !auto) return;
+  const tick = () => {
+    if (!auto) return clearInterval(timer);
+    const chips = [...card.querySelectorAll(`.a > [lang="${document.documentElement.dataset.lang}"] .chip`)];
+    showChip(chips[ci++ % chips.length]);
+  };
+  tick(); timer = setInterval(tick, 2600);
+}, { threshold: .55 }).observe(card);
+document.querySelector("[data-lang-toggle]").addEventListener("click", () => setTimeout(() => { if (pop.classList.contains("on")) showChip(null); }, 0));
+</script>
+</body>
+</html>
