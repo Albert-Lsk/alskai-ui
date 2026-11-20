@@ -13,6 +13,8 @@ Fan Kuan · Hokusai · Leonardo · Vermeer · Haeckel · Hevelius · Méliès
 
 Made with Claude Code · by [ALSKai](https://x.com/ALSK_ai)
 
+**[Live demo · 在线预览](https://albert-lsk.github.io/alskai-ui/)**
+
 [English](#english) · [中文](#中文)
 
 </div>
@@ -27,26 +29,26 @@ Each site is **one HTML file** with inline CSS and JS, one signature interaction
 
 | # | Site | Style | Signature interaction |
 |:-:|---|---|---|
-| 01 | [Acta](sites/01-halftone/) | Two-ink halftone | Newspaper front page printed in rotated dot screens, with a printer's loupe |
-| 02 | [Cloudrift](sites/02-collage/) | Torn-sky collage | Scroll tears the sky open to reveal Vermeer behind it |
-| 03 | [Tend](sites/03-meadow/) | WebGL2 meadow | 146,000 hand-written grass blades part around your cursor |
-| 04 | [Ballast](sites/04-object/) | Raymarched object | A hardware key rendered live in SDF; hold it to sign a payment |
-| 05 | [Inkstone](sites/05-ink/) | Ink & handscroll | Fan Kuan's mountain bleeds into paper; a Qing handscroll unrolls as you scroll |
-| 06 | [Nami](sites/06-ukiyoe/) | Woodblock print | The Great Wave printed live from five colour blocks, slipping out of register |
-| 07 | [Specimen](sites/07-riso/) | Risograph | Haeckel's jellyfish on two fluorescent drums; drag to misregister |
-| 08 | [Pressed](sites/08-cyanotype/) | Cyanotype | Your cursor is the sun; wherever it lingers, the print exposes |
-| 09 | [Speck](sites/09-onebit/) | 1-bit dithering | Drag a lens window over Ansel Adams and re-dither it four ways |
-| 10 | [Firmament](sites/10-celestial/) | Baroque star atlas | 1,010 real stars; Hevelius' 1690 Orion fades in over the real Orion |
-| 11 | [Tessera](sites/11-guilloche/) | Security print | Live guilloché rosettes, a UV lamp, microtext under the loupe |
-| 12 | [Rubric](sites/12-manuscript/) | Illuminated manuscript | WebGL gold leaf catches the light; a page is written in ink, red, then gold |
-| 13 | [Mensura](sites/13-codex/) | Leonardo's notebook | Drag your height and the Vitruvian Man re-measures you by his ratios |
-| 14 | [Glyph](sites/14-ascii/) | Live ASCII | Saturn V in characters, decoding into Earthrise as you scroll |
-| 15 | [Vitrail](sites/15-glass/) | Stained glass shader | A Gothic lancet whose coloured light falls where you point |
-| 16 | [Saddle](sites/16-contour/) | Live contours | Sculpt terrain with your cursor; drag a route for its cross-section |
-| 17 | [Ebb & Comb](sites/17-marble/) | Mathematical marbling | Drop ink, rake the bath, pull the paper |
-| 18 | [Raster](sites/18-swiss/) | Swiss grid | A real grid: change the columns and every block reflows |
-| 19 | [Vorkurs](sites/19-bauhaus/) | Bauhaus physics | Primary shapes fall and stack on an inline physics engine; throw them |
-| 20 | [Rewind](sites/20-vhs/) | VHS / CRT | Méliès' moon on worn tape; your cursor is the tracking knob |
+| 01 | [Acta](https://albert-lsk.github.io/alskai-ui/sites/01-halftone/) | Two-ink halftone | Newspaper front page printed in rotated dot screens, with a printer's loupe |
+| 02 | [Cloudrift](https://albert-lsk.github.io/alskai-ui/sites/02-collage/) | Torn-sky collage | Scroll tears the sky open to reveal Vermeer behind it |
+| 03 | [Tend](https://albert-lsk.github.io/alskai-ui/sites/03-meadow/) | WebGL2 meadow | 146,000 hand-written grass blades part around your cursor |
+| 04 | [Ballast](https://albert-lsk.github.io/alskai-ui/sites/04-object/) | Raymarched object | A hardware key rendered live in SDF; hold it to sign a payment |
+| 05 | [Inkstone](https://albert-lsk.github.io/alskai-ui/sites/05-ink/) | Ink & handscroll | Fan Kuan's mountain bleeds into paper; a Qing handscroll unrolls as you scroll |
+| 06 | [Nami](https://albert-lsk.github.io/alskai-ui/sites/06-ukiyoe/) | Woodblock print | The Great Wave printed live from five colour blocks, slipping out of register |
+| 07 | [Specimen](https://albert-lsk.github.io/alskai-ui/sites/07-riso/) | Risograph | Haeckel's jellyfish on two fluorescent drums; drag to misregister |
+| 08 | [Pressed](https://albert-lsk.github.io/alskai-ui/sites/08-cyanotype/) | Cyanotype | Your cursor is the sun; wherever it lingers, the print exposes |
+| 09 | [Speck](https://albert-lsk.github.io/alskai-ui/sites/09-onebit/) | 1-bit dithering | Drag a lens window over Ansel Adams and re-dither it four ways |
+| 10 | [Firmament](https://albert-lsk.github.io/alskai-ui/sites/10-celestial/) | Baroque star atlas | 1,010 real stars; Hevelius' 1690 Orion fades in over the real Orion |
+| 11 | [Tessera](https://albert-lsk.github.io/alskai-ui/sites/11-guilloche/) | Security print | Live guilloché rosettes, a UV lamp, microtext under the loupe |
+| 12 | [Rubric](https://albert-lsk.github.io/alskai-ui/sites/12-manuscript/) | Illuminated manuscript | WebGL gold leaf catches the light; a page is written in ink, red, then gold |
+| 13 | [Mensura](https://albert-lsk.github.io/alskai-ui/sites/13-codex/) | Leonardo's notebook | Drag your height and the Vitruvian Man re-measures you by his ratios |
+| 14 | [Glyph](https://albert-lsk.github.io/alskai-ui/sites/14-ascii/) | Live ASCII | Saturn V in characters, decoding into Earthrise as you scroll |
+| 15 | [Vitrail](https://albert-lsk.github.io/alskai-ui/sites/15-glass/) | Stained glass shader | A Gothic lancet whose coloured light falls where you point |
+| 16 | [Saddle](https://albert-lsk.github.io/alskai-ui/sites/16-contour/) | Live contours | Sculpt terrain with your cursor; drag a route for its cross-section |
+| 17 | [Ebb & Comb](https://albert-lsk.github.io/alskai-ui/sites/17-marble/) | Mathematical marbling | Drop ink, rake the bath, pull the paper |
+| 18 | [Raster](https://albert-lsk.github.io/alskai-ui/sites/18-swiss/) | Swiss grid | A real grid: change the columns and every block reflows |
+| 19 | [Vorkurs](https://albert-lsk.github.io/alskai-ui/sites/19-bauhaus/) | Bauhaus physics | Primary shapes fall and stack on an inline physics engine; throw them |
+| 20 | [Rewind](https://albert-lsk.github.io/alskai-ui/sites/20-vhs/) | VHS / CRT | Méliès' moon on worn tape; your cursor is the tracking knob |
 
 ### Run locally
 
@@ -84,26 +86,26 @@ Four Claude sub-agents built sites in parallel; each site took 8–33 minutes. T
 
 | # | 站 | 风格 | 招牌交互 |
 |:-:|---|---|---|
-| 01 | [Acta 公报](sites/01-halftone/) | 双色网点印刷 | 报纸头版用两色网点印出来，放大镜能看到每个网点 |
-| 02 | [Cloudrift 云隙](sites/02-collage/) | 撕纸拼贴 | 往下滚，云层被撕开，露出背后的维米尔 |
-| 03 | [Tend](sites/03-meadow/) | WebGL2 草地 | 手写 WebGL2，14.6 万根草，鼠标划过会被吹开 |
-| 04 | [Ballast](sites/04-object/) | 光线步进实物 | SDF 实时渲染的硬件密钥，按住它签一笔付款 |
-| 05 | [Inkstone 砚](sites/05-ink/) | 水墨手卷 | 范宽的山以墨晕显影，往下滚，清代手卷一臂一臂展开 |
-| 06 | [Nami 波](sites/06-ukiyoe/) | 浮世绘套印 | 神奈川冲浪里拆成 5 块色版现场套印，鼠标一动就错版 |
-| 07 | [Specimen 标本](sites/07-riso/) | 孔版双色印刷 | 海克尔的水母分成两个荧光滚筒，拖动就错位 |
-| 08 | [Pressed](sites/08-cyanotype/) | 蓝晒 | 鼠标就是太阳，停在哪里，哪里就晒蓝 |
-| 09 | [Speck](sites/09-onebit/) | 1 比特抖动 | 把镜头窗口拖到照片上，底下那块换一种抖动算法 |
-| 10 | [Firmament 穹](sites/10-celestial/) | 巴洛克星图 | 1010 颗真实恒星，赫维留斯 1690 年的猎户像对着真星星浮出 |
-| 11 | [Tessera 契纹](sites/11-guilloche/) | 防伪雕版 | 程序生成的扭索纹，紫外灯和放大镜能看到藏着的字 |
-| 12 | [Rubric 朱批](sites/12-manuscript/) | 彩绘手抄本 | WebGL 金箔随鼠标反光，一页纸按墨、朱、金三遍写成 |
-| 13 | [Mensura 度](sites/13-codex/) | 达·芬奇手稿 | 拖动身高，维特鲁威人身上的尺寸按他的比例重算 |
-| 14 | [Glyph](sites/14-ascii/) | 实时字符画 | 土星五号用字符实时渲染，往下滚解码成地球升起 |
-| 15 | [Vitrail 花窗](sites/15-glass/) | 彩色玻璃 | 哥特式花窗，彩色的光落在你指的地方 |
-| 16 | [Saddle 鞍部](sites/16-contour/) | 实时等高线 | 用鼠标堆高挖低，拖一条路线看剖面 |
-| 17 | [Ebb & Comb 流沙笺](sites/17-marble/) | 大理石纹纸 | 滴墨、拉梳、拓纸，用论文里的数学变换实时算 |
-| 18 | [Raster 栅格](sites/18-swiss/) | 瑞士网格 | 真的网格，改一下栏数，每个版块自己找到新位置 |
-| 19 | [Vorkurs 预科](sites/19-bauhaus/) | 包豪斯物理 | 红方黄三角蓝圆掉下来堆在标题上，可以扔 |
-| 20 | [Rewind 回带](sites/20-vhs/) | 录像带 | 梅里爱的月亮放在旧录像带上，鼠标就是跟踪旋钮 |
+| 01 | [Acta 公报](https://albert-lsk.github.io/alskai-ui/sites/01-halftone/) | 双色网点印刷 | 报纸头版用两色网点印出来，放大镜能看到每个网点 |
+| 02 | [Cloudrift 云隙](https://albert-lsk.github.io/alskai-ui/sites/02-collage/) | 撕纸拼贴 | 往下滚，云层被撕开，露出背后的维米尔 |
+| 03 | [Tend](https://albert-lsk.github.io/alskai-ui/sites/03-meadow/) | WebGL2 草地 | 手写 WebGL2，14.6 万根草，鼠标划过会被吹开 |
+| 04 | [Ballast](https://albert-lsk.github.io/alskai-ui/sites/04-object/) | 光线步进实物 | SDF 实时渲染的硬件密钥，按住它签一笔付款 |
+| 05 | [Inkstone 砚](https://albert-lsk.github.io/alskai-ui/sites/05-ink/) | 水墨手卷 | 范宽的山以墨晕显影，往下滚，清代手卷一臂一臂展开 |
+| 06 | [Nami 波](https://albert-lsk.github.io/alskai-ui/sites/06-ukiyoe/) | 浮世绘套印 | 神奈川冲浪里拆成 5 块色版现场套印，鼠标一动就错版 |
+| 07 | [Specimen 标本](https://albert-lsk.github.io/alskai-ui/sites/07-riso/) | 孔版双色印刷 | 海克尔的水母分成两个荧光滚筒，拖动就错位 |
+| 08 | [Pressed](https://albert-lsk.github.io/alskai-ui/sites/08-cyanotype/) | 蓝晒 | 鼠标就是太阳，停在哪里，哪里就晒蓝 |
+| 09 | [Speck](https://albert-lsk.github.io/alskai-ui/sites/09-onebit/) | 1 比特抖动 | 把镜头窗口拖到照片上，底下那块换一种抖动算法 |
+| 10 | [Firmament 穹](https://albert-lsk.github.io/alskai-ui/sites/10-celestial/) | 巴洛克星图 | 1010 颗真实恒星，赫维留斯 1690 年的猎户像对着真星星浮出 |
+| 11 | [Tessera 契纹](https://albert-lsk.github.io/alskai-ui/sites/11-guilloche/) | 防伪雕版 | 程序生成的扭索纹，紫外灯和放大镜能看到藏着的字 |
+| 12 | [Rubric 朱批](https://albert-lsk.github.io/alskai-ui/sites/12-manuscript/) | 彩绘手抄本 | WebGL 金箔随鼠标反光，一页纸按墨、朱、金三遍写成 |
+| 13 | [Mensura 度](https://albert-lsk.github.io/alskai-ui/sites/13-codex/) | 达·芬奇手稿 | 拖动身高，维特鲁威人身上的尺寸按他的比例重算 |
+| 14 | [Glyph](https://albert-lsk.github.io/alskai-ui/sites/14-ascii/) | 实时字符画 | 土星五号用字符实时渲染，往下滚解码成地球升起 |
+| 15 | [Vitrail 花窗](https://albert-lsk.github.io/alskai-ui/sites/15-glass/) | 彩色玻璃 | 哥特式花窗，彩色的光落在你指的地方 |
+| 16 | [Saddle 鞍部](https://albert-lsk.github.io/alskai-ui/sites/16-contour/) | 实时等高线 | 用鼠标堆高挖低，拖一条路线看剖面 |
+| 17 | [Ebb & Comb 流沙笺](https://albert-lsk.github.io/alskai-ui/sites/17-marble/) | 大理石纹纸 | 滴墨、拉梳、拓纸，用论文里的数学变换实时算 |
+| 18 | [Raster 栅格](https://albert-lsk.github.io/alskai-ui/sites/18-swiss/) | 瑞士网格 | 真的网格，改一下栏数，每个版块自己找到新位置 |
+| 19 | [Vorkurs 预科](https://albert-lsk.github.io/alskai-ui/sites/19-bauhaus/) | 包豪斯物理 | 红方黄三角蓝圆掉下来堆在标题上，可以扔 |
+| 20 | [Rewind 回带](https://albert-lsk.github.io/alskai-ui/sites/20-vhs/) | 录像带 | 梅里爱的月亮放在旧录像带上，鼠标就是跟踪旋钮 |
 
 ### 本地运行
 
