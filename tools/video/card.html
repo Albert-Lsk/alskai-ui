@@ -1,0 +1,20 @@
+<!doctype html><meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/600.css">
+<style>
+  html,body{margin:0;height:100%;background:#15140f;color:#f1ebdd;font-family:"Noto Serif SC",serif;overflow:hidden}
+  .c{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 96px}
+  h1{font-size:68px;line-height:1.2;margin:0;font-weight:600;opacity:0;transform:translateY(16px);animation:in .9s .15s cubic-bezier(.2,.8,.2,1) forwards}
+  h1 em{font-style:normal;color:#e0703c}
+  p{font:18px/1.6 ui-monospace,Menlo,monospace;color:#a39d8c;margin:28px 0 0;opacity:0;animation:in .9s .6s forwards}
+  .bg{position:absolute;inset:0;background:url(../../docs/mosaic-zh.jpg) center/cover;opacity:.14}
+  @keyframes in{to{opacity:1;transform:none}}
+</style>
+<div class="bg"></div>
+<div class="c" id="c"></div>
+<script>
+const k = new URLSearchParams(location.search).get("k");
+document.getElementById("c").innerHTML = k === "end"
+  ? `<h1>20 个站，全部开源。</h1><p>github.com/Albert-Lsk/alskai-ui<br>Claude Code 制作 · ALSKai 出品</p>`
+  : `<h1>20 个网站，<br>素材全是<em>几百年前</em>的名画。</h1><p>范宽 · 北斋 · 达·芬奇 · 维米尔 · 海克尔 · 梅里爱</p>`;
+if (k === "end") document.querySelector(".bg").style.opacity = .32;
+</script>

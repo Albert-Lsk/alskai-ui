@@ -2,3 +2,5 @@ src-img/
 .DS_Store
 __pycache__/
 docs/shots/
+tools/video/frames/
+tools/video/node_modules
