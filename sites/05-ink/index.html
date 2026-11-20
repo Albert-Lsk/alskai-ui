@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inkstone 砚 · AI writing companion</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ma-shan-zheng@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cormorant-garamond@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cormorant-garamond@5/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cormorant-garamond@5/400-italic.css">
+<script src="../../shared/lang.js"></script>
+<style>
+:root {
+  --paper: #f1ebdd;
+  --paper-2: #e9e1cf;
+  --ink: #1d1b18;
+  --ink-2: #57524a;
+  --ink-3: #8f887b;
+  --seal: #b5302a;
+  --brush: "Ma Shan Zheng", "Noto Serif SC", serif;
+  --serif-zh: "Noto Serif SC", "Songti SC", serif;
+  --serif-en: "Cormorant Garamond", "Noto Serif SC", Georgia, serif;
+  --wrap: min(1240px, calc(100vw - 48px));
+  /* xuan paper: seamless fibre tile (img/paper.png, mid-grey = no change) blended onto the paper colour */
+  --paper-bg: url(img/paper.png) 0 0 / 512px, var(--paper);
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--paper); }
+body, .scroll-sticky { background: var(--paper-bg); background-blend-mode: soft-light; background-attachment: fixed; }
+body {
+  color: var(--ink); font: 17px/1.75 var(--serif-zh); -webkit-font-smoothing: antialiased;
+}
+html[data-lang="en"] body { font-family: var(--serif-en); font-size: 19px; }
+a { color: inherit; text-decoration: none; }
+.wrap { width: var(--wrap); margin: 0 auto; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+.seal {
+  display: inline-grid; place-items: center; background: var(--seal); color: #f7e9df;
+  font: 400 22px/1 var(--brush); border-radius: 3px; width: 38px; height: 38px;
+  box-shadow: inset 0 0 0 2px #c94a3f, inset 0 0 0 4px var(--seal);
+  /* worn edges of a stone seal */
+  filter: url(#rough);
+}
+
+/* ---------- nav ---------- */
+nav { display: flex; align-items: center; gap: 36px; height: 84px; }
+.brand { display: flex; align-items: center; gap: 12px; font: 500 22px var(--serif-en); letter-spacing: .02em; }
+nav ul { list-style: none; display: flex; gap: 32px; padding: 0; margin-left: auto; font-size: 15px; color: var(--ink-2); }
+nav li a:hover { color: var(--ink); }
+.lang { font: 14px var(--serif-en); letter-spacing: .08em; border: 1px solid #cfc5b0; padding: 5px 12px; border-radius: 99px; }
+.lang b { font-weight: 400; opacity: .4; }
+html[data-lang="zh"] .lang .z, html[data-lang="en"] .lang .e { opacity: 1; }
+.cta, .ghost, .lang { white-space: nowrap; }
+.cta { background: var(--ink); color: var(--paper); padding: 11px 22px; border-radius: 2px; font-size: 15px; transition: transform .15s ease, background-color .2s; }
+.cta:hover { background: #33302b; }
+.cta:active { transform: scale(.97); }
+.ghost { padding: 11px 6px; border-bottom: 1px solid var(--ink-3); font-size: 15px; }
+
+/* ---------- hero ---------- */
+.hero { display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; min-height: calc(100vh - 84px); padding-bottom: 40px; gap: 24px; }
+.hero .copy { position: relative; display: flex; gap: 40px; align-items: flex-start; }
+.v-title { writing-mode: vertical-rl; font: 400 clamp(76px, 8.6vw, 132px)/1.04 var(--brush); letter-spacing: .04em; color: var(--ink); flex: none; }
+.v-title .dry { color: var(--ink-2); }
+.eyebrow { font: 500 13px var(--serif-en); letter-spacing: .26em; text-transform: uppercase; color: var(--ink-3); }
+.hero h1 { font: 400 clamp(44px, 4.6vw, 72px)/1.02 var(--serif-en); letter-spacing: -.015em; margin: 18px 0 22px; }
+.hero h1 em { font-style: italic; color: var(--ink-2); }
+.hero .zh-h1 { font: 600 clamp(32px, 3.2vw, 46px)/1.3 var(--serif-zh); margin: 18px 0 22px; letter-spacing: .04em; }
+.hero p { color: var(--ink-2); max-width: 27em; }
+.hero .row { display: flex; gap: 24px; align-items: center; margin-top: 34px; }
+.hero .stamp { position: absolute; left: clamp(52px, 6.4vw, 104px); top: 64%; width: 62px; height: 62px; font-size: 30px; transform: rotate(-4deg); animation: stamp .5s 2.1s cubic-bezier(.3,1.6,.5,1) both; }
+@keyframes stamp { from { opacity: 0; transform: scale(1.6) rotate(-4deg); } to { opacity: .92; transform: scale(1) rotate(-4deg); } }
+html[data-lang="en"] .v-title { display: none; }
+html[data-lang="en"] .hero .stamp { left: auto; right: 8%; top: -20px; }
+
+.mountain { position: relative; height: min(86vh, 860px); }
+.mountain svg { width: 100%; height: 100%; mix-blend-mode: multiply; overflow: visible; }
+.mountain figcaption { position: absolute; right: 0; bottom: -6px; font: italic 14px var(--serif-en); color: var(--ink-3); }
+
+/* ---------- brush heading ---------- */
+.sec-head { text-align: center; padding: 120px 0 56px; }
+.sec-head h2 { font: 400 clamp(40px, 4.4vw, 64px)/1.1 var(--serif-en); letter-spacing: -.01em; }
+html[data-lang="zh"] .sec-head h2 { font: 400 clamp(44px, 4.6vw, 70px)/1.2 var(--brush); letter-spacing: .06em; }
+.sec-head p { color: var(--ink-2); margin: 14px auto 0; max-width: 34em; }
+.stroke { display: block; width: min(320px, 60vw); height: 26px; margin: 14px auto 0; overflow: visible; }
+.stroke path { fill: none; stroke: var(--ink); stroke-width: 9; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; filter: url(#bristle); transition: stroke-dashoffset 1.4s cubic-bezier(.6,.05,.25,1); }
+.in .stroke path { stroke-dashoffset: 0; }
+
+/* ---------- handscroll ---------- */
+.scroll-sec { height: 420vh; position: relative; }
+.scroll-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+.scroll-label { position: absolute; top: 7vh; left: 0; right: 0; text-align: center; }
+.scroll-label h2 { font: 400 clamp(34px, 3.4vw, 50px)/1.1 var(--serif-en); }
+html[data-lang="zh"] .scroll-label h2 { font: 400 clamp(38px, 3.6vw, 54px)/1.2 var(--brush); letter-spacing: .06em; }
+.scroll-label p { color: var(--ink-3); font-size: 15px; margin-top: 6px; }
+.stage { position: relative; height: 58vh; margin-top: 8vh; }
+.strip { position: absolute; top: 0; left: 0; height: 100%; aspect-ratio: 6757 / 1100; will-change: transform; mix-blend-mode: multiply; }
+.strip img { height: 100%; width: 100%; display: block; }
+.strip .mount { position: absolute; inset: -14px -0px; border-block: 14px solid #cdbf9f; box-shadow: 0 1px 0 #b7a985, 0 -1px 0 #b7a985; pointer-events: none; }
+.roller { position: absolute; top: -34px; bottom: -34px; width: 28px; border-radius: 14px; z-index: 3;
+  background: linear-gradient(90deg, #2a1b12, #6e4a31 35%, #8d6545 50%, #4d3222 70%, #1f140d); box-shadow: 0 10px 30px rgba(40,25,10,.35); }
+.roller::before, .roller::after { content: ""; position: absolute; left: 3px; right: 3px; height: 22px; border-radius: 6px; background: linear-gradient(90deg, #6b5a3a, #d8c48f 50%, #6b5a3a); }
+.roller::before { top: -14px; } .roller::after { bottom: -14px; }
+.roller.l { left: 40px; } .roller.r { left: 40px; }
+.note { position: absolute; top: 8%; display: flex; gap: 12px; align-items: flex-start; opacity: 0; transform: translateY(10px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1); }
+.note.on { opacity: 1; transform: none; }
+.note .seal { width: 30px; height: 30px; font-size: 17px; flex: none; }
+.note .v { writing-mode: vertical-rl; font: 400 30px/1.1 var(--brush); letter-spacing: .1em; background: rgba(241,235,221,.82); padding: 10px 6px; }
+.note .t { background: rgba(241,235,221,.9); padding: 10px 14px 12px; max-width: 250px; box-shadow: 0 0 0 1px rgba(120,100,70,.18); }
+.note .t b { display: block; font: 500 22px/1.2 var(--serif-en); }
+html[data-lang="zh"] .note .t b { font: 600 18px/1.4 var(--serif-zh); }
+.note .t > span:last-child { font-size: 15px; color: var(--ink-2); line-height: 1.5; display: block; margin-top: 4px; }
+html[data-lang="en"] .note .v { display: none; }
+.progress { position: absolute; bottom: 7vh; left: 50%; translate: -50% 0; width: min(360px, 70vw); height: 2px; background: #d6ccb6; }
+.progress i { display: block; height: 100%; width: 100%; background: var(--ink); transform-origin: left; transform: scaleX(0); }
+
+/* ---------- editor ---------- */
+.editor-sec { display: grid; grid-template-columns: .85fr 1.15fr; gap: 72px; align-items: center; padding: 40px 0 40px; }
+.editor-sec h2 { font: 400 clamp(38px, 3.8vw, 56px)/1.08 var(--serif-en); }
+html[data-lang="zh"] .editor-sec h2 { font: 400 clamp(42px, 4vw, 60px)/1.2 var(--brush); letter-spacing: .05em; }
+.editor-sec .lead { color: var(--ink-2); margin: 18px 0 26px; }
+.keys { display: flex; gap: 18px; color: var(--ink-3); font-size: 14px; }
+kbd { font: 12px ui-monospace, monospace; border: 1px solid #cbbfa6; border-bottom-width: 2px; border-radius: 4px; padding: 1px 6px; margin-right: 6px; color: var(--ink-2); background: #f6f1e6; }
+.sheet { background: #f8f4ea; box-shadow: 0 1px 0 #ddd3bf, 0 30px 60px -30px rgba(70,50,20,.35); padding: 44px 48px 36px; position: relative; min-height: 360px; }
+.sheet::before { content: ""; position: absolute; inset: 14px; border: 1px solid #e4d9c3; pointer-events: none; }
+.sheet .meta { display: flex; justify-content: space-between; font: 13px var(--serif-en); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 18px; }
+.sheet .body { font-size: 19px; line-height: 1.9; min-height: 7.6em; }
+html[data-lang="en"] .sheet .body { font-size: 22px; line-height: 1.6; }
+.wet { color: var(--ink-3); opacity: .55; filter: blur(.35px); transition: color 1.6s ease, opacity 1.6s ease, filter 1.6s ease; }
+.wet.dry { color: var(--ink); opacity: 1; filter: none; }
+.hint { position: absolute; right: 40px; bottom: 26px; font-size: 13px; color: var(--ink-3); transition: opacity .3s; }
+
+/* ---------- album leaves ---------- */
+.leaves { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; padding: 0 0 40px; }
+.leaf { background: #f6f1e5; padding: 18px 18px 26px; box-shadow: 0 1px 0 #ddd3bf, 0 24px 50px -32px rgba(70,50,20,.4); transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+.leaf:hover { transform: translateY(-6px) rotate(-.4deg); }
+.leaf .art { aspect-ratio: 4 / 3; background: url(img/scroll.jpg) no-repeat; background-size: auto 100%; mix-blend-mode: multiply; filter: contrast(1.05); }
+.leaf h3 { font: 500 24px/1.2 var(--serif-en); margin: 20px 4px 6px; display: flex; align-items: center; gap: 10px; }
+html[data-lang="zh"] .leaf h3 { font: 600 20px/1.4 var(--serif-zh); }
+.leaf h3 .seal { width: 26px; height: 26px; font-size: 15px; }
+.leaf p { margin: 0 4px; color: var(--ink-2); font-size: 15.5px; line-height: 1.65; }
+
+/* ---------- closing ---------- */
+.closing { text-align: center; padding: 140px 0 120px; position: relative; }
+.closing .big { font: 400 clamp(96px, 15vw, 220px)/1 var(--brush); letter-spacing: .1em; }
+html[data-lang="en"] .closing .big { font: italic 400 clamp(80px, 11vw, 170px)/1 var(--serif-en); letter-spacing: -.02em; }
+.closing p { color: var(--ink-2); margin: 18px 0 36px; }
+
+footer { border-top: 1px solid #d8cdb6; padding: 40px 0 56px; font-size: 13px; line-height: 1.85; color: var(--ink-3); }
+footer b { color: var(--ink-2); font-weight: 600; }
+footer .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; color: var(--ink-2); }
+
+@media (max-width: 900px) {
+  nav ul { display: none; }
+  .hero, .editor-sec { grid-template-columns: 1fr; }
+  .hero { padding-top: 20px; }
+  .mountain { height: 70vh; order: -1; }
+  .v-title { writing-mode: horizontal-tb; font-size: 64px; line-height: 1.1; margin-bottom: 8px; }
+  .v-title br { display: none; }
+  .hero .copy { display: block; }
+  .hero .stamp { left: auto; right: 4px; top: 6px; width: 50px; height: 50px; font-size: 24px; }
+  nav { gap: 14px; }
+  nav .cta { display: none; }
+  .leaves { grid-template-columns: 1fr; }
+  .stage { height: 46vh; }
+  .note .t { max-width: 200px; }
+  .sheet { padding: 32px 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .stroke path { stroke-dashoffset: 0; }
+  .note { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- shared filters -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="2.4"/></filter>
+  <filter id="bristle" x="-5%" y="-60%" width="110%" height="220%"><feTurbulence type="fractalNoise" baseFrequency=".04 .9" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="7"/></filter>
+</svg>
+
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#"><span class="seal">砚</span>Inkstone</a>
+    <ul>
+      <li><a href="#scroll"><span lang="en">The scroll</span><span lang="zh">长卷</span></a></li>
+      <li><a href="#editor"><span lang="en">Editor</span><span lang="zh">书写</span></a></li>
+      <li><a href="#brushes"><span lang="en">Brushes</span><span lang="zh">三支笔</span></a></li>
+    </ul>
+    <button class="lang" data-lang-toggle aria-label="Switch language"><b class="z">中</b> / <b class="e">EN</b></button>
+    <button class="cta"><span lang="en">Start writing</span><span lang="zh">开始书写</span></button>
+  </nav>
+
+  <section class="hero">
+    <div class="copy">
+      <div class="v-title" lang="zh">落笔<br><span class="dry">有神</span></div>
+      <span class="seal stamp" aria-hidden="true">砚</span>
+      <div>
+        <div class="eyebrow"><span lang="en">An AI writing companion</span><span lang="zh">AI 写作伴侣</span></div>
+        <h1 lang="en">Write the way <em>ink</em> finds paper.</h1>
+        <div class="zh-h1" lang="zh">先磨墨，<br>再落笔。</div>
+        <p>
+          <span lang="en">Inkstone sits beside your draft like a good teacher: it grinds the ink, lays out the paper, and lets you make every stroke. Suggestions arrive faint and wet. Only the ones you keep turn black.</span>
+          <span lang="zh">砚像一位好老师坐在你的稿子旁边：替你磨墨、铺纸，每一笔仍由你来写。它的建议先以淡墨出现，你留下的那些，才会干成浓墨。</span>
+        </p>
+        <div class="row">
+          <button class="cta"><span lang="en">Unroll a blank scroll</span><span lang="zh">展开一卷白纸</span></button>
+          <a class="ghost" href="#scroll"><span lang="en">See how it works ↓</span><span lang="zh">看看怎么用 ↓</span></a>
+        </div>
+      </div>
+    </div>
+
+    <figure class="mountain">
+      <svg viewBox="0 0 1300 2352" preserveAspectRatio="xMidYMid meet" aria-label="Fan Kuan, Travelers among Mountains and Streams">
+        <defs>
+          <filter id="bleed" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence type="fractalNoise" baseFrequency=".008" numOctaves="4" seed="11"/>
+            <feDisplacementMap in="SourceGraphic" scale="260"/>
+            <feGaussianBlur stdDeviation="18"/>
+          </filter>
+          <linearGradient id="edgeV" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#000"/><stop offset=".08" stop-color="#fff"/><stop offset=".86" stop-color="#fff"/><stop offset="1" stop-color="#000"/>
+          </linearGradient>
+          <linearGradient id="edgeH" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#000"/><stop offset=".1" stop-color="#fff"/><stop offset=".9" stop-color="#fff"/><stop offset="1" stop-color="#000"/>
+          </linearGradient>
+          <mask id="edges"><rect width="1300" height="2352" fill="url(#edgeV)"/></mask>
+          <mask id="edges2"><rect width="1300" height="2352" fill="url(#edgeH)"/></mask>
+          <mask id="reveal">
+            <g filter="url(#bleed)" fill="#fff">
+              <circle cx="650" cy="520" r="0"><animate attributeName="r" from="0" to="900" dur="2.6s" begin=".15s" fill="freeze" calcMode="spline" keySplines=".2 .7 .3 1"/></circle>
+              <circle cx="380" cy="1500" r="0"><animate attributeName="r" from="0" to="760" dur="2.4s" begin=".6s" fill="freeze" calcMode="spline" keySplines=".2 .7 .3 1"/></circle>
+              <circle cx="980" cy="1900" r="0"><animate attributeName="r" from="0" to="800" dur="2.4s" begin=".95s" fill="freeze" calcMode="spline" keySplines=".2 .7 .3 1"/></circle>
+              <circle cx="900" cy="1150" r="0"><animate attributeName="r" from="0" to="700" dur="2.2s" begin="1.2s" fill="freeze" calcMode="spline" keySplines=".2 .7 .3 1"/></circle>
+            </g>
+          </mask>
+        </defs>
+        <g mask="url(#edges)"><g mask="url(#edges2)"><g mask="url(#reveal)">
+          <image href="img/fankuan.jpg" width="1300" height="2352"/>
+        </g></g></g>
+      </svg>
+      <figcaption>After Fan Kuan, <i>Travelers among Mountains and Streams</i>, c. 1000</figcaption>
+    </figure>
+  </section>
+</div>
+
+<section class="scroll-sec" id="scroll">
+  <div class="scroll-sticky">
+    <div class="scroll-label">
+      <h2><span lang="en">Unroll your draft, one arm's length at a time</span><span lang="zh">一臂之长，徐徐展卷</span></h2>
+      <p><span lang="en">Keep scrolling: a handscroll is read the way it was painted.</span><span lang="zh">继续往下滚：手卷要按画家落笔的顺序看。</span></p>
+    </div>
+    <div class="stage">
+      <div class="strip">
+        <div class="mount"></div>
+        <img src="img/scroll.jpg" alt="Song Nian, landscape handscroll (detail)">
+        <div class="note" style="left:9%"><span class="v" lang="zh">续写</span><div class="t"><span class="seal">一</span><b><span lang="en">Continue</span><span lang="zh">接着写下去</span></b><span><span lang="en">Picks up your thread in your own voice, never a stranger's.</span><span lang="zh">顺着你的思路往下接，用的是你的口气，不是陌生人的。</span></span></div></div>
+        <div class="note" style="left:35%"><span class="v" lang="zh">润色</span><div class="t"><span class="seal">二</span><b><span lang="en">Polish</span><span lang="zh">一句一句润色</span></b><span><span lang="en">Tightens a sentence the way water smooths a stone.</span><span lang="zh">像水磨石头一样，把句子磨顺，棱角还在。</span></span></div></div>
+        <div class="note" style="left:59%"><span class="v" lang="zh">谋篇</span><div class="t"><span class="seal">三</span><b><span lang="en">Outline</span><span lang="zh">先排好段落</span></b><span><span lang="en">Lays out mountains before trees: structure first, detail later.</span><span lang="zh">先画山，再画树：结构定了，细节再说。</span></span></div></div>
+        <div class="note" style="left:82%"><span class="v" lang="zh">校勘</span><div class="t"><span class="seal">四</span><b><span lang="en">Proofread</span><span lang="zh">最后校一遍</span></b><span><span lang="en">Finds the stray dot of ink before your reader does.</span><span lang="zh">在读者之前，先找到那滴落错的墨。</span></span></div></div>
+      </div>
+      <div class="roller l"></div>
+      <div class="roller r"></div>
+    </div>
+    <div class="progress"><i></i></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="editor-sec" id="editor">
+    <div>
+      <div class="eyebrow"><span lang="en">Wet ink, dry ink</span><span lang="zh">湿墨与干墨</span></div>
+      <h2 style="margin-top:14px"><span lang="en">Nothing is final until you let it dry.</span><span lang="zh">你点头之前，<br>墨都是湿的。</span></h2>
+      <p class="lead"><span lang="en">Suggestions appear in pale, wet ink. Press Tab and watch them settle into the page; ignore them and they simply evaporate.</span><span lang="zh">建议用淡墨写出来。按 Tab，它慢慢干进纸里；不理它，它自己就散了。</span></p>
+      <div class="keys"><span><kbd>Tab</kbd><span lang="en">let it dry</span><span lang="zh">留下</span></span><span><kbd>Esc</kbd><span lang="en">wash it off</span><span lang="zh">洗掉</span></span></div>
+    </div>
+    <div class="sheet" id="sheet">
+      <div class="meta"><span><span lang="en">Draft · Letter to a friend</span><span lang="zh">草稿 · 致友人书</span></span><span>壹</span></div>
+      <div class="body"><span class="typed"></span><span class="wet"></span></div>
+      <div class="hint"><kbd>Tab</kbd><span lang="en">to keep</span><span lang="zh">留下</span></div>
+    </div>
+  </section>
+
+  <section id="brushes">
+    <div class="sec-head reveal">
+      <h2><span lang="en">Three brushes, one hand</span><span lang="zh">三支笔，一只手</span></h2>
+      <svg class="stroke" viewBox="0 0 320 26" preserveAspectRatio="none"><path pathLength="1" d="M6 18 C 70 8, 150 6, 210 11 S 300 16, 314 9"/></svg>
+      <p><span lang="en">Different drafts need different tips. Inkstone switches between them the way a calligrapher does: without thinking about it.</span><span lang="zh">不同的稿子要不同的笔锋。砚在它们之间切换，就像书法家换笔，不需要想。</span></p>
+    </div>
+    <div class="leaves">
+      <article class="leaf"><div class="art" style="background-position: 3% 0"></div>
+        <h3><span class="seal">兼</span><span lang="en">The fine brush</span><span lang="zh">小楷：细处</span></h3>
+        <p><span lang="en">For emails and replies: short, exact, polite. It knows when one sentence is enough.</span><span lang="zh">写邮件和回复：短、准、客气。它知道什么时候一句话就够了。</span></p></article>
+      <article class="leaf"><div class="art" style="background-image:url(img/calligraphy.jpg);background-size:cover;background-position:30% 40%"></div>
+        <h3><span class="seal">狼</span><span lang="en">The running hand</span><span lang="zh">行书：顺手</span></h3>
+        <p><span lang="en">For essays and newsletters: it keeps rhythm across paragraphs so a long read still flows.</span><span lang="zh">写长文和周刊：它管段落之间的节奏，长文读起来也顺。</span></p></article>
+      <article class="leaf"><div class="art" style="background-position: 96% 0"></div>
+        <h3><span class="seal">羊</span><span lang="en">The broad brush</span><span lang="zh">大写意：放开</span></h3>
+        <p><span lang="en">For first drafts: big strokes, no erasing. Get the mountain down, and the trees can wait.</span><span lang="zh">写初稿：大笔挥，不擦改。先把山画下来，树以后再补。</span></p></article>
+    </div>
+  </section>
+
+  <section class="closing reveal">
+    <div class="big"><span lang="zh">开卷</span><span lang="en">Begin.</span></div>
+    <svg class="stroke" viewBox="0 0 320 26" preserveAspectRatio="none" style="width:min(420px,70vw)"><path pathLength="1" d="M6 14 C 90 20, 180 4, 314 12"/></svg>
+    <p><span lang="en">Free for your first hundred pages. The ink is on us.</span><span lang="zh">前一百页免费，墨我们来磨。</span></p>
+    <button class="cta"><span lang="en">Start writing</span><span lang="zh">开始书写</span></button>
+  </section>
+
+  <footer>
+    <div class="top"><span class="brand" style="font-size:18px"><span class="seal" style="width:30px;height:30px;font-size:17px">砚</span>Inkstone</span><span><span lang="en">A fictional product, built as a design study.</span><span lang="zh">虚构产品，仅作设计练习。</span></span></div>
+    <b>图源</b>：首屏为范宽《谿山行旅图》（北宋，约 1000 年，台北故宫博物院藏，公有领域）；长卷与册页取自松年《山水》手卷（清，大都会艺术博物馆藏，CC0）；均经 Wikimedia Commons 获取，经裁切、拼接、去色与提亮处理。
+    字体：Ma Shan Zheng、Noto Serif SC、Cormorant Garamond（均为 OFL-1.1）。本页为学习用 demo，品牌与文案均为虚构。<br>
+    侵权请联系删除。
+  </footer>
+</div>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// Brush strokes draw when their section scrolls in.
+const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add("in")), { threshold: .35 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+// Handscroll: first unroll (right roller travels out), then pan the strip past the viewer.
+const sec = document.querySelector(".scroll-sec"), strip = document.querySelector(".strip"),
+      rl = document.querySelector(".roller.l"), rr = document.querySelector(".roller.r"),
+      bar = document.querySelector(".progress i"), notes = [...document.querySelectorAll(".note")];
+function onScroll() {
+  const vw = innerWidth, pad = Math.min(80, vw * .06);
+  const total = sec.offsetHeight - innerHeight;
+  const p = Math.min(1, Math.max(0, (scrollY - sec.offsetTop) / total));
+  const unroll = Math.min(1, p / .18), pan = Math.max(0, (p - .18) / .82);
+  const sw = strip.offsetWidth, view = vw - pad * 2;
+  const x = pad - pan * (sw - view);
+  strip.style.transform = `translateX(${x}px)`;
+  const open = view * (reduce ? 1 : unroll);
+  strip.style.clipPath = `inset(-40px ${Math.max(0, sw + x - pad - open)}px -40px ${Math.max(0, pad - x)}px)`;
+  rl.style.left = `${pad - 28}px`;
+  rr.style.left = `${pad + open}px`;
+  bar.style.transform = `scaleX(${p})`;
+  for (const n of notes) {
+    const r = n.getBoundingClientRect();
+    n.classList.toggle("on", r.left > pad && r.left < pad + open - 120 && r.left < vw * .78);
+  }
+}
+addEventListener("scroll", onScroll, { passive: true });
+addEventListener("resize", onScroll);
+onScroll();
+
+// Wet-ink editor: type the user's line, offer a pale suggestion, let it dry on Tab (auto-plays too).
+const script = {
+  en: { mine: "Dear Lin, the rain kept me indoors all week, so I finally ", wet: "finished the letter I promised you in spring, the one about the house by the river." },
+  zh: { mine: "林兄：这一周雨没停过，我索性闭门不出，", wet: "终于把春天答应你的那封信写完了，就是讲河边那座老屋的那封。" },
+};
+const typed = document.querySelector(".typed"), wet = document.querySelector(".wet"), hint = document.querySelector(".hint");
+let run = 0, accept = null;
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function play() {
+  const id = ++run, lang = document.documentElement.dataset.lang === "zh" ? "zh" : "en", s = script[lang];
+  typed.textContent = ""; wet.textContent = ""; wet.classList.remove("dry"); hint.style.opacity = 0;
+  for (let i = 0; i <= s.mine.length; i++) { if (id !== run) return; typed.textContent = s.mine.slice(0, i); await wait(reduce ? 0 : 45); }
+  await wait(400); if (id !== run) return;
+  wet.textContent = s.wet; hint.style.opacity = 1;
+  await Promise.race([wait(2600), new Promise(r => accept = r)]); if (id !== run) return;
+  wet.classList.add("dry"); hint.style.opacity = 0;
+  await wait(4200); if (id === run) play();
+}
+addEventListener("keydown", e => { if (e.key === "Tab" && accept && document.getElementById("sheet").matches(":hover")) { e.preventDefault(); accept(); } });
+document.getElementById("sheet").addEventListener("click", () => accept && accept());
+new IntersectionObserver(([e], ob) => { if (e.isIntersecting) { play(); ob.disconnect(); } }, { threshold: .5 }).observe(document.getElementById("sheet"));
+document.querySelector("[data-lang-toggle]").addEventListener("click", () => setTimeout(() => run && play(), 0));
+</script>
+</body>
+</html>

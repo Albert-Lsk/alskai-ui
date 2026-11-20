@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nami 波 — Translation, printed by hand</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/shippori-mincho@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/shippori-mincho@5/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/700.css">
+<script src="../../shared/lang.js"></script>
+<style>
+:root {
+  --paper: #efe4cc;
+  --aged: #cdc0a4;
+  --shadow: #968f80;
+  --pale: #80a0ba;
+  --prussian: #224076;
+  --sumi: #181e30;
+  --beni: #c04030;
+  --yellow: #e6c25c;
+  --serif: "Shippori Mincho", "Noto Serif SC", serif;
+  --frame: min(1320px, calc(100vw - 48px));
+}
+* { box-sizing: border-box; margin: 0; }
+html[data-lang="zh"] body { font-family: "Noto Serif SC", "Shippori Mincho", serif; }
+body { font: 16px/1.65 var(--serif); color: var(--sumi); background: var(--paper); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+:lang(ja) { font-family: "Shippori Mincho", serif; }
+button { font: inherit; cursor: pointer; }
+.wrap { width: var(--frame); margin: 0 auto; }
+
+/* washi grain over everything */
+body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; mix-blend-mode: multiply; opacity: .55;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .34 0 0 0 0 .2 0 0 0 .32 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+                    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004 .09' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .42 0 0 0 0 .3 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+}
+
+/* bokashi: the hard-topped ink gradient printed across the sky of a woodblock */
+.bokashi { background: linear-gradient(180deg, var(--prussian) 0, var(--prussian) 18%, rgba(34,64,118,.62) 46%, rgba(34,64,118,.18) 76%, rgba(34,64,118,0) 100%); }
+.bokashi.beni { background: linear-gradient(180deg, var(--beni) 0, var(--beni) 14%, rgba(192,64,48,.45) 50%, rgba(192,64,48,0) 100%); }
+.band { height: 140px; margin-bottom: -140px; position: relative; z-index: 0; }
+
+/* misregistered heading: a beni block printed a hair off the key block */
+.mis { color: var(--prussian); text-shadow: .045em .032em 0 rgba(192,64,48,.82); font-weight: 700; letter-spacing: -.01em; }
+
+/* ---------- nav ---------- */
+header { position: relative; color: var(--paper); }
+header .band { height: 320px; margin-bottom: -320px; }
+nav { position: relative; z-index: 2; display: flex; align-items: center; gap: 36px; height: 76px; }
+.logo { display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 700; letter-spacing: .02em; }
+.seal { width: 34px; height: 34px; background: var(--beni); color: var(--paper); display: grid; place-items: center; font: 700 19px "Shippori Mincho", serif; border-radius: 3px; box-shadow: inset 0 0 0 2px var(--beni), inset 0 0 0 3px rgba(239,228,204,.6); }
+nav ul { display: flex; gap: 32px; list-style: none; padding: 0; margin-left: auto; font-size: 15px; }
+nav a { color: inherit; text-decoration: none; opacity: .92; }
+nav a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px; }
+.lang { border: 1px solid rgba(239,228,204,.55); background: transparent; color: var(--paper); padding: 6px 12px; font-size: 13px; letter-spacing: .06em; transition: background-color .2s; }
+.lang:hover { background: rgba(239,228,204,.12); }
+.btn { border: 0; padding: 13px 22px; font-size: 15px; letter-spacing: .02em; transition: transform .15s ease, box-shadow .2s ease; }
+.btn:active { transform: scale(.97); }
+.btn.ink { background: var(--sumi); color: var(--paper); box-shadow: 3px 3px 0 var(--beni); }
+.btn.ink:hover { box-shadow: 5px 5px 0 var(--beni); }
+.btn.paper { background: var(--paper); color: var(--sumi); box-shadow: inset 0 0 0 1px var(--sumi); }
+.btn.paper:hover { background: #f6eedb; }
+nav .btn { padding: 9px 16px; font-size: 14px; background: var(--paper); color: var(--sumi); }
+
+/* ---------- hero ---------- */
+.hero { position: relative; z-index: 1; display: grid; grid-template-columns: 5fr 7fr; gap: 56px; align-items: center; padding: 64px 0 40px; }
+.kicker { display: inline-block; font-size: 12.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--sumi); background: var(--paper); padding: 5px 12px; margin-bottom: 110px; box-shadow: 2px 2px 0 var(--beni); }
+html[data-lang="zh"] .kicker { letter-spacing: .3em; }
+h1 { font-size: clamp(44px, 5vw, 76px); line-height: 1.08; }
+html[data-lang="zh"] h1 { font-size: clamp(42px, 4.6vw, 70px); line-height: 1.22; }
+.lede { font-size: 18px; line-height: 1.7; max-width: 30em; margin: 28px 0 36px; color: #3a3a44; }
+.ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+
+.print { position: relative; padding: 18px; background: #f4ecd8; box-shadow: 0 1px 0 rgba(0,0,0,.05), 0 30px 60px -30px rgba(24,30,48,.45); }
+.stage { position: relative; aspect-ratio: 2400 / 1657; background: var(--paper); overflow: hidden; }
+.block { position: absolute; inset: 0; -webkit-mask: var(--m) center / 100% 100% no-repeat; mask: var(--m) center / 100% 100% no-repeat;
+  opacity: 0; transform: translate(var(--ox), var(--oy)); transition: transform .9s cubic-bezier(.2,.8,.2,1), opacity .35s ease; }
+.block.in { opacity: 1; transform: translate(calc(var(--mx, 0) * var(--d) * 1px), calc(var(--my, 0) * var(--d) * 1px)); }
+.stage.live .block.in { transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+.cartouche { position: absolute; top: 7%; right: 5%; display: flex; gap: 6px; align-items: flex-start; z-index: 2; }
+.cartouche .title { writing-mode: vertical-rl; background: var(--beni); color: var(--paper); padding: 14px 7px; font-size: 17px; font-weight: 700; letter-spacing: .22em; border: 2px solid var(--beni); box-shadow: inset 0 0 0 1.5px rgba(239,228,204,.7); }
+.cartouche .sub { writing-mode: vertical-rl; background: var(--yellow); color: var(--sumi); padding: 10px 6px; font-size: 13px; letter-spacing: .15em; }
+/* kentō: carvers' registration marks */
+.kento { position: absolute; bottom: 5px; width: 16px; height: 8px; border-bottom: 1.5px solid var(--sumi); opacity: .55; }
+.kento.l { left: 28px; }
+.kento.r { right: 18px; border-right: 1.5px solid var(--sumi); }
+.steps { display: flex; gap: 6px; margin-top: 18px; list-style: none; padding: 0; font-size: 12.5px; }
+.steps li { flex: 1; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid rgba(24,30,48,.14); color: #6b6a70; transition: color .3s, border-color .3s, background-color .3s; }
+.steps li i { width: 12px; height: 12px; flex: none; background: var(--c); }
+.steps li.on { color: var(--sumi); border-color: var(--sumi); background: #f6eedb; }
+.hint { margin-top: 12px; font-size: 13.5px; color: #6b6a70; }
+.hint button { background: none; border: 0; padding: 0; color: var(--beni); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- section scaffolding ---------- */
+section { position: relative; }
+.sec { position: relative; z-index: 1; padding: 150px 0 110px; }
+.eyebrow { font-size: 13px; letter-spacing: .2em; text-transform: uppercase; color: var(--beni); margin-bottom: 16px; }
+h2 { font-size: clamp(36px, 3.8vw, 56px); line-height: 1.12; max-width: 14em; }
+.sec > .wrap > p.intro { font-size: 18px; color: #3a3a44; max-width: 34em; margin-top: 20px; }
+
+/* ---------- translation demo ---------- */
+.desk { display: grid; grid-template-columns: auto 1fr; gap: 56px; margin-top: 64px; align-items: stretch; }
+.tanzaku { display: flex; gap: 18px; }
+.strip { position: relative; width: 118px; height: 470px; border: 0; padding: 40px 0 0; display: flex; justify-content: center; align-items: flex-start; color: var(--sumi);
+  background: var(--paper-c); box-shadow: 0 18px 30px -22px rgba(24,30,48,.6); transition: transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s; }
+.strip::before { content: ""; position: absolute; top: 12px; left: 50%; width: 7px; height: 7px; margin-left: -3.5px; border-radius: 50%; background: var(--paper); box-shadow: inset 0 0 0 1.5px rgba(24,30,48,.4); }
+.strip::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, var(--top) 0, transparent 38%); opacity: .9; pointer-events: none; }
+.strip:nth-child(1) { --paper-c: #f3ead3; --top: rgba(34,64,118,.55); }
+.strip:nth-child(2) { --paper-c: #e9d6c8; --top: rgba(192,64,48,.5); }
+.strip:nth-child(3) { --paper-c: #d6dfe0; --top: rgba(72,110,72,.45); }
+.strip .v { writing-mode: vertical-rl; font-size: 24px; line-height: 1.75; letter-spacing: .14em; position: relative; z-index: 1; }
+.strip .who { position: absolute; bottom: 16px; left: 50%; translate: -50% 0; writing-mode: vertical-rl; font-size: 12px; letter-spacing: .2em; color: #6b6a70; z-index: 1; }
+.strip:hover { transform: translateY(-6px); }
+.strip[aria-pressed="true"] { transform: translateY(-16px); box-shadow: 0 30px 40px -24px rgba(24,30,48,.7), 0 0 0 1.5px var(--sumi); }
+.board { position: relative; background: #f6eedb; padding: 36px 40px 32px; box-shadow: inset 0 0 0 1px rgba(24,30,48,.12); display: flex; flex-direction: column; }
+.langs { display: flex; gap: 8px; flex-wrap: wrap; }
+.langs button { border: 1px solid rgba(24,30,48,.25); background: transparent; padding: 6px 14px; font-size: 14px; color: var(--sumi); transition: background-color .2s, color .2s; }
+.langs button[aria-pressed="true"] { background: var(--sumi); color: var(--paper); border-color: var(--sumi); }
+.out { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 230px; padding: 30px 0; }
+.out .line { font-size: clamp(28px, 2.7vw, 40px); line-height: 1.3; color: var(--prussian); clip-path: inset(0 100% 0 0); }
+.out.show .line { clip-path: inset(0 0 0 0); transition: clip-path .9s cubic-bezier(.6,0,.2,1) calc(var(--i) * .45s); }
+.stamp { position: absolute; top: 30px; right: 36px; width: 62px; height: 62px; border: 3px solid var(--beni); color: var(--beni); display: grid; place-items: center; font: 700 30px "Shippori Mincho", serif; border-radius: 6px; opacity: 0; transform: scale(1.5) rotate(-8deg); }
+.out.show ~ .stamp { opacity: .9; transform: scale(1) rotate(-8deg); transition: opacity .2s 1.5s, transform .35s cubic-bezier(.3,1.6,.5,1) 1.5s; }
+.note { border-top: 1px dashed rgba(24,30,48,.3); padding-top: 16px; font-size: 14.5px; color: #4a4a54; display: flex; gap: 12px; }
+.note b { color: var(--beni); font-weight: 700; white-space: nowrap; }
+
+/* ---------- views ---------- */
+.views { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 64px; }
+.view { position: relative; }
+.view figure { position: relative; aspect-ratio: 3 / 4; overflow: hidden; background: var(--aged); padding: 12px; background: #f4ecd8; box-shadow: 0 24px 40px -28px rgba(24,30,48,.55); }
+.view img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1.2s cubic-bezier(.2,.8,.2,1); }
+.view:hover img { transform: scale(1.04); }
+.view .tag { position: absolute; top: 26px; right: 26px; writing-mode: vertical-rl; background: var(--beni); color: var(--paper); padding: 12px 6px; font-size: 14px; font-weight: 700; letter-spacing: .2em; box-shadow: inset 0 0 0 1.5px rgba(239,228,204,.7), 3px 3px 0 rgba(24,30,48,.25); transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+.view:hover .tag { transform: translate(-3px, 3px); }
+.view h3 { font-size: 24px; margin: 24px 0 8px; font-weight: 700; }
+.view p { color: #4a4a54; font-size: 15.5px; }
+.view .no { font-size: 12.5px; letter-spacing: .18em; color: #8a8478; text-transform: uppercase; }
+
+/* ---------- numbers ---------- */
+.nums { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 0; border-top: 1.5px solid var(--sumi); border-bottom: 1.5px solid var(--sumi); }
+.nums div { padding: 40px 32px; }
+.nums div + div { border-left: 1px solid rgba(24,30,48,.25); }
+.nums b { display: block; font-size: clamp(54px, 6vw, 92px); line-height: 1; }
+.nums span { display: block; margin-top: 12px; color: #4a4a54; }
+
+/* ---------- cta ---------- */
+.cta { text-align: center; padding: 140px 0 150px; position: relative; z-index: 1; }
+.cta h2 { margin: 0 auto; max-width: 13em; }
+.cta .ctas { justify-content: center; margin-top: 40px; }
+.cta-band { position: absolute; left: 0; right: 0; bottom: 0; height: 260px; transform: scaleY(-1); }
+
+/* ---------- footer ---------- */
+footer { background: var(--sumi); color: #c9c4b6; position: relative; z-index: 101; }
+footer .wrap { padding: 56px 0 40px; }
+footer .big { font: 700 clamp(48px, 9vw, 140px)/.95 "Shippori Mincho", serif; color: var(--paper); display: flex; align-items: center; gap: .25em; }
+footer .big .seal { font-size: .46em; width: 1.6em; height: 1.6em; border-radius: 8px; }
+.credits { margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.1); font: 12.5px/1.85 system-ui, "PingFang SC", sans-serif; color: #908a7e; }
+.credits b { color: #d6d0c0; font-weight: 500; }
+
+@media (max-width: 960px) {
+  nav ul { display: none; }
+  .hero { grid-template-columns: 1fr; gap: 40px; padding-top: 32px; }
+  .kicker { margin-bottom: 64px; }
+  .steps { flex-wrap: wrap; }
+  .steps li { flex: 1 1 30%; }
+  .desk { grid-template-columns: 1fr; gap: 40px; }
+  .tanzaku { justify-content: center; }
+  .strip { width: 96px; height: 380px; }
+  .strip .v { font-size: 20px; }
+  .views { grid-template-columns: 1fr; max-width: 460px; }
+  .nums { grid-template-columns: 1fr; }
+  .nums div + div { border-left: 0; border-top: 1px solid rgba(24,30,48,.25); }
+}
+@media (max-width: 520px) {
+  nav { gap: 14px; }
+  nav .btn { display: none; }
+  .logo { margin-right: auto; }
+  .board { padding: 28px 22px 24px; }
+  .stamp { width: 48px; height: 48px; font-size: 24px; top: 22px; right: 20px; }
+  .langs { padding-right: 58px; }
+  .cartouche .title { font-size: 12px; padding: 8px 4px; }
+  .cartouche .sub { display: none; }
+  .steps li { flex: 1 1 45%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  .block { opacity: 1; transform: none; }
+  .out .line { clip-path: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="band bokashi"></div>
+  <div class="wrap">
+    <nav>
+      <a class="logo" href="#" style="color:inherit;text-decoration:none"><span class="seal">波</span>Nami</a>
+      <ul>
+        <li><a href="#translate"><span lang="en">Translate</span><span lang="zh">翻译</span></a></li>
+        <li><a href="#views"><span lang="en">Features</span><span lang="zh">功能</span></a></li>
+        <li><a href="#numbers"><span lang="en">Languages</span><span lang="zh">语言</span></a></li>
+      </ul>
+      <button class="lang" data-lang-toggle aria-label="Switch language"><span lang="en">中文</span><span lang="zh">EN</span></button>
+      <button class="btn"><span lang="en">Start translating</span><span lang="zh">开始翻译</span></button>
+    </nav>
+
+    <section class="hero">
+      <div>
+        <div class="kicker"><span lang="en">No. 01 · Thirty-six views of language</span><span lang="zh">第一景 · 译海三十六景</span></div>
+        <h1 class="mis"><span lang="en">Every sentence, carried across the sea.</span><span lang="zh">每一句话，<br>都能渡海。</span></h1>
+        <p class="lede"><span lang="en">Nami translates between 36 languages and keeps the tone, rhythm and cultural weight of a phrase, not just its words.</span><span lang="zh">Nami 在 36 种语言之间互译，保留一句话的语气、节奏和文化分量，而不只是字面意思。</span></p>
+        <div class="ctas">
+          <button class="btn ink"><span lang="en">Try Nami free</span><span lang="zh">免费试用 Nami</span></button>
+          <button class="btn paper" data-reprint><span lang="en">Watch it print</span><span lang="zh">看它套印一遍</span></button>
+        </div>
+      </div>
+      <div>
+        <div class="print">
+          <div class="stage" id="stage">
+            <div class="block" style="--m:url(img/block-1.png);background:var(--aged);--d:-1.5"></div>
+            <div class="block" style="--m:url(img/block-2.png);background:var(--shadow);--d:2"></div>
+            <div class="block" style="--m:url(img/block-3.png);background:var(--pale);--d:3.5"></div>
+            <div class="block" style="--m:url(img/block-4.png);background:var(--prussian);--d:-3"></div>
+            <div class="block" style="--m:url(img/block-5.png);background:var(--sumi);--d:0"></div>
+            <div class="cartouche"><div class="title"><span lang="en">36 VIEWS</span><span lang="zh">译海三十六景</span></div><div class="sub"><span lang="en">NAMI</span><span lang="zh">神奈川</span></div></div>
+          </div>
+          <span class="kento l"></span><span class="kento r"></span>
+        </div>
+        <ol class="steps" id="steps">
+          <li style="--c:var(--aged)"><i></i><span lang="en">1 Sky</span><span lang="zh">一 · 天色</span></li>
+          <li style="--c:var(--shadow)"><i></i><span lang="en">2 Shadow</span><span lang="zh">二 · 阴影</span></li>
+          <li style="--c:var(--pale)"><i></i><span lang="en">3 Pale blue</span><span lang="zh">三 · 淡蓝</span></li>
+          <li style="--c:var(--prussian)"><i></i><span lang="en">4 Prussian</span><span lang="zh">四 · 普鲁士蓝</span></li>
+          <li style="--c:var(--sumi)"><i></i><span lang="en">5 Key block</span><span lang="zh">五 · 墨线主版</span></li>
+        </ol>
+        <p class="hint"><span lang="en">Printed live from five colour blocks, the way Hokusai's carvers did. Move your cursor and the blocks slip out of register.</span><span lang="zh">像北斋的刻工那样，分五块色版现场套印。移动鼠标，色版会轻轻错位。</span></p>
+      </div>
+    </section>
+  </div>
+</header>
+
+<section id="translate">
+  <div class="band bokashi beni"></div>
+  <div class="sec"><div class="wrap">
+    <div class="eyebrow"><span lang="en">Live demo</span><span lang="zh">现场演示</span></div>
+    <h2 class="mis"><span lang="en">Poems in, poems out.</span><span lang="zh">诗进来，诗出去。</span></h2>
+    <p class="intro"><span lang="en">Pick a haiku, pick a language. Nami keeps the cut, the count and the joke: the parts a literal translation drops.</span><span lang="zh">选一首俳句，选一种语言。Nami 会留住停顿、音节和那一点幽默，也就是直译最先丢掉的东西。</span></p>
+    <div class="desk">
+      <div class="tanzaku" id="poems">
+        <button class="strip" aria-pressed="true"><span class="v" lang="ja">古池や<br>蛙飛び込む<br>水の音</span><span class="who" lang="ja">芭蕉</span></button>
+        <button class="strip" aria-pressed="false"><span class="v" lang="ja">菜の花や<br>月は東に<br>日は西に</span><span class="who" lang="ja">蕪村</span></button>
+        <button class="strip" aria-pressed="false"><span class="v" lang="ja">痩蛙<br>まけるな一茶<br>是に有り</span><span class="who" lang="ja">一茶</span></button>
+      </div>
+      <div class="board">
+        <div class="langs" id="langs">
+          <button data-l="en" aria-pressed="true">English</button>
+          <button data-l="zh">中文</button>
+          <button data-l="fr">Français</button>
+          <button data-l="es">Español</button>
+        </div>
+        <div class="out" id="out"></div>
+        <div class="stamp" lang="ja">訳</div>
+        <div class="note"><b><span lang="en">Nami's note</span><span lang="zh">Nami 批注</span></b><span id="note"></span></div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<section id="views">
+  <div class="band bokashi"></div>
+  <div class="sec"><div class="wrap">
+    <div class="eyebrow"><span lang="en">Three views</span><span lang="zh">三景</span></div>
+    <h2 class="mis"><span lang="en">What a careful translator would notice.</span><span lang="zh">一个用心的译者会注意到的事。</span></h2>
+    <div class="views">
+      <article class="view">
+        <figure><img src="img/redfuji.jpg" alt="Hokusai, Fine Wind, Clear Morning (Red Fuji)" loading="lazy" style="object-position:68% 50%"><span class="tag"><span lang="en">36 TONGUES</span><span lang="zh">三十六语</span></span></figure>
+        <div class="no"><span lang="en">View 01</span><span lang="zh">第一景</span></div>
+        <h3><span lang="en">Thirty-six languages</span><span lang="zh">三十六种语言</span></h3>
+        <p><span lang="en">From Japanese to Portuguese, one engine with native-level fluency in every pair.</span><span lang="zh">从日语到葡萄牙语，一套引擎，每一组语言对都是母语级的流畅。</span></p>
+      </article>
+      <article class="view">
+        <figure><img src="img/shower.jpg" alt="Hiroshige, Sudden Shower over Shin-Ōhashi Bridge" loading="lazy"><span class="tag"><span lang="en">TONE</span><span lang="zh">语气</span></span></figure>
+        <div class="no"><span lang="en">View 02</span><span lang="zh">第二景</span></div>
+        <h3><span lang="en">Reads the weather</span><span lang="zh">读得懂语境的天气</span></h3>
+        <p><span lang="en">Downpour or drizzle, urgent, playful or formal: Nami hears the mood of a message and keeps it.</span><span lang="zh">一句话是急雨还是细雨，急迫、俏皮还是正式，Nami 都听得出来，并原样保留。</span></p>
+      </article>
+      <article class="view">
+        <figure><img src="img/plum.jpg" alt="Hiroshige, Plum Garden in Kameido" loading="lazy"><span class="tag"><span lang="en">IDIOM</span><span lang="zh">熟语</span></span></figure>
+        <div class="no"><span lang="en">View 03</span><span lang="zh">第三景</span></div>
+        <h3><span lang="en">Keeps the blossom</span><span lang="zh">留住那朵花</span></h3>
+        <p><span lang="en">Idioms, puns and honorifics are carried over with care instead of being flattened.</span><span lang="zh">成语、双关和敬语都被小心搬过去，而不是被压平。</span></p>
+      </article>
+    </div>
+  </div></div>
+</section>
+
+<section id="numbers">
+  <div class="wrap">
+    <div class="nums">
+      <div><b class="mis">36</b><span><span lang="en">languages, every pair direct</span><span lang="zh">种语言，任意两两直译</span></span></div>
+      <div><b class="mis">1.2B</b><span><span lang="en">words carried across each day</span><span lang="zh">字词，每天被送过海</span></span></div>
+      <div><b class="mis">0.3s</b><span><span lang="en">median time to first line</span><span lang="zh">出第一行译文的中位耗时</span></span></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="wrap">
+    <h2 class="mis"><span lang="en">Let the wave carry your words.</span><span lang="zh">让浪，替你把话带过去。</span></h2>
+    <div class="ctas"><button class="btn ink"><span lang="en">Start translating</span><span lang="zh">开始翻译</span></button><button class="btn paper"><span lang="en">Talk to us</span><span lang="zh">联系我们</span></button></div>
+  </div>
+  <div class="cta-band bokashi"></div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="big"><span class="seal">波</span>Nami</div>
+    <div class="credits">
+      <span lang="zh"><b>图源</b>：葛饰北斋《神奈川冲浪里》（《富岳三十六景》，约 1830–32，大都会艺术博物馆，CC0）；葛饰北斋《凯风快晴》（赤富士，《富岳三十六景》，公有领域）；
+      歌川广重《大桥安宅骤雨》（《名所江户百景》，1857，公有领域）；歌川广重《龟户梅屋铺》（《名所江户百景》，1857，切斯特·比替图书馆藏本 CBL J 2693，公有领域）；均经 Wikimedia Commons 获取，经缩放、色板量化与按色分版处理。
+      俳句原文出自松尾芭蕉、与谢芜村、小林一茶（公有领域），各语种译文为本页自译。字体：Shippori Mincho / Noto Serif SC（OFL-1.1）。本页为原创设计 demo，品牌与数据均为虚构。<br>侵权请联系删除。</span>
+      <span lang="en"><b>Image sources</b>: Katsushika Hokusai, <i>Under the Wave off Kanagawa</i> (Thirty-six Views of Mount Fuji, c. 1830–32, The Metropolitan Museum of Art, CC0); Katsushika Hokusai, <i>Fine Wind, Clear Morning</i> (Red Fuji, public domain);
+      Utagawa Hiroshige, <i>Sudden Shower over Shin-Ōhashi Bridge and Atake</i> (One Hundred Famous Views of Edo, 1857, public domain); Utagawa Hiroshige, <i>Plum Garden in Kameido</i> (One Hundred Famous Views of Edo, 1857, Chester Beatty Library CBL J 2693, public domain). All via Wikimedia Commons; resized, palette-quantized and separated into colour blocks.
+      Haiku by Bashō, Buson and Issa (public domain); translations by this page. Fonts: Shippori Mincho / Noto Serif SC (OFL-1.1). An original design demo; brand and figures are fictional.<br>Rights holders: contact us and we will remove it. 侵权请联系删除。</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// --- woodblock printing: press the five colour blocks in order, then let them drift with the cursor
+const stage = document.getElementById("stage"), blocks = [...stage.querySelectorAll(".block")], steps = [...document.querySelectorAll("#steps li")];
+let timers = [];
+function print() {
+  timers.forEach(clearTimeout); timers = [];
+  stage.classList.remove("live");
+  blocks.forEach(b => {
+    b.classList.remove("in");
+    const a = Math.random() * 6.283;
+    b.style.setProperty("--ox", Math.cos(a) * 70 + "px"); b.style.setProperty("--oy", Math.sin(a) * 50 + "px");
+  });
+  steps.forEach(s => s.classList.remove("on"));
+  if (still) { blocks.forEach(b => b.classList.add("in")); steps.at(-1).classList.add("on"); return; }
+  void stage.offsetWidth; // commit the off-register start before pressing
+  blocks.forEach((b, i) => timers.push(setTimeout(() => {
+    b.classList.add("in"); steps.forEach((s, k) => s.classList.toggle("on", k === i));
+  }, 300 + i * 700)));
+  timers.push(setTimeout(() => stage.classList.add("live"), 300 + blocks.length * 700 + 600));
+}
+new IntersectionObserver(([e], ob) => { if (e.isIntersecting) { print(); ob.disconnect(); } }, { threshold: .3 }).observe(stage);
+document.querySelector("[data-reprint]").addEventListener("click", print);
+if (!still) {
+  const hero = document.querySelector("header");
+  hero.addEventListener("pointermove", e => {
+    if (!stage.classList.contains("live")) return;
+    const r = stage.getBoundingClientRect();
+    stage.style.setProperty("--mx", Math.max(-1.4, Math.min(1.4, (e.clientX - r.left - r.width / 2) / (r.width / 2))).toFixed(3));
+    stage.style.setProperty("--my", Math.max(-1.4, Math.min(1.4, (e.clientY - r.top - r.height / 2) / (r.height / 2))).toFixed(3));
+  });
+  hero.addEventListener("pointerleave", () => { stage.style.setProperty("--mx", 0); stage.style.setProperty("--my", 0); });
+}
+
+// --- translation desk
+const T = [
+  { en: ["An old pond —", "a frog leaps in,", "the sound of water."],
+    zh: ["古池塘呀——", "青蛙跃入，", "一声水响。"],
+    fr: ["Un vieil étang —", "une grenouille plonge,", "le bruit de l'eau."],
+    es: ["Un viejo estanque —", "se zambulle una rana,", "ruido del agua."],
+    note: { en: "The cutting word “ya” becomes a dash, so the pause survives; the 5-7-5 rhythm is kept as three short lines.",
+            zh: "切字“や”译成破折号，停顿就留住了；五七五的节奏保留为三个短句。" } },
+  { en: ["Rape blossoms —", "the moon in the east,", "the sun in the west."],
+    zh: ["油菜花开呀——", "月在东边，", "日在西边。"],
+    fr: ["Fleurs de colza —", "la lune à l'est,", "le soleil à l'ouest."],
+    es: ["Flores de colza —", "la luna al este,", "el sol al oeste."],
+    note: { en: "Buson's mirrored halves stay mirrored: same grammar, east and west swapped, nothing added.",
+            zh: "芜村前后对称的两句保持对称：同样的句式，东和西对调，不添一个字。" } },
+  { en: ["Skinny frog,", "don't you lose —", "Issa is right here!"],
+    zh: ["瘦青蛙，", "别认输——", "一茶在这儿！"],
+    fr: ["Maigre grenouille,", "ne perds pas —", "Issa est là !"],
+    es: ["Rana flaca,", "¡no te rindas! —", "aquí está Issa."],
+    note: { en: "Issa cheers on a frog in a mating fight and names himself; the joke only works if the poet stays in the poem.",
+            zh: "一茶在给打架求偶的青蛙打气，还报上自己的名字；诗人留在诗里，这个笑点才成立。" } },
+];
+const out = document.getElementById("out"), note = document.getElementById("note");
+const poemBtns = [...document.querySelectorAll("#poems .strip")], langBtns = [...document.querySelectorAll("#langs button")];
+let poem = 0, lang = document.documentElement.dataset.lang === "zh" ? "zh" : "en", auto = true;
+function render() {
+  const p = T[poem];
+  out.classList.remove("show");
+  out.innerHTML = p[lang].map((l, i) => `<div class="line" style="--i:${i}">${l}</div>`).join("");
+  note.innerHTML = `<span lang="en">${p.note.en}</span><span lang="zh">${p.note.zh}</span>`;
+  poemBtns.forEach((b, i) => b.setAttribute("aria-pressed", i === poem));
+  langBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.l === lang));
+  void out.offsetWidth; out.classList.add("show");
+}
+poemBtns.forEach((b, i) => b.addEventListener("click", () => { auto = false; poem = i; render(); }));
+langBtns.forEach(b => b.addEventListener("click", () => { auto = false; lang = b.dataset.l; render(); }));
+render();
+let visible = false;
+new IntersectionObserver(([e]) => visible = e.isIntersecting, { threshold: .4 }).observe(out);
+if (!still) setInterval(() => {
+  if (!auto || !visible) return;
+  const order = ["en", "zh", "fr", "es"], k = order.indexOf(lang);
+  if (k === order.length - 1) poem = (poem + 1) % T.length;
+  lang = order[(k + 1) % order.length]; render();
+}, 5200);
+</script>
+</body>
+</html>

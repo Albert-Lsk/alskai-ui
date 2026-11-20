@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acta · Yesterday, printed by breakfast</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cinzel@5/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/newsreader@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/newsreader@5/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/newsreader@5/400-italic.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono@5/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/900.css">
+<script src="../../shared/lang.js"></script>
+<style>
+:root {
+  --paper: #f2eee4;
+  --paper-2: #e8e2d4;
+  --ink: #1b1a1f;
+  --ink-2: #55525a;
+  --blue: #2233c8;
+  --red: #e4402a;
+  --rule: #1b1a1f;
+  --cap: "Cinzel", "Noto Serif SC", serif;
+  --serif: "Newsreader", "Noto Serif SC", Georgia, serif;
+  --zh: "Noto Serif SC", "Songti SC", serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --wrap: min(1280px, calc(100vw - 48px));
+}
+* { box-sizing: border-box; margin: 0; }
+body { background: var(--paper); color: var(--ink); font: 18px/1.6 var(--serif); -webkit-font-smoothing: antialiased; }
+html[data-lang="zh"] body { font-family: var(--zh); font-size: 16.5px; line-height: 1.8; }
+.wrap { width: var(--wrap); margin: 0 auto; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+a { color: inherit; }
+.mono { font: 500 12px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.btn { font: 500 13px var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 13px 20px; border: 1.5px solid var(--ink); transition: transform .15s ease, background-color .2s, color .2s; white-space: nowrap; }
+.btn:active { transform: scale(.97); }
+.btn.solid { background: var(--ink); color: var(--paper); }
+.btn.solid:hover { background: var(--blue); border-color: var(--blue); }
+.btn:not(.solid):hover { background: var(--ink); color: var(--paper); }
+canvas { display: block; width: 100%; height: 100%; }
+
+/* ---------- top strip ---------- */
+.strip { display: flex; align-items: center; gap: 18px; height: 52px; border-bottom: 1px solid var(--rule); }
+.strip .mono:first-child { color: var(--ink-2); }
+.strip .sp { flex: 1; }
+.lang { white-space: nowrap; font: 500 12px var(--mono); letter-spacing: .1em; border: 1px solid var(--ink); padding: 6px 10px; }
+.lang b { font-weight: 500; opacity: .35; }
+html[data-lang="zh"] .lang .z, html[data-lang="en"] .lang .e { opacity: 1; }
+
+/* ---------- nameplate ---------- */
+.plate { text-align: center; padding: 28px 0 14px; }
+.nameplate { font: 700 clamp(84px, 17vw, 250px)/.82 var(--cap); letter-spacing: .06em; margin-right: -.06em; }
+.nameplate .r { color: var(--red); }
+.plate .sub { margin-top: 12px; font: italic 400 clamp(17px, 1.6vw, 22px) var(--serif); color: var(--ink-2); }
+html[data-lang="zh"] .plate .sub { font: 400 16px var(--zh); letter-spacing: .3em; font-style: normal; }
+.dateline { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center; border-block: 3px double var(--rule); padding: 10px 0; }
+.dateline > :last-child { text-align: right; }
+.dateline .c { font: italic 17px var(--serif); }
+html[data-lang="zh"] .dateline .c { font: 400 15px var(--zh); font-style: normal; }
+
+/* ---------- lead story ---------- */
+.lead { display: grid; grid-template-columns: 1fr 340px; gap: 48px; padding: 40px 0 34px; border-bottom: 1px solid var(--rule); }
+.kicker { color: var(--red); margin-bottom: 14px; }
+h1 { font: 600 clamp(46px, 5.6vw, 88px)/.98 var(--serif); letter-spacing: -.025em; }
+html[data-lang="zh"] h1 { font: 900 clamp(40px, 4.8vw, 74px)/1.18 var(--zh); letter-spacing: .01em; }
+.deck { font-size: 21px; line-height: 1.5; color: var(--ink-2); margin: 22px 0 28px; max-width: 34em; }
+html[data-lang="zh"] .deck { font-size: 17.5px; line-height: 1.85; }
+.lead .row { display: flex; gap: 12px; flex-wrap: wrap; }
+.index { border-left: 1px solid var(--rule); padding-left: 28px; }
+.index h4 { font: 500 12px var(--mono); letter-spacing: .12em; text-transform: uppercase; padding-bottom: 10px; border-bottom: 1px solid var(--rule); }
+.index li { list-style: none; display: flex; gap: 8px; align-items: baseline; padding: 11px 0; border-bottom: 1px dotted #a8a296; font-size: 16px; line-height: 1.35; }
+.index li span:first-child { flex: 1; }
+.index li i { font: 500 11px var(--mono); color: var(--ink-2); font-style: normal; }
+.index ul { padding: 0; }
+.index .live { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--red); margin-right: 6px; vertical-align: 1px; animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
+
+/* ---------- front page photo ---------- */
+.photo { position: relative; margin-top: 28px; aspect-ratio: 16 / 7.2; cursor: none; border: 1px solid var(--rule); }
+.photo figcaption, .cap { display: flex; justify-content: space-between; gap: 20px; padding: 10px 0 0; font: italic 15px var(--serif); color: var(--ink-2); }
+html[data-lang="zh"] .cap { font: 400 13.5px var(--zh); font-style: normal; }
+.loupe-tag { position: absolute; pointer-events: none; font: 500 11px var(--mono); background: var(--ink); color: var(--paper); padding: 3px 7px; opacity: 0; transition: opacity .2s; }
+
+/* ---------- section heads ---------- */
+.sec { padding: 110px 0 0; }
+.sec-head { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: end; padding-bottom: 26px; border-bottom: 3px double var(--rule); margin-bottom: 40px; }
+h2 { font: 600 clamp(38px, 4.2vw, 62px)/1.02 var(--serif); letter-spacing: -.02em; }
+html[data-lang="zh"] h2 { font: 900 clamp(34px, 3.6vw, 54px)/1.25 var(--zh); letter-spacing: .01em; }
+.sec-head p { color: var(--ink-2); max-width: 32em; justify-self: end; }
+.sec-num { color: var(--red); margin-bottom: 14px; }
+
+/* ---------- screen-angle lab ---------- */
+.lab { display: grid; grid-template-columns: 1.15fr .85fr; gap: 44px; align-items: start; }
+.lab-canvas { aspect-ratio: 4 / 5; border: 1px solid var(--rule); max-height: 680px; width: 100%; }
+.controls { display: grid; gap: 26px; }
+.ctl label { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.ctl label output { color: var(--blue); }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: transparent; cursor: pointer; }
+input[type=range]::-webkit-slider-runnable-track { height: 2px; background: var(--ink); }
+input[type=range]::-moz-range-track { height: 2px; background: var(--ink); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--paper); border: 2px solid var(--ink); margin-top: -8px; transition: transform .15s; }
+input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--paper); border: 2px solid var(--ink); }
+input[type=range]:active::-webkit-slider-thumb { transform: scale(1.2); }
+.ends { display: flex; justify-content: space-between; color: var(--ink-2); margin-top: 6px; }
+.inks { display: flex; gap: 10px; }
+.ink-btn { display: flex; align-items: center; gap: 8px; border: 1.5px solid var(--ink); padding: 9px 14px; font: 500 12px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.ink-btn i { width: 12px; height: 12px; border-radius: 50%; }
+.ink-btn[aria-pressed="false"] { opacity: .4; }
+.ink-btn[aria-pressed="false"] i { background: transparent !important; box-shadow: inset 0 0 0 1.5px currentColor; }
+.brief { border-top: 1px solid var(--rule); padding-top: 18px; min-height: 230px; }
+.brief .mono { color: var(--ink-2); margin-bottom: 10px; }
+.brief .h { font: 600 26px/1.2 var(--serif); }
+html[data-lang="zh"] .brief .h { font: 900 21px/1.5 var(--zh); }
+.brief ul { padding: 0; margin-top: 12px; }
+.brief li { list-style: none; padding: 7px 0; border-bottom: 1px dotted #a8a296; font-size: 16.5px; line-height: 1.45; }
+.brief p { margin-top: 12px; font-size: 16.5px; line-height: 1.65; color: var(--ink-2); }
+.lvl { animation: fade .35s ease both; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } }
+
+/* ---------- editions (posters) ---------- */
+.wall { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; padding: 10px 0 0; }
+.poster { background: #f7f4ec; border: 1px solid var(--rule); padding: 16px 16px 0; box-shadow: 0 22px 40px -28px rgba(30,25,15,.45); transform: rotate(var(--r)); transition: transform .5s cubic-bezier(.2,.8,.2,1), box-shadow .5s; }
+.poster:hover { transform: rotate(0) translateY(-6px); box-shadow: 0 30px 50px -28px rgba(30,25,15,.5); }
+.poster .top { display: flex; justify-content: space-between; color: var(--ink-2); }
+.poster .time { font: 700 clamp(46px, 4.6vw, 72px)/1 var(--cap); margin: 12px 0 2px; letter-spacing: .02em; }
+.poster h3 { font: 600 22px/1.2 var(--serif); }
+html[data-lang="zh"] .poster h3 { font: 900 19px/1.4 var(--zh); }
+.poster p { font-size: 15.5px; line-height: 1.5; color: var(--ink-2); margin: 6px 0 14px; min-height: 3em; }
+.poster .art { aspect-ratio: 4 / 4.4; margin: 0 -16px; border-top: 1px solid var(--rule); }
+
+/* ---------- circulation (pricing) ---------- */
+.cols { display: grid; grid-template-columns: repeat(3, 1fr); border-block: 1px solid var(--rule); }
+.col { padding: 30px 30px 34px; position: relative; }
+.col + .col { border-left: 1px solid var(--rule); }
+.col .name { font: 700 30px var(--cap); letter-spacing: .04em; }
+html[data-lang="zh"] .col .name { font: 900 26px var(--zh); letter-spacing: .1em; }
+.col .price { font: 600 54px/1 var(--serif); margin: 18px 0 4px; letter-spacing: -.02em; }
+.col .per { color: var(--ink-2); }
+.col ul { padding: 0; margin: 22px 0 28px; }
+.col li { list-style: none; display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px dotted #a8a296; font-size: 16px; line-height: 1.4; }
+.col li::before { content: "●"; font-size: 8px; color: var(--blue); padding-top: 7px; }
+.col.hot { background: #ebe5d6; }
+.col .stamp { position: absolute; top: 24px; right: 22px; font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--red); border: 1.5px solid var(--red); padding: 5px 9px; transform: rotate(4deg); }
+
+/* ---------- closing ---------- */
+.closing { padding: 120px 0 60px; }
+.type { height: clamp(220px, 30vw, 420px); cursor: none; position: relative; }
+.closing .row { display: flex; justify-content: space-between; align-items: center; gap: 24px; border-top: 3px double var(--rule); padding-top: 22px; margin-top: 22px; }
+.closing .row p { font-size: 20px; }
+html[data-lang="zh"] .closing .row p { font-size: 17px; }
+
+footer { border-top: 1px solid var(--rule); padding: 30px 0 56px; font-size: 13px; line-height: 1.85; color: var(--ink-2); font-family: var(--zh); }
+footer b { color: var(--ink); font-weight: 600; }
+footer .top { display: flex; justify-content: space-between; margin-bottom: 14px; color: var(--ink); }
+
+@media (max-width: 960px) {
+  .lead, .lab, .sec-head { grid-template-columns: 1fr; }
+  .index { border-left: 0; padding-left: 0; }
+  .sec-head p { justify-self: start; }
+  .wall { grid-template-columns: 1fr 1fr; }
+  .cols { grid-template-columns: 1fr; }
+  .col + .col { border-left: 0; border-top: 1px solid var(--rule); }
+  .dateline { grid-template-columns: 1fr 1fr; }
+  .dateline .c { display: none; }
+  .photo { aspect-ratio: 4 / 4.6; }
+  .strip .hide-m { display: none; }
+}
+@media (max-width: 560px) {
+  .wall { grid-template-columns: 1fr; }
+  .strip > .mono:first-child { display: none; }
+  .dateline { font-size: 10.5px; letter-spacing: .04em; }
+  .cap { flex-direction: column; gap: 4px; }
+  .closing .row { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="strip">
+    <span class="mono"><span lang="en">Est. 59 BC · Reissued 2026</span><span lang="zh">创刊于公元前 59 年 · 2026 复刊</span></span>
+    <span class="sp"></span>
+    <span class="mono hide-m"><span lang="en">Roma · Shanghai · Anywhere</span><span lang="zh">罗马 · 上海 · 任何地方</span></span>
+    <button class="lang" data-lang-toggle aria-label="Switch language"><b class="z">中</b> / <b class="e">EN</b></button>
+    <button class="btn solid"><span lang="en">Subscribe</span><span lang="zh">订阅</span></button>
+  </div>
+
+  <header class="plate">
+    <div class="nameplate" aria-label="Acta">ACT<span class="r">A</span></div>
+    <div class="sub"><span lang="en">The daily gazette for everything your team did overnight</span><span lang="zh">团队昨夜动态 · 每日公报</span></div>
+  </header>
+  <div class="dateline mono">
+    <span><span lang="en">Vol. MMXXVI · No. 1</span><span lang="zh">第 MMXXVI 卷 · 第 1 期</span></span>
+    <span class="c"><span lang="en">Printed fresh at 06:00, wherever you are</span><span lang="zh">每天早上六点，在你所在的时区开印</span></span>
+    <span><span lang="en">Price: free for early readers</span><span lang="zh">定价：早期读者免费</span></span>
+  </div>
+
+  <section class="lead">
+    <div>
+      <div class="kicker mono"><span lang="en">Lead story · AI briefings</span><span lang="zh">头版 · AI 简报</span></div>
+      <h1><span lang="en">Yesterday, printed by breakfast.</span><span lang="zh">昨天的事，<br>早饭前印好。</span></h1>
+      <p class="deck">
+        <span lang="en">Acta reads every channel, ticket and thread your team touched while you slept, then prints one briefing you can finish before the coffee cools.</span>
+        <span lang="zh">你睡着的时候，团队在各个频道、工单和讨论串里做了什么，Acta 都读一遍，印成一份简报。咖啡凉之前，你就能看完。</span>
+      </p>
+      <div class="row">
+        <button class="btn solid"><span lang="en">Get tomorrow's edition</span><span lang="zh">订明天那一期</span></button>
+        <a class="btn" href="#lab" style="text-decoration:none"><span lang="en">See how it's printed</span><span lang="zh">看看怎么印的</span></a>
+      </div>
+    </div>
+    <aside class="index">
+      <h4><span lang="en">In today's edition</span><span lang="zh">今日要目</span></h4>
+      <ul>
+        <li><span><span class="live"></span><span lang="en">Checkout errors spiked at 02:40, rolled back by 03:10</span><span lang="zh">两点四十结账报错激增，三点十分已回滚</span></span><i>A1</i></li>
+        <li><span><span lang="en">Vesta Pay signs the annual plan</span><span lang="zh">Vesta Pay 签下年度合同</span></span><i>A2</i></li>
+        <li><span><span lang="en">Three invoices questions, all in Spanish</span><span lang="zh">三条发票咨询，全是西班牙语</span></span><i>B4</i></li>
+        <li><span><span lang="en">Design review moved to Thursday</span><span lang="zh">设计评审改到周四</span></span><i>C1</i></li>
+      </ul>
+    </aside>
+  </section>
+
+  <figure>
+    <div class="photo" id="photo"><canvas></canvas><span class="loupe-tag">×3</span></div>
+    <figcaption class="cap">
+      <span><span lang="en">Fig. 1 · After Thomas Cole and the Augustus of Prima Porta, printed in two inks. Hover with the loupe; scroll and the screen coarsens.</span><span lang="zh">图一 · 据托马斯·科尔的油画与普里马波尔塔的奥古斯都像，双色印刷。把放大镜移上去看看；往下滚，网点会越来越粗。</span></span>
+      <span class="mono" id="photo-read">15° / 75°</span>
+    </figcaption>
+  </figure>
+
+  <section class="sec" id="lab">
+    <div class="sec-head">
+      <div>
+        <div class="sec-num mono"><span lang="en">Section B · The screen</span><span lang="zh">B 版 · 网屏</span></div>
+        <h2><span lang="en">Read the headline, or read every dot.</span><span lang="zh">看个大概，还是一个点一个点看，你来定。</span></h2>
+      </div>
+      <p><span lang="en">Printers tilt each ink to its own angle so the dots never collide. Acta treats detail the same way: a coarse screen for the gist, a fine one for the full story. Drag the dial and watch the briefing change with the print.</span><span lang="zh">印刷厂给每种油墨设一个角度，两层网点才不会撞在一起。Acta 对待细节也一样：网点粗，只印大意；网点细，印出全文。拖一下滑杆，简报会跟着印刷一起变。</span></p>
+    </div>
+    <div class="lab">
+      <div class="lab-canvas"><canvas id="lab-c"></canvas></div>
+      <div class="controls">
+        <div class="ctl">
+          <label class="mono" for="detail"><span><span lang="en">Detail</span><span lang="zh">细节</span></span><output id="detail-o">8 px</output></label>
+          <input type="range" id="detail" min="0" max="100" value="55">
+          <div class="ends mono"><span><span lang="en">Headline</span><span lang="zh">标题</span></span><span><span lang="en">Full story</span><span lang="zh">全文</span></span></div>
+        </div>
+        <div class="ctl">
+          <label class="mono" for="angle"><span><span lang="en">Screen angle</span><span lang="zh">网屏角度</span></span><output id="angle-o">15°</output></label>
+          <input type="range" id="angle" min="0" max="90" value="15">
+        </div>
+        <div class="inks">
+          <button class="ink-btn" aria-pressed="true" data-ink="blue"><i style="background:var(--blue)"></i><span lang="en">Blue</span><span lang="zh">蓝墨</span></button>
+          <button class="ink-btn" aria-pressed="true" data-ink="red"><i style="background:var(--red)"></i><span lang="en">Red</span><span lang="zh">红墨</span></button>
+        </div>
+        <div class="brief" id="brief"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="editions">
+    <div class="sec-head">
+      <div>
+        <div class="sec-num mono"><span lang="en">Section C · Editions</span><span lang="zh">C 版 · 版次</span></div>
+        <h2><span lang="en">Four editions a day, pinned to the Forum wall.</span><span lang="zh">一天四版，像当年贴在广场的墙上。</span></h2>
+      </div>
+      <p><span lang="en">The Romans posted the Acta Diurna in the Forum for anyone walking by. Ours arrives in your inbox and your team chat, four times a day, and never longer than a page.</span><span lang="zh">古罗马人把《每日纪闻》贴在广场上，路过的人都能看。我们的公报一天送四次，送到邮箱和团队群里，每期都不超过一页。</span></p>
+    </div>
+    <div class="wall">
+      <article class="poster" style="--r:-1.2deg"><div class="top mono"><span lang="en">Morning</span><span lang="zh">晨版</span><span>I</span></div><div class="time">06:00</div><h3><span lang="en">The overnight</span><span lang="zh">昨夜</span></h3><p><span lang="en">Everything that happened while you slept.</span><span lang="zh">你睡着时发生的一切。</span></p><div class="art"><canvas data-src="img/c-legion.jpg" data-inks="blue" data-blur="2.4" data-gamma=".75"></canvas></div></article>
+      <article class="poster" style="--r:.9deg"><div class="top mono"><span lang="en">Midday</span><span lang="zh">午版</span><span>II</span></div><div class="time">12:00</div><h3><span lang="en">The update</span><span lang="zh">上午</span></h3><p><span lang="en">What changed since breakfast.</span><span lang="zh">早饭之后变了什么。</span></p><div class="art"><canvas data-src="img/c-arco.jpg" data-inks="red" data-blur="2.4" data-gamma=".8"></canvas></div></article>
+      <article class="poster" style="--r:-.6deg"><div class="top mono"><span lang="en">Evening</span><span lang="zh">晚版</span><span>III</span></div><div class="time">18:00</div><h3><span lang="en">The decisions</span><span lang="zh">定案</span></h3><p><span lang="en">What was decided today, and by whom.</span><span lang="zh">今天定下的事，是谁定的。</span></p><div class="art"><canvas data-src="img/c-gladiators.jpg" data-inks="black" data-gamma=".85"></canvas></div></article>
+      <article class="poster" style="--r:1.4deg"><div class="top mono"><span lang="en">Night</span><span lang="zh">夜版</span><span>IV</span></div><div class="time">23:00</div><h3><span lang="en">The open items</span><span lang="zh">待办</span></h3><p><span lang="en">What tomorrow is waiting on.</span><span lang="zh">明天要等的那几件事。</span></p><div class="art"><canvas data-src="img/c-colosseo.jpg" data-inks="blue,red" data-blur="1.8" data-gamma=".62"></canvas></div></article>
+    </div>
+  </section>
+
+  <section class="sec" id="circulation">
+    <div class="sec-head">
+      <div>
+        <div class="sec-num mono"><span lang="en">Section D · Circulation</span><span lang="zh">D 版 · 发行</span></div>
+        <h2><span lang="en">Pick a circulation.</span><span lang="zh">选一种发行量。</span></h2>
+      </div>
+      <p><span lang="en">Start with a pamphlet. Upgrade when the whole Senate wants a copy.</span><span lang="zh">先从一张传单开始。等整个元老院都想要一份，再升级。</span></p>
+    </div>
+    <div class="cols">
+      <div class="col">
+        <div class="name"><span lang="en">Pamphlet</span><span lang="zh">传单</span></div>
+        <div class="price"><span lang="en">Free</span><span lang="zh">免费</span></div>
+        <div class="per mono"><span lang="en">For one reader</span><span lang="zh">一位读者</span></div>
+        <ul>
+          <li><span lang="en">One morning edition a day</span><span lang="zh">每天一期晨版</span></li>
+          <li><span lang="en">Three sources, e.g. chat, email, tickets</span><span lang="zh">接三个来源，比如群聊、邮件、工单</span></li>
+          <li><span lang="en">Delivered by email</span><span lang="zh">邮件送达</span></li>
+        </ul>
+        <button class="btn"><span lang="en">Start reading</span><span lang="zh">开始读</span></button>
+      </div>
+      <div class="col hot">
+        <span class="stamp"><span lang="en">Most read</span><span lang="zh">读者最多</span></span>
+        <div class="name"><span lang="en">Gazette</span><span lang="zh">公报</span></div>
+        <div class="price">$8</div>
+        <div class="per mono"><span lang="en">Per reader / month</span><span lang="zh">每位读者 / 每月</span></div>
+        <ul>
+          <li><span lang="en">All four editions</span><span lang="zh">四个版次全都有</span></li>
+          <li><span lang="en">Unlimited sources</span><span lang="zh">来源不限</span></li>
+          <li><span lang="en">Team chat and email delivery</span><span lang="zh">群聊和邮件都能送</span></li>
+          <li><span lang="en">The detail dial, per reader</span><span lang="zh">每人自己调细节</span></li>
+        </ul>
+        <button class="btn solid"><span lang="en">Subscribe</span><span lang="zh">订阅</span></button>
+      </div>
+      <div class="col">
+        <div class="name"><span lang="en">Senate</span><span lang="zh">元老院</span></div>
+        <div class="price">$24</div>
+        <div class="per mono"><span lang="en">Per reader / month</span><span lang="zh">每位读者 / 每月</span></div>
+        <ul>
+          <li><span lang="en">Everything in Gazette</span><span lang="zh">公报的全部功能</span></li>
+          <li><span lang="en">Private editions for each team</span><span lang="zh">每个团队一份内部版</span></li>
+          <li><span lang="en">Archive back to issue one</span><span lang="zh">从第一期起的全部存档</span></li>
+          <li><span lang="en">Single sign-on and audit log</span><span lang="zh">单点登录和审计日志</span></li>
+        </ul>
+        <button class="btn"><span lang="en">Talk to us</span><span lang="zh">联系我们</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing">
+    <div class="type" id="type"><canvas></canvas></div>
+    <div class="row">
+      <p><span lang="en">Tomorrow's edition goes to press at six. Your name could be on the mailing list.</span><span lang="zh">明早六点开印。订阅名单上，还差你的名字。</span></p>
+      <button class="btn solid"><span lang="en">Get tomorrow's edition</span><span lang="zh">订明天那一期</span></button>
+    </div>
+  </section>
+
+  <footer>
+    <div class="top"><b style="font: 700 18px var(--cap); letter-spacing: .08em">ACTA</b><span><span lang="en">A fictional product, built as a design study.</span><span lang="zh">虚构产品，仅作设计练习。</span></span></div>
+    <b>图源</b>：头版大图合成自 Thomas Cole《The Consummation of Empire》（1836，公有领域）与荷兰国立博物馆藏《Augustus van Prima Porta》照片（CC0）；
+    四张版次海报取自 Marco Dente《A Roman Legion》（约 1515–1527，美国国家美术馆，CC0）、G. B. Piranesi《Arco di Costantino》（1748，美国国家美术馆，CC0）、
+    Jean-Léon Gérôme《Ave Caesar! Morituri te salutant》（1859，公有领域）、G. B. Piranesi《Veduta dell'Anfiteatro Flavio》（大都会艺术博物馆，CC0）；
+    网屏实验图取自 Thomas Cole 同上作品；均经 Wikimedia Commons 获取，经裁剪、抠图合成、去色与双色网点化处理。
+    字体：Cinzel、Newsreader、IBM Plex Mono、Noto Serif SC（均为 OFL-1.1）。本页为学习用 demo，品牌与文案均为虚构。<br>
+    侵权请联系删除。
+  </footer>
+</div>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const INK = { blue: "#2233c8", red: "#e4402a", black: "#1b1a1f" }, PAPER = "#f2eee4";
+const zh = () => document.documentElement.dataset.lang === "zh";
+
+// ---- halftone engine: a luminance buffer printed through rotated dot screens ----
+// blur melts engraving hatch lines into tones (otherwise they alias with the screen); gamma < 1 lifts the paper
+function lumOf(src, maxW = 1100, { blur = 0, gamma = 1 } = {}) {
+  const w = Math.min(maxW, src.width), h = Math.round(src.height * w / src.width);
+  const c = new OffscreenCanvas(w, h), x = c.getContext("2d");
+  x.filter = blur ? `blur(${blur}px)` : "none";
+  x.drawImage(src, 0, 0, w, h);
+  const d = x.getImageData(0, 0, w, h).data, L = new Float32Array(w * h);
+  for (let i = 0; i < L.length; i++) L[i] = ((d[i * 4] * .3 + d[i * 4 + 1] * .59 + d[i * 4 + 2] * .11) / 255) ** gamma;
+  return { w, h, L };
+}
+const loadImg = src => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = src; });
+// tone curves: luminance → ink coverage. Red only prints the shadows, so midtones stay blue.
+const TONE = {
+  blue: v => (1 - v) ** 1.15,
+  red: v => { const d = 1 - v; return d < .32 ? 0 : ((d - .32) / .68) ** 1.25 * .85; },
+  black: v => (1 - v) ** 1.1,
+};
+const ANGLE = { blue: 0, red: 60, black: 30 }; // offsets added to the base screen angle
+
+function screen(ctx, lum, w, h, o) {
+  const s = Math.max(w / lum.w, h / lum.h), ox = (w - lum.w * s) * (o.fx ?? .5), oy = (h - lum.h * s) / 2;
+  const a = o.angle * Math.PI / 180, c = Math.cos(a), sn = Math.sin(a), cell = o.cell;
+  const n = Math.ceil(Math.hypot(w, h) / 2 / cell) + 1, R = cell * .71 * (o.grow ?? 1);
+  const b = o.box || { x0: -cell, y0: -cell, x1: w + cell, y1: h + cell };
+  ctx.fillStyle = o.ink; ctx.beginPath();
+  for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) {
+    const u = i * cell, v = j * cell;
+    const x = w / 2 + u * c - v * sn + (o.dx || 0), y = h / 2 + u * sn + v * c + (o.dy || 0);
+    if (x < b.x0 || y < b.y0 || x > b.x1 || y > b.y1) continue;
+    const px = Math.min(lum.w - 1, Math.max(0, ((x - ox) / s) | 0)), py = Math.min(lum.h - 1, Math.max(0, ((y - oy) / s) | 0));
+    const r = R * Math.sqrt(o.tone(lum.L[py * lum.w + px]));
+    if (r < .3) continue;
+    ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, 6.2832);
+  }
+  ctx.fill();
+}
+// print several inks over paper with multiply, like a real press
+function print(ctx, lum, w, h, o) {
+  if (!o.box) { ctx.fillStyle = PAPER; ctx.fillRect(0, 0, w, h); }
+  ctx.globalCompositeOperation = "multiply";
+  o.inks.forEach((k, i) => screen(ctx, lum, w, h, { ...o, ink: INK[k], tone: TONE[k], angle: o.angle + ANGLE[k], dx: i ? o.mis || 0 : 0, dy: i ? (o.mis || 0) * .5 : 0 }));
+  ctx.globalCompositeOperation = "source-over";
+}
+// printer's loupe: redraw a small region magnified ×3 inside a circle
+function loupe(ctx, lum, w, h, o, m) {
+  const r = Math.min(110, w * .18), z = 3;
+  ctx.save(); ctx.beginPath(); ctx.arc(m.x, m.y, r, 0, 6.2832); ctx.clip();
+  ctx.fillStyle = PAPER; ctx.fillRect(m.x - r, m.y - r, r * 2, r * 2);
+  ctx.translate(m.x, m.y); ctx.scale(z, z); ctx.translate(-m.x, -m.y);
+  print(ctx, lum, w, h, { ...o, box: { x0: m.x - r / z - o.cell, y0: m.y - r / z - o.cell, x1: m.x + r / z + o.cell, y1: m.y + r / z + o.cell } });
+  ctx.restore();
+  ctx.lineWidth = 2; ctx.strokeStyle = INK.black; ctx.beginPath(); ctx.arc(m.x, m.y, r, 0, 6.2832); ctx.stroke();
+}
+// canvas wrapper: DPR ≤ 2, redraw on resize, paused while offscreen
+function plate(canvas, draw) {
+  const ctx = canvas.getContext("2d");
+  let raf = 0, vis = false;
+  const p = { ctx, w: 0, h: 0, request() { if (vis && !raf) raf = requestAnimationFrame(() => { raf = 0; draw(p); }); } };
+  new ResizeObserver(() => {
+    const r = canvas.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2);
+    p.w = r.width; p.h = r.height; canvas.width = r.width * d; canvas.height = r.height * d;
+    ctx.setTransform(d, 0, 0, d, 0, 0); p.request();
+  }).observe(canvas);
+  new IntersectionObserver(([e]) => { vis = e.isIntersecting; p.request(); }).observe(canvas);
+  return p;
+}
+function pointer(host, p) {
+  const m = { x: 0, y: 0, on: false };
+  if (reduce) return m;
+  host.addEventListener("pointermove", e => { const r = host.getBoundingClientRect(); m.x = e.clientX - r.left; m.y = e.clientY - r.top; m.on = true; p.request(); });
+  host.addEventListener("pointerleave", () => { m.on = false; p.request(); });
+  return m;
+}
+
+(async () => {
+  const [hero, lab, ...posters] = await Promise.all(["img/hero.jpg", "img/c-cole.jpg", ...[...document.querySelectorAll(".poster canvas")].map(c => c.dataset.src)].map(loadImg));
+  const heroL = lumOf(hero, 1400, { gamma: .6 }), labL = lumOf(lab, 900, { blur: 1, gamma: .62 });
+
+  // 1. front-page photo: the screen coarsens and slips out of register as you scroll past
+  const ph = document.getElementById("photo"), tag = ph.querySelector(".loupe-tag"), read = document.getElementById("photo-read");
+  const pp = plate(ph.querySelector("canvas"), p => {
+    const r = ph.getBoundingClientRect();
+    const t = reduce ? 0 : Math.min(1, Math.max(0, -r.top / r.height)); // fine while in view, coarsens as it leaves the top
+    const o = { inks: ["blue", "red"], cell: 5 + t * 15, angle: 15, mis: 1 + t * 9, fx: p.w < 700 ? .97 : .72 }; // keep the statue in frame on narrow screens
+    print(p.ctx, heroL, p.w, p.h, o);
+    if (pm.on) loupe(p.ctx, heroL, p.w, p.h, o, pm);
+    tag.style.opacity = pm.on ? 1 : 0; tag.style.left = pm.x + 70 + "px"; tag.style.top = pm.y - 92 + "px";
+    read.textContent = `${o.cell.toFixed(1)} px · 15° / 75°`;
+  });
+  const pm = pointer(ph, pp);
+  addEventListener("scroll", () => pp.request(), { passive: true });
+
+  // 2. screen-angle lab: detail dial drives dot size and how much of the briefing is printed
+  const detail = document.getElementById("detail"), angle = document.getElementById("angle"), inkBtns = [...document.querySelectorAll(".ink-btn")];
+  const lp = plate(document.getElementById("lab-c"), p => {
+    const inks = inkBtns.filter(b => b.getAttribute("aria-pressed") === "true").map(b => b.dataset.ink);
+    const o = { inks, cell: 22 - detail.value * .18, angle: +angle.value, mis: 1.5 };
+    print(p.ctx, labL, p.w, p.h, o);
+    if (lm.on) loupe(p.ctx, labL, p.w, p.h, o, lm);
+  });
+  const lm = pointer(document.getElementById("lab-c"), lp);
+  const B = {
+    en: {
+      h: "Two deals closed. One outage, fixed by 03:10.",
+      li: ["Vesta Pay signed the annual plan after the security review.", "Checkout errors hit 4% at 02:40; Livia rolled the release back.", "Three customers asked about invoices, all in Spanish."],
+      p: "Quintus answered Vesta Pay's security questionnaire at 23:50 and the contract came back signed an hour later. The 02:40 payments release pushed checkout errors to 4%; Livia rolled it back at 03:10 and booked a review for 10:00. Support's three Spanish invoice questions suggest the new billing emails need translating before Friday.",
+      lv: ["Headline only", "Summary", "Full story"],
+    },
+    zh: {
+      h: "成交两单。凌晨出过一次故障，三点十分修好。",
+      li: ["Vesta Pay 过完安全审查，签了年度合同。", "两点四十结账报错升到 4%，Livia 回滚了版本。", "三位客户问了发票的事，都是用西班牙语问的。"],
+      p: "Quintus 在十一点五十回完 Vesta Pay 的安全问卷，一小时后合同签回来了。两点四十的支付版本把结账报错推到 4%，Livia 三点十分回滚，约了上午十点复盘。客服收到的三条西班牙语发票咨询说明，新账单邮件最好在周五前翻译好。",
+      lv: ["只看标题", "摘要", "全文"],
+    },
+  };
+  const brief = document.getElementById("brief");
+  let lastLv = -1, lastLang = "";
+  function syncLab() {
+    const cell = 22 - detail.value * .18, lv = detail.value < 34 ? 0 : detail.value < 70 ? 1 : 2, l = zh() ? "zh" : "en", b = B[l];
+    document.getElementById("detail-o").textContent = cell.toFixed(1) + " px";
+    document.getElementById("angle-o").textContent = `${angle.value}° / ${(+angle.value + 60) % 180}°`;
+    if (lv !== lastLv || l !== lastLang) {
+      brief.innerHTML = `<div class="lvl"><div class="mono">${b.lv[lv]}</div><div class="h">${b.h}</div>` +
+        (lv >= 1 ? `<ul>${b.li.map(x => `<li>${x}</li>`).join("")}</ul>` : "") + (lv === 2 ? `<p>${b.p}</p>` : "") + "</div>";
+      lastLv = lv; lastLang = l;
+    }
+    lp.request();
+  }
+  detail.addEventListener("input", syncLab); angle.addEventListener("input", syncLab);
+  inkBtns.forEach(b => b.addEventListener("click", () => {
+    const on = b.getAttribute("aria-pressed") === "true";
+    if (on && inkBtns.filter(x => x.getAttribute("aria-pressed") === "true").length === 1) return; // keep one ink
+    b.setAttribute("aria-pressed", String(!on)); syncLab();
+  }));
+  syncLab();
+
+  // 3. edition posters: dots grow in as each poster comes off the press
+  document.querySelectorAll(".poster canvas").forEach((c, i) => {
+    const L = lumOf(posters[i], 700, { blur: +(c.dataset.blur || 0), gamma: +(c.dataset.gamma || 1) }), inks = c.dataset.inks.split(",");
+    let grow = reduce ? 1 : 0, t0 = 0;
+    const p = plate(c, p => {
+      print(p.ctx, L, p.w, p.h, { inks, cell: 4.2, angle: 15 + i * 7, grow, mis: 1.4 });
+      if (grow < 1) { grow = Math.min(1, (performance.now() - t0) / 1400) ** .6; p.request(); }
+    });
+    new IntersectionObserver(([e], ob) => { if (e.isIntersecting) { t0 = performance.now(); p.request(); ob.disconnect(); } }, { threshold: .3 }).observe(c);
+  });
+
+  // 4. closing: the sign-off set in type, then printed as halftone
+  const ty = document.getElementById("type");
+  let typeL = null;
+  const tp = plate(ty.querySelector("canvas"), p => {
+    if (!typeL || typeL.key !== `${zh()}${p.w | 0}`) {
+      const c = document.createElement("canvas"); c.width = Math.max(1, p.w); c.height = Math.max(1, p.h);
+      const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height);
+      const g = x.createLinearGradient(0, c.height * .1, 0, c.height * .95); g.addColorStop(0, "#000"); g.addColorStop(1, "#b4b4b4"); x.fillStyle = g;
+      const txt = zh() ? "明早见" : "AVE.";
+      let fs = c.height * .92; x.font = `${zh() ? 900 : 700} ${fs}px ${zh() ? '"Noto Serif SC"' : "Cinzel"}`;
+      const tw = x.measureText(txt).width; if (tw > c.width * .98) { fs *= c.width * .98 / tw; x.font = x.font.replace(/[\d.]+px/, fs + "px"); }
+      x.textBaseline = "middle"; x.textAlign = "center"; x.fillText(txt, c.width / 2, c.height * .54);
+      typeL = lumOf(c, 1400); typeL.key = `${zh()}${p.w | 0}`;
+    }
+    const o = { inks: ["blue", "red"], cell: 9, angle: 15, mis: 3 };
+    print(p.ctx, typeL, p.w, p.h, o);
+    if (tm.on) loupe(p.ctx, typeL, p.w, p.h, o, tm);
+  });
+  const tm = pointer(ty, tp);
+  await Promise.all([document.fonts.load('900 100px "Noto Serif SC"', "明早见"), document.fonts.load("700 100px Cinzel", "AVE.")]).catch(() => {});
+  typeL = null; tp.request();
+
+  document.querySelector("[data-lang-toggle]").addEventListener("click", () => setTimeout(() => { typeL = null; tp.request(); syncLab(); }, 0));
+})();
+</script>
+</body>
+</html>

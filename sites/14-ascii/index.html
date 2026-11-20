@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glyph — infrastructure, rendered in plain text</title>
+<script src="../../shared/lang.js"></script>
+<style>
+@font-face { font-family: "Geist Pixel"; src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-pixel@5.3.0/latin-400-normal.woff2) format("woff2"); font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-mono@latest/latin-400-normal.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-mono@latest/latin-500-normal.woff2) format("woff2"); font-weight: 500; font-display: swap; }
+
+:root {
+  --bg: #0b0b0c;
+  --panel: #111113;
+  --line: #222226;
+  --text: #ecebe6;
+  --dim: #8b8b91;
+  --accent: #ff6b2c;
+  --mono: "Geist Mono", "PingFang SC", "Noto Sans SC", ui-monospace, monospace;
+  --pixel: "Geist Pixel", "Geist Mono", "PingFang SC", monospace;
+  --wrap: min(1280px, calc(100vw - 40px));
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--bg); }
+body { font: 14px/1.6 var(--mono); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.wrap { width: var(--wrap); margin: 0 auto; }
+::selection { background: var(--accent); color: #000; }
+
+/* ---------- nav ---------- */
+nav { position: fixed; z-index: 20; inset: 0 0 auto; height: 60px; border-bottom: 1px solid rgba(255,255,255,.07); background: rgba(11,11,12,.55); backdrop-filter: blur(14px); }
+nav .wrap { height: 100%; display: flex; align-items: center; gap: 36px; }
+.logo { display: flex; align-items: center; gap: 10px; font: 20px var(--pixel); letter-spacing: .02em; }
+.logo b { color: var(--accent); font-weight: 400; }
+nav ul { display: flex; gap: 28px; list-style: none; padding: 0; color: var(--dim); font-size: 13px; }
+nav li { cursor: pointer; transition: color .15s; }
+nav li:hover { color: var(--text); }
+nav .right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.btn { font-size: 13px; padding: 8px 16px; border: 1px solid var(--line); border-radius: 2px; transition: background-color .15s, border-color .15s, transform .15s; white-space: nowrap; }
+.btn:hover { border-color: #3a3a40; background: #17171a; }
+.btn:active { transform: scale(.97); }
+.btn.solid { background: var(--text); color: #0b0b0c; border-color: var(--text); }
+.btn.solid:hover { background: #fff; }
+.lang { color: var(--dim); font-size: 12px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 2px; }
+.lang:hover { color: var(--text); }
+
+/* ---------- stage: sticky ASCII renderer ---------- */
+.stage { position: relative; height: 270vh; }
+.sticky { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+.sticky canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; }
+.sticky::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(11,11,12,.92) 0%, rgba(11,11,12,.6) 34%, transparent 60%), linear-gradient(0deg, var(--bg) 0%, transparent 18%); }
+.copy { position: absolute; z-index: 2; left: 0; right: 0; top: 50%; translate: 0 -46%; pointer-events: none; transition: opacity .5s ease, translate .6s cubic-bezier(.2,.8,.2,1); }
+.copy .wrap > * { pointer-events: auto; }
+.copy.off { opacity: 0; translate: 0 -40%; }
+.copy.off .wrap > * { pointer-events: none; }
+.tag { display: inline-flex; gap: 10px; align-items: center; font-size: 12px; color: var(--dim); border: 1px solid var(--line); padding: 4px 10px 4px 8px; border-radius: 99px; background: rgba(11,11,12,.6); }
+.tag i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
+h1 { font: 400 clamp(40px, 5.6vw, 84px)/1.0 var(--pixel); letter-spacing: -.01em; margin: 22px 0 22px; max-width: 9.6em; }
+html[data-lang="zh"] h1 { font: 600 clamp(36px, 4.6vw, 68px)/1.15 "PingFang SC", "Noto Sans SC", sans-serif; letter-spacing: .01em; max-width: 9em; }
+.lede { max-width: 34em; color: #b9b8b3; font-size: 15px; }
+.cta { display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+.cmd { display: inline-flex; align-items: center; gap: 14px; margin-top: 18px; padding: 10px 12px 10px 14px; border: 1px dashed #2e2e33; background: rgba(17,17,19,.8); font-size: 13px; border-radius: 2px; }
+.cmd span.p { color: var(--accent); }
+.cmd button { color: var(--dim); font-size: 12px; border-left: 1px solid var(--line); padding-left: 12px; }
+.cmd button:hover { color: var(--text); }
+.copy.b h2 { font: 400 clamp(32px, 4vw, 60px)/1.05 var(--pixel); max-width: 11em; }
+html[data-lang="zh"] .copy.b h2 { font: 600 clamp(30px, 3.6vw, 52px)/1.2 "PingFang SC", "Noto Sans SC", sans-serif; }
+.copy.b p { margin-top: 18px; max-width: 32em; color: #b9b8b3; }
+.copy.b code { color: var(--accent); }
+
+.hud { position: absolute; z-index: 3; font-size: 11px; letter-spacing: .04em; color: var(--dim); pointer-events: none; text-transform: uppercase; }
+.hud.tl { top: 78px; left: 20px; }
+.hud.bl { bottom: 22px; left: 20px; display: flex; gap: 22px; }
+.hud.br { bottom: 22px; right: 20px; text-align: right; }
+.hud.tr { top: 78px; right: 20px; text-align: right; }
+.hud b { color: var(--text); font-weight: 500; }
+.hud .rec::before { content: "● "; color: var(--accent); }
+.bar { position: absolute; z-index: 3; left: 20px; right: 20px; bottom: 54px; height: 1px; background: var(--line); }
+.bar i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--accent); }
+
+/* ---------- sections ---------- */
+section.s { padding: 140px 0; border-top: 1px solid var(--line); }
+.eyebrow { font-size: 12px; color: var(--accent); letter-spacing: .08em; text-transform: uppercase; }
+h3.big { font: 400 clamp(32px, 3.6vw, 52px)/1.05 var(--pixel); margin: 16px 0 18px; }
+html[data-lang="zh"] h3.big { font: 600 clamp(28px, 3.2vw, 44px)/1.25 "PingFang SC", "Noto Sans SC", sans-serif; }
+.muted { color: var(--dim); max-width: 30em; }
+
+.split { display: grid; grid-template-columns: 5fr 7fr; gap: 64px; align-items: center; }
+.points { list-style: none; padding: 0; margin-top: 28px; display: grid; gap: 12px; }
+.points li { display: flex; gap: 12px; color: #c9c8c3; }
+.points li::before { content: "→"; color: var(--accent); }
+
+.term { border: 1px solid var(--line); background: var(--panel); border-radius: 4px; overflow: hidden; box-shadow: 0 40px 80px -40px rgba(0,0,0,.8); }
+.term .bar2 { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--dim); }
+.term .bar2 i { width: 10px; height: 10px; border-radius: 50%; background: #2a2a2f; }
+.term .bar2 span { margin-left: 10px; }
+.term .bar2 em { margin-left: auto; font-style: normal; color: var(--accent); }
+.term pre { font: 12.5px/1.75 var(--mono); padding: 16px 18px; height: 420px; overflow: hidden; white-space: pre; color: #c9c8c3; mask: linear-gradient(180deg, transparent, #000 14%); display: flex; flex-direction: column; justify-content: flex-end; }
+.term pre code { font: inherit; }
+.term pre .t { color: #55555c; }
+.term pre .ok { color: var(--text); }
+.term pre .warn { color: var(--accent); }
+.term pre .dim { color: #6c6c73; }
+.term .prompt { border-top: 1px solid var(--line); padding: 12px 18px; font-size: 12.5px; color: var(--dim); }
+.term .prompt b { color: var(--accent); font-weight: 400; }
+.term .prompt i { display: inline-block; width: 8px; height: 15px; background: var(--text); vertical-align: -3px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 56px; background: var(--line); border: 1px solid var(--line); }
+.card { background: var(--bg); padding: 22px 22px 26px; position: relative; transition: background-color .3s; }
+.card:hover { background: #0f0f11; }
+.card .viz { position: relative; aspect-ratio: 16 / 9; border: 1px solid #1a1a1e; background: #0d0d0f; }
+.card canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.card .lab { position: absolute; top: 10px; left: 12px; font-size: 11px; color: var(--dim); }
+.card .lab b { color: var(--text); font-weight: 500; }
+.card h4 { font: 500 16px var(--mono); margin: 22px 0 8px; display: flex; justify-content: space-between; }
+.card h4 small { color: #55555c; font-weight: 400; font-size: 12px; }
+.card p { color: var(--dim); font-size: 13.5px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); }
+.stats div { padding: 40px 28px; border-right: 1px solid var(--line); }
+.stats div:last-child { border-right: 0; }
+.stats b { display: block; font: 400 clamp(48px, 6vw, 88px)/1 var(--pixel); }
+.stats b em { color: var(--accent); font-style: normal; }
+.stats span { display: block; margin-top: 14px; color: var(--dim); font-size: 13px; }
+
+.final { text-align: center; padding: 160px 0 140px; }
+.final h3.big { margin: 0 auto 26px; }
+.final .cmd { margin: 0 0 28px; font-size: 15px; padding: 14px 16px 14px 20px; }
+.final .cta { justify-content: center; margin: 0; }
+
+footer { border-top: 1px solid var(--line); padding: 48px 0 56px; color: #6c6c73; font-size: 12px; line-height: 1.9; }
+footer .row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 26px; color: var(--dim); }
+footer .row .logo { color: var(--text); }
+footer b { color: #b9b8b3; font-weight: 500; }
+
+@media (max-width: 900px) {
+  nav ul, nav .right .btn:not(.solid) { display: none; }
+  nav .wrap { gap: 16px; }
+  .sticky::after { background: linear-gradient(0deg, rgba(11,11,12,.96) 0%, rgba(11,11,12,.75) 45%, rgba(11,11,12,.15) 75%); }
+  .copy { top: auto; bottom: 64px; translate: none; }
+  .copy.off { translate: 0 20px; }
+  .hud.tr, .hud.br, .hud.bl span:nth-child(n+3) { display: none; }
+  .bar { bottom: 44px; }
+  .split, .grid, .stats { grid-template-columns: 1fr; }
+  .split { gap: 40px; }
+  .stats div { border-right: 0; border-bottom: 1px solid var(--line); }
+  .stats div:last-child { border-bottom: 0; }
+  section.s { padding: 96px 0; }
+  .term pre { height: 340px; font-size: 11px; }
+  .cmd { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" href="#"><b>▚</b>glyph</a>
+  <ul>
+    <li><span lang="en">Product</span><span lang="zh">产品</span></li>
+    <li><span lang="en">Docs</span><span lang="zh">文档</span></li>
+    <li><span lang="en">Changelog</span><span lang="zh">更新日志</span></li>
+    <li><span lang="en">Pricing</span><span lang="zh">价格</span></li>
+  </ul>
+  <div class="right">
+    <button class="lang" data-lang-toggle aria-label="Switch language"><span lang="en">中文</span><span lang="zh">EN</span></button>
+    <a class="btn" href="#"><span lang="en">Sign in</span><span lang="zh">登录</span></a>
+    <a class="btn solid" href="#"><span lang="en">Start free</span><span lang="zh">免费开始</span></a>
+  </div>
+</div></nav>
+
+<section class="stage" id="stage">
+  <div class="sticky">
+    <canvas id="ascii" aria-label="Saturn V launch dissolving into Earthrise, rendered as ASCII characters"></canvas>
+    <div class="hud tl"><span class="rec">glyph/live</span> · <span id="fps">60</span> fps</div>
+    <div class="hud tr"><span lang="en">hover to reveal source</span><span lang="zh">移动鼠标查看原图</span></div>
+    <div class="hud bl"><span>T+ <b id="t">00:00:00</b></span><span>alt <b id="alt">0.0 km</b></span><span>vel <b id="vel">0 m/s</b></span></div>
+    <div class="hud br" id="src">src · NASA GPN-2000-000630 · 1969</div>
+    <div class="bar"><i id="prog"></i></div>
+
+    <div class="copy a" id="copyA"><div class="wrap">
+      <span class="tag"><i></i><span lang="en">v2.0 — now streaming traces</span><span lang="zh">v2.0 · 链路追踪现已支持实时流</span></span>
+      <h1><span lang="en" data-scramble>Your infrastructure, rendered in plain text.</span><span lang="zh" data-scramble>把整套基础设施，渲染成纯文本。</span></h1>
+      <p class="lede"><span lang="en">Glyph streams traces, metrics and logs into one terminal you will actually want to watch. One binary, zero dashboards.</span><span lang="zh">Glyph 把链路、指标和日志汇进同一个终端，一个你真的愿意一直盯着看的终端。一个二进制文件，不需要仪表盘。</span></p>
+      <div class="cta">
+        <a class="btn solid" href="#"><span lang="en">Start free</span><span lang="zh">免费开始</span></a>
+        <a class="btn" href="#"><span lang="en">Read the docs</span><span lang="zh">阅读文档</span></a>
+      </div>
+      <div class="cmd"><span><span class="p">$</span> brew install glyph</span><button data-copy="brew install glyph"><span lang="en">copy</span><span lang="zh">复制</span></button></div>
+    </div></div>
+
+    <div class="copy b off" id="copyB"><div class="wrap">
+      <span class="eyebrow"><span lang="en">Same engine as glyph tail</span><span lang="zh">和 glyph tail 同一个引擎</span></span>
+      <h2><span lang="en" data-scramble>From liftoff to orbit, every signal in one stream.</span><span lang="zh" data-scramble>从点火到入轨，每个信号都在一条流里。</span></h2>
+      <p><span lang="en">Keep scrolling: the renderer decodes one source into another in real time, cell by cell. That is how <code>glyph tail</code> swaps a service view without redrawing your terminal.</span><span lang="zh">继续往下滚：渲染器正在一格一格地把一个画面解码成另一个。<code>glyph tail</code> 切换服务视图时也是这样，终端不用整屏重画。</span></p>
+    </div></div>
+  </div>
+</section>
+
+<section class="s"><div class="wrap split">
+  <div>
+    <span class="eyebrow"><span lang="en">Logs</span><span lang="zh">日志</span></span>
+    <h3 class="big"><span lang="en" data-scramble>Logs that read like a story.</span><span lang="zh" data-scramble>读起来像故事的日志。</span></h3>
+    <p class="muted"><span lang="en">Glyph groups every line by request, colours only what needs you, and keeps the rest quiet.</span><span lang="zh">Glyph 按请求把每一行归好组，只给需要你处理的那几行上色，其余保持安静。</span></p>
+    <ul class="points">
+      <li><span lang="en">Structured by default, grep-able forever</span><span lang="zh">默认结构化，永远可以 grep</span></li>
+      <li><span lang="en">One accent colour: the line you should read</span><span lang="zh">只有一种强调色：留给你该读的那一行</span></li>
+      <li><span lang="en">Tail 40 services in a single pane</span><span lang="zh">一个窗格同时 tail 40 个服务</span></li>
+    </ul>
+  </div>
+  <div class="term">
+    <div class="bar2"><i></i><i></i><i></i><span>glyph tail --all --since 5m</span><em>● live</em></div>
+    <pre id="log"></pre>
+    <div class="prompt"><b>~/acme</b> $ glyph tail --service api <i></i></div>
+  </div>
+</div></section>
+
+<section class="s"><div class="wrap">
+  <span class="eyebrow"><span lang="en">Views</span><span lang="zh">视图</span></span>
+  <h3 class="big"><span lang="en" data-scramble>Three views. One stream.</span><span lang="zh" data-scramble>三种视图，一条数据流。</span></h3>
+  <p class="muted"><span lang="en">Every view is drawn with characters, so it works over SSH, in CI logs, and on the slowest hotel Wi‑Fi.</span><span lang="zh">每个视图都是用字符画出来的，所以 SSH 里能用，CI 日志里能用，酒店最慢的 Wi‑Fi 下也能用。</span></p>
+  <div class="grid">
+    <article class="card">
+      <div class="viz"><canvas data-viz="donut"></canvas><span class="lab">trace <b>req_7f3a</b> · 41 spans</span></div>
+      <h4><span><span lang="en">Traces</span><span lang="zh">链路追踪</span></span><small>01</small></h4>
+      <p><span lang="en">Follow one request through forty services without leaving the shell.</span><span lang="zh">不离开命令行，跟着一个请求穿过四十个服务。</span></p>
+    </article>
+    <article class="card">
+      <div class="viz"><canvas data-viz="chart"></canvas><span class="lab">p99 latency · <b id="p99">142ms</b></span></div>
+      <h4><span><span lang="en">Metrics</span><span lang="zh">指标</span></span><small>02</small></h4>
+      <p><span lang="en">Latency, throughput and saturation, drawn live in the terminal.</span><span lang="zh">延迟、吞吐量、饱和度，在终端里实时画出来。</span></p>
+    </article>
+    <article class="card">
+      <div class="viz"><canvas data-viz="radar"></canvas><span class="lab">sweep · <b>1s</b> · 3 open</span></div>
+      <h4><span><span lang="en">Alerts</span><span lang="zh">告警</span></span><small>03</small></h4>
+      <p><span lang="en">One sweep a second. Noise stays dark; real incidents light up.</span><span lang="zh">每秒扫一圈。噪声保持暗着，真正的故障才会亮起来。</span></p>
+    </article>
+  </div>
+</div></section>
+
+<section class="s"><div class="wrap">
+  <div class="stats">
+    <div><b>1</b><span><span lang="en">binary, no agents to babysit</span><span lang="zh">个二进制文件，不用照看一堆 agent</span></span></div>
+    <div><b>0</b><span><span lang="en">dashboards to keep in sync</span><span lang="zh">个需要维护同步的仪表盘</span></span></div>
+    <div><b>&lt;2<em>ms</em></b><span><span lang="en">overhead per request</span><span lang="zh">每个请求的额外开销</span></span></div>
+  </div>
+</div></section>
+
+<section class="final"><div class="wrap">
+  <h3 class="big"><span lang="en" data-scramble>Install in one line.</span><span lang="zh" data-scramble>一行命令就能装好。</span></h3>
+  <div class="cmd"><span><span class="p">$</span> brew install glyph &amp;&amp; glyph init</span><button data-copy="brew install glyph && glyph init"><span lang="en">copy</span><span lang="zh">复制</span></button></div>
+  <div class="cta"><a class="btn solid" href="#"><span lang="en">Start free</span><span lang="zh">免费开始</span></a><a class="btn" href="#"><span lang="en">Talk to us</span><span lang="zh">联系我们</span></a></div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="row"><span class="logo"><b>▚</b>glyph</span><span>ui-remix · 14 / ascii</span></div>
+  <b>图源</b>：首屏与滚动画面取自 NASA《Apollo 11 Launch》（GPN-2000-000630，1969，公有领域）与 NASA / Bill Anders《Earthrise》（AS08-14-2383，1968，公有领域），均经 Wikimedia Commons 获取，经裁剪、重新构图，并在浏览器中实时转为 ASCII 字符。
+  字体：Geist Mono / Geist Pixel（OFL-1.1）。本页为 ui-remix 开源示例，品牌 Glyph、命令与页面数据均为虚构。<br>
+  侵权请联系删除。
+</div></footer>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const DPR = Math.min(devicePixelRatio || 1, 2);
+const RAMP = " .'`-:;~=+*xoXO#%@";
+const TONES = ["#3a3a40", "#5c5c63", "#85858b", "#b0afaa", "#d8d7d1", "#f4f2ec"];
+const ACCENT = "#ff6b2c";
+const GLITCH = "01<>/\\|_#*+=";
+const rnd = s => s[(Math.random() * s.length) | 0];
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+
+/* ---------- stage renderer: two images → per-cell luminance → glyph rows per tone ---------- */
+const stage = document.getElementById("stage"), cv = document.getElementById("ascii"), ctx = cv.getContext("2d");
+const srcs = [
+  { url: "img/launch.jpg", fx: .70, w: [.72, .28, 0], lo: .16, hi: 1, g: 1.3, label: "src · NASA GPN-2000-000630 · 1969" },
+  { url: "img/earthrise.jpg", fx: .64, w: [.3, .5, .2], lo: .05, hi: .85, g: .9, label: "src · NASA AS08-14-2383 · 1968" },
+];
+let W, H, cw, ch, cols, rows, fs, lum = [], noise, p = 0, lastP = -1, base, bctx, mx = -1e4, my = -1e4;
+
+function coverRect(src) { // source rect that covers W×H, centred on the subject (fx) when cropping sideways
+  const img = src.img, s = Math.max(W / img.width, H / img.height), sw = W / s, sh = H / s;
+  return [clamp(src.fx * img.width - sw / 2, 0, img.width - sw), (img.height - sh) / 2, sw, sh];
+}
+function sample(src) {
+  const off = document.createElement("canvas"); off.width = cols; off.height = rows;
+  const oc = off.getContext("2d", { willReadFrequently: true });
+  oc.drawImage(src.img, ...coverRect(src), 0, 0, cols, rows);
+  const d = oc.getImageData(0, 0, cols, rows).data, out = new Float32Array(cols * rows);
+  for (let i = 0; i < out.length; i++) {
+    const v = (d[i * 4] * src.w[0] + d[i * 4 + 1] * src.w[1] + d[i * 4 + 2] * src.w[2]) / 255;
+    out[i] = clamp((v - src.lo) / (src.hi - src.lo)) ** src.g;
+  }
+  return out;
+}
+function makeNoise() { // smooth value noise + a left→right bias so the decode front sweeps across
+  const gx = Math.ceil(cols / 10) + 2, gy = Math.ceil(rows / 6) + 2, g = Float32Array.from({ length: gx * gy }, Math.random);
+  noise = new Float32Array(cols * rows);
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+    const fx = x / 10, fy = y / 6, ix = fx | 0, iy = fy | 0, tx = fx - ix, ty = fy - iy;
+    const a = g[iy * gx + ix], b = g[iy * gx + ix + 1], c = g[(iy + 1) * gx + ix], e = g[(iy + 1) * gx + ix + 1];
+    const v = (a + (b - a) * tx) * (1 - ty) + (c + (e - c) * tx) * ty;
+    noise[y * cols + x] = .55 * v + .45 * (1 - x / cols) + .04 * Math.random();
+  }
+}
+function layout() {
+  const r = cv.getBoundingClientRect(); W = r.width; H = r.height;
+  fs = W < 700 ? 8 : 10;
+  cv.width = W * DPR; cv.height = H * DPR;
+  base = base || document.createElement("canvas"); base.width = cv.width; base.height = cv.height;
+  bctx = base.getContext("2d");
+  for (const c of [ctx, bctx]) { c.setTransform(DPR, 0, 0, DPR, 0, 0); c.font = `${fs}px "Geist Mono", monospace`; c.textBaseline = "top"; }
+  cw = bctx.measureText("M").width; ch = Math.round(fs * 1.25);
+  cols = Math.ceil(W / cw); rows = Math.ceil(H / ch);
+  lum = srcs.map(sample); makeNoise(); lastP = -1;
+}
+function renderBase() { // rebuild glyph layer for progress p
+  const layers = [...TONES, ACCENT].map(() => []), front = p * 1.35 - .2;
+  for (let y = 0; y < rows; y++) {
+    const rowL = layers.map(() => new Array(cols).fill(" "));
+    for (let x = 0; x < cols; x++) {
+      const i = y * cols + x, n = noise[i];
+      if (n < front - .035) put(rowL, x, lum[1][i]);
+      else if (n < front) { if (Math.random() < (Math.max(lum[0][i], lum[1][i]) > .08 ? .55 : .015)) rowL[6][x] = rnd(GLITCH); }
+      else put(rowL, x, lum[0][i]);
+    }
+    rowL.forEach((r, k) => layers[k].push(r.join("")));
+  }
+  bctx.fillStyle = "#0b0b0c"; bctx.fillRect(0, 0, W, H);
+  layers.forEach((rowsOfTone, k) => {
+    bctx.fillStyle = k < 6 ? TONES[k] : ACCENT;
+    rowsOfTone.forEach((s, y) => s.trim() && bctx.fillText(s, 0, y * ch));
+  });
+}
+function put(rowL, x, v) {
+  if (v < .05) return;
+  rowL[Math.min(5, (v * 6) | 0)][x] = RAMP[Math.min(RAMP.length - 1, 1 + ((v * (RAMP.length - 1)) | 0))];
+}
+function frame() {
+  if (p !== lastP) { renderBase(); lastP = p; }
+  ctx.drawImage(base, 0, 0, W, H);
+  if (mx > -1e3) { // lens: reveal the source photo, ring of scrambled glyphs
+    const R = W < 700 ? 80 : 130, src = srcs[p < .5 ? 0 : 1];
+    ctx.save(); ctx.beginPath(); ctx.arc(mx, my, R, 0, 6.2832); ctx.clip();
+    ctx.globalAlpha = .9; ctx.drawImage(src.img, ...coverRect(src), 0, 0, W, H); ctx.restore();
+    ctx.fillStyle = ACCENT;
+    const x0 = Math.max(0, ((mx - R - 20) / cw) | 0), x1 = Math.min(cols, ((mx + R + 20) / cw) | 0);
+    const y0 = Math.max(0, ((my - R - 20) / ch) | 0), y1 = Math.min(rows, ((my + R + 20) / ch) | 0);
+    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+      const d = Math.hypot(x * cw + cw / 2 - mx, y * ch + ch / 2 - my);
+      if (d > R - 2 && d < R + 12 && Math.random() < .75) { ctx.fillStyle = "#0b0b0c"; ctx.fillRect(x * cw, y * ch, cw, ch); ctx.fillStyle = ACCENT; ctx.fillText(rnd(GLITCH), x * cw, y * ch); }
+    }
+    ctx.font = `11px "Geist Mono", monospace`; ctx.fillStyle = "#ecebe6";
+    const li = Math.min(cols * rows - 1, ((my / ch) | 0) * cols + ((mx / cw) | 0));
+    ctx.fillText(`x:${mx | 0} y:${my | 0} lum:${(lum[p < .5 ? 0 : 1][li] || 0).toFixed(2)}`, mx + R * .72, my + R * .72);
+    ctx.font = `${fs}px "Geist Mono", monospace`;
+  }
+}
+let raf = 0, visible = true;
+const kick = () => { raf ||= requestAnimationFrame(() => { raf = 0; frame(); }); };
+function onScroll() {
+  const r = stage.getBoundingClientRect(), span = r.height - innerHeight;
+  p = clamp(-r.top / span);
+  const q = Math.round(p * 50) / 50; // quantise: base layer only rebuilds 50 times over the scroll
+  if (q !== p) p = q;
+  document.getElementById("copyA").classList.toggle("off", p > .18);
+  document.getElementById("copyB").classList.toggle("off", p < .62);
+  document.getElementById("prog").style.width = p * 100 + "%";
+  const hrs = p * 68, s = (hrs * 3600) | 0, pad = n => String(n).padStart(2, "0");
+  document.getElementById("t").textContent = `${pad((s / 3600) | 0)}:${pad(((s / 60) | 0) % 60)}:${pad(s % 60)}`;
+  document.getElementById("alt").textContent = (p < .02 ? 0 : 384400 * p ** 2.2).toLocaleString("en", { maximumFractionDigits: 1 }) + " km";
+  document.getElementById("vel").textContent = Math.round(p < .5 ? 112 + p * 2 * 10700 : 10800 - (p - .5) * 2 * 9200).toLocaleString("en") + " m/s";
+  document.getElementById("src").textContent = srcs[p < .5 ? 0 : 1].label;
+  kick();
+}
+Promise.all([...srcs.map(s => new Promise(res => { s.img = new Image(); s.img.onload = res; s.img.src = s.url; })), document.fonts.load('12px "Geist Mono"')])
+  .then(() => {
+    layout(); onScroll(); frame();
+    addEventListener("scroll", onScroll, { passive: true });
+    new ResizeObserver(() => { layout(); kick(); }).observe(cv);
+    cv.addEventListener("pointermove", e => { const r = cv.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; kick(); });
+    cv.addEventListener("pointerleave", () => { mx = my = -1e4; kick(); });
+    if (!reduce) { // gentle shimmer: re-roll the decode front while idle mid-transition, and keep the lens ring alive
+      let t0 = performance.now(), n = 0;
+      (function tick(now) {
+        n++; if (now - t0 > 1000) { document.getElementById("fps").textContent = n; n = 0; t0 = now; }
+        if (visible && (mx > -1e3 || (p > .02 && p < .98))) { if (p > .02 && p < .98) lastP = -1; frame(); }
+        requestAnimationFrame(tick);
+      })(t0);
+      new IntersectionObserver(([e]) => visible = e.isIntersecting).observe(stage);
+    }
+  });
+
+/* ---------- small live ASCII cards ---------- */
+function vizCanvas(c) {
+  const g = c.getContext("2d"); let cols2, rows2, cw2, ch2;
+  function size() {
+    const r = c.getBoundingClientRect(); c.width = r.width * DPR; c.height = r.height * DPR;
+    g.setTransform(DPR, 0, 0, DPR, 0, 0); g.font = '11px "Geist Mono", monospace'; g.textBaseline = "top";
+    cw2 = g.measureText("M").width; ch2 = 13; cols2 = Math.floor(r.width / cw2); rows2 = Math.floor((r.height - 26) / ch2);
+  }
+  // layers: {color: string[]} → draw each colour as whole rows
+  function draw(layers) {
+    g.clearRect(0, 0, c.width, c.height);
+    for (const [color, lines] of layers) { g.fillStyle = color; lines.forEach((s, y) => s.trim() && g.fillText(s, 0, 26 + y * ch2)); }
+  }
+  return { size, draw, get dims() { return [cols2, rows2]; } };
+}
+const blank = (cols, rows) => Array.from({ length: rows }, () => new Array(cols).fill(" "));
+const join = grid => grid.map(r => r.join(""));
+const VIZ = {
+  donut(t, cols, rows) { // classic a1k0n torus
+    const out = blank(cols, rows), hot = blank(cols, rows), z = new Float32Array(cols * rows), A = t * .9, B = t * .45;
+    const cA = Math.cos(A), sA = Math.sin(A), cB = Math.cos(B), sB = Math.sin(B), L = ".,-~:;=!*#$@";
+    for (let j = 0; j < 6.28; j += .09) { const ct = Math.cos(j), st = Math.sin(j);
+      for (let i = 0; i < 6.28; i += .025) {
+        const sp = Math.sin(i), cp = Math.cos(i), h = ct + 2, D = 1 / (sp * h * sA + st * cA + 5), q = sp * h * cA - st * sA;
+        const x = (cols / 2 + cols * .3 * D * (cp * h * cB - q * sB)) | 0, y = (rows / 2 + rows * .62 * D * (cp * h * sB + q * cB)) | 0, o = x + cols * y;
+        const N = 8 * ((st * sA - sp * ct * cA) * cB - sp * ct * sA - st * cA - cp * ct * sB);
+        if (y >= 0 && y < rows && x >= 0 && x < cols && D > z[o]) { z[o] = D; const ch = L[N > 0 ? Math.min(11, N | 0) : 0]; if (N > 10) { hot[y][x] = ch; out[y][x] = " "; } else { out[y][x] = ch; hot[y][x] = " "; } }
+      } }
+    return [["#b0afaa", join(out)], [ACCENT, join(hot)]];
+  },
+  chart(t, cols, rows) {
+    const line = blank(cols, rows), fill = blank(cols, rows), grid = blank(cols, rows), hot = blank(cols, rows);
+    let peak = 0, prev = -1;
+    for (let x = 0; x < cols; x++) {
+      const u = (x + t * 9) * .18, v = .45 + .22 * Math.sin(u) + .12 * Math.sin(u * 2.7 + 1) + .08 * Math.sin(u * 7.1);
+      const top = Math.round((1 - clamp(v, .05, .95)) * (rows - 1));
+      for (let y = 0; y < rows; y++) {
+        if (y === top) (v > .78 ? hot : line)[y][x] = v > .78 ? "▲" : "*";
+        else if (y > top) fill[y][x] = (x + y) % 2 ? ":" : ".";
+        else if (y % 4 === 0 && x % 2 === 0) grid[y][x] = "·";
+      }
+      if (prev >= 0) for (let y = Math.min(prev, top) + 1; y < Math.max(prev, top); y++) line[y][x] = "|";
+      prev = top;
+      if (x === cols - 1) peak = v;
+    }
+    document.getElementById("p99").textContent = Math.round(90 + peak * 110) + "ms";
+    return [["#2c2c31", join(grid)], ["#55555c", join(fill)], ["#ecebe6", join(line)], [ACCENT, join(hot)]];
+  },
+  radar(t, cols, rows) {
+    const ring = blank(cols, rows), sweep = blank(cols, rows), hot = blank(cols, rows), a = t * 2 % 6.2832;
+    const cx = cols / 2, cy = rows / 2, R = Math.min(rows / 2 - .5, cols / 4.4), L = " .:-=+*#";
+    const blips = [[.6, 1.1], [.35, 3.4], [.8, 4.6], [.5, 5.7]];
+    for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+      const dx = (x - cx) / 2.2, dy = y - cy, r = Math.hypot(dx, dy) / R, ang = (Math.atan2(dy, dx) + 6.2832) % 6.2832;
+      if (r > 1.04) continue;
+      if (Math.abs(r - 1) < .06 || Math.abs(r - .5) < .05 || (Math.abs(dx) < .3 && r < 1) || (Math.abs(dy) < .4 && r < 1)) ring[y][x] = "·";
+      const lag = (a - ang + 6.2832) % 6.2832;
+      if (lag < 1.3 && r < .98) { const k = (1 - lag / 1.3) ** 1.6; if (k > .08) sweep[y][x] = L[Math.min(7, (k * 8) | 0)]; }
+    }
+    for (const [r, ang] of blips) {
+      const lag = (a - ang + 6.2832) % 6.2832, x = Math.round(cx + Math.cos(ang) * r * R * 2.2), y = Math.round(cy + Math.sin(ang) * r * R);
+      if (lag < 2.6 && y >= 0 && y < rows && x >= 0 && x < cols) hot[y][x] = lag < .9 ? "@" : "o";
+    }
+    return [["#45454c", join(ring)], ["#c9c8c3", join(sweep)], [ACCENT, join(hot)]];
+  },
+};
+document.fonts.load('11px "Geist Mono"').then(() => document.querySelectorAll("canvas[data-viz]").forEach(c => {
+  const v = vizCanvas(c), fn = VIZ[c.dataset.viz]; let on = false, t = Math.random() * 10;
+  v.size(); new ResizeObserver(() => { v.size(); v.draw(fn(t, ...v.dims)); }).observe(c);
+  v.draw(fn(t, ...v.dims));
+  if (reduce) return;
+  new IntersectionObserver(([e]) => { if (e.isIntersecting && !on) { on = true; loop(); } else if (!e.isIntersecting) on = false; }).observe(c);
+  let last = performance.now();
+  function loop(now = performance.now()) { if (!on) return; t += (now - last) / 1000; last = now; v.draw(fn(t, ...v.dims)); requestAnimationFrame(loop); }
+}));
+
+/* ---------- log stream ---------- */
+const log = document.getElementById("log");
+const svc = ["api", "auth", "billing", "search", "edge", "queue", "web"], routes = ["GET /v1/orders", "POST /v1/charge", "GET /health", "PUT /v1/cart", "GET /v1/search?q=…", "POST /v1/login"];
+function line(ago = 0) {
+  const d = new Date(Date.now() - ago), ts = d.toTimeString().slice(0, 8) + "." + String(d.getMilliseconds()).padStart(3, "0");
+  const s = rnd(svc).padEnd(8), r = Math.random(), ms = (Math.random() ** 2 * 900 + 4) | 0;
+  if (r < .08) return `<span class="t">${ts}</span> <span class="warn">${s} WARN  p99 ${ms + 400}ms > slo 500ms · req_${Math.random().toString(16).slice(2, 6)}</span>`;
+  if (r < .18) return `<span class="t">${ts}</span> <span class="dim">${s} info  deploy ${Math.random().toString(16).slice(2, 9)} → prod · healthy</span>`;
+  return `<span class="t">${ts}</span> <span class="ok">${s}</span> <span class="dim">200</span> ${rnd(routes).padEnd(20)} <span class="dim">${String(ms).padStart(4)}ms</span>`;
+}
+const MAX = 26;
+const code = document.createElement("code"); log.append(code); // single flex child, bottom-aligned
+code.innerHTML = Array.from({ length: MAX }, (_, k) => line((MAX - k) * 480 + Math.random() * 300)).join("\n");
+if (!reduce) {
+  let logOn = false;
+  new IntersectionObserver(([e]) => logOn = e.isIntersecting).observe(log);
+  (function tick() {
+    if (logOn) { const ls = code.innerHTML.split("\n"); ls.push(line()); code.innerHTML = ls.slice(-MAX).join("\n"); }
+    setTimeout(tick, 220 + Math.random() * 700);
+  })();
+}
+
+/* ---------- heading scramble: decodes when it enters view (and again after a language switch) ---------- */
+const ASCII_POOL = "!<>-_\\/[]{}=+*^?#01", CJK_POOL = "数据流链路指标日志部署信号终端渲染字符解码";
+function scramble(el) {
+  const final = el.dataset.text ??= el.textContent;
+  if (reduce) return;
+  const n = final.length, dur = 26; let f = 0;
+  (function step() {
+    const k = (f / dur) * n;
+    el.textContent = [...final].map((c, i) => i < k || c === " " || /[，。,.]/.test(c) ? c : /[一-鿿]/.test(c) ? rnd(CJK_POOL) : rnd(ASCII_POOL)).join("");
+    if (f++ < dur) requestAnimationFrame(step); else el.textContent = final;
+  })();
+}
+const sio = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting && !e.target._done) { e.target._done = true; scramble(e.target); }
+}), { threshold: .6 });
+document.querySelectorAll("[data-scramble]").forEach(el => sio.observe(el));
+// copy B lives in a sticky layer that is always "in view"; decode it when it fades in
+new MutationObserver(() => {
+  const b = document.getElementById("copyB");
+  if (!b.classList.contains("off")) b.querySelectorAll("[data-scramble]").forEach(el => { if (!el._shown && el.offsetParent) { el._shown = true; scramble(el); } });
+  else b.querySelectorAll("[data-scramble]").forEach(el => el._shown = false);
+}).observe(document.getElementById("copyB"), { attributes: true });
+
+/* ---------- copy buttons ---------- */
+document.querySelectorAll("[data-copy]").forEach(b => b.addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(b.dataset.copy); } catch {}
+  const s = [...b.children]; s.forEach(x => x.dataset.t ??= x.textContent);
+  s.forEach(x => x.textContent = x.lang === "zh" ? "已复制" : "copied");
+  setTimeout(() => s.forEach(x => x.textContent = x.dataset.t), 1400);
+}));
+</script>
+</body>
+</html>

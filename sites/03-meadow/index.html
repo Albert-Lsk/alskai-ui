@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tend · Workflows that grow on their own</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/600.css">
+<script src="../../shared/lang.js"></script>
+<style>
+@font-face { font-family: "Instrument Serif"; src: url(https://cdn.jsdelivr.net/fontsource/fonts/instrument-serif@latest/latin-400-normal.woff2) format("woff2"); font-display: swap; }
+@font-face { font-family: "Instrument Serif"; font-style: italic; src: url(https://cdn.jsdelivr.net/fontsource/fonts/instrument-serif@latest/latin-400-italic.woff2) format("woff2"); font-display: swap; }
+@font-face { font-family: "Geist"; src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-sans@latest/latin-400-normal.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Geist"; src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-sans@latest/latin-500-normal.woff2) format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-mono@latest/latin-400-normal.woff2) format("woff2"); font-display: swap; }
+
+:root {
+  --sky-1: #2456d6; --sky-2: #6b98ea; --sky-3: #e8d5de;
+  --leaf: #2f6b1f; --leaf-d: #123a12; --ink: #10180f; --muted: #5d6a5a;
+  --cream: #f5f3ea; --pink: #e7b6d6;
+  --serif: "Instrument Serif", "Noto Serif SC", Georgia, serif;
+  --serif-zh: "Noto Serif SC", "Songti SC", serif;
+  --sans: "Geist", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+  --mono: "Geist Mono", ui-monospace, monospace;
+  --wrap: min(1280px, calc(100vw - 48px));
+}
+* { box-sizing: border-box; margin: 0; }
+body { font: 16px/1.55 var(--sans); color: var(--ink); background: var(--cream); -webkit-font-smoothing: antialiased; }
+html[data-lang="zh"] { --sans: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", "Geist", system-ui, sans-serif; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+.wrap { width: var(--wrap); margin: 0 auto; }
+
+/* ---------- hero ---------- */
+.hero { position: relative; height: max(720px, 100vh); overflow: hidden; color: #fff;
+  background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 34%, #b9c8ee 52%, var(--sky-3) 64%, #d9cfd8 100%); }
+.hero::before { /* low sun haze */ content: ""; position: absolute; left: -10%; top: 30%; width: 70%; height: 45%;
+  background: radial-gradient(closest-side, rgba(255,236,214,.55), transparent); pointer-events: none; }
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#back { z-index: 1; } #front { z-index: 3; pointer-events: none; }
+.nogl .hero canvas { display: none; }
+.nogl .hero { background:
+  radial-gradient(120% 60% at 20% 100%, #3d7d22 60%, transparent 61%),
+  radial-gradient(90% 50% at 85% 100%, #2f6b1f 62%, transparent 63%),
+  radial-gradient(140% 40% at 50% 86%, #8bb15a 50%, transparent 51%),
+  linear-gradient(180deg, var(--sky-1), var(--sky-2) 40%, var(--sky-3) 70%); }
+
+nav { position: relative; z-index: 5; display: flex; align-items: center; gap: 34px; height: 76px; }
+.logo { display: flex; align-items: center; gap: 9px; font: 500 20px var(--sans); letter-spacing: -.01em; }
+.logo svg { width: 26px; height: 26px; }
+nav ul { list-style: none; padding: 0; display: flex; gap: 30px; margin-left: 24px; font-size: 14.5px; opacity: .88; }
+nav .right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 999px; font-size: 14.5px; font-weight: 500; white-space: nowrap; transition: transform .15s ease, background-color .2s ease; }
+.btn:active { transform: scale(.97); }
+.btn.white { background: #fff; color: var(--ink); }
+.btn.white:hover { background: #eef3e6; }
+.btn.line { box-shadow: inset 0 0 0 1px rgba(255,255,255,.55); }
+.btn.line:hover { background: rgba(255,255,255,.12); }
+.btn.dark { background: var(--ink); color: #fff; }
+.btn.dark:hover { background: #26331f; }
+.lang { font: 13px var(--mono); padding: 7px 11px; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.4); }
+
+.copy { position: relative; z-index: 4; padding-top: clamp(56px, 9vh, 110px); max-width: 600px; }
+.pill { display: inline-flex; align-items: center; gap: 10px; font-size: 13.5px; padding: 6px 14px 6px 6px; border-radius: 999px; background: rgba(255,255,255,.16); backdrop-filter: blur(6px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.25); }
+.pill b { background: #fff; color: var(--leaf); font-weight: 500; font-size: 12px; padding: 2px 9px; border-radius: 999px; }
+h1 { font: 400 clamp(54px, 6.6vw, 98px)/.96 var(--serif); letter-spacing: -.02em; margin: 26px 0 22px; text-shadow: 0 2px 30px rgba(20,40,120,.25); }
+h1 em { font-style: italic; }
+html[data-lang="zh"] h1 { font: 600 clamp(46px, 5.4vw, 80px)/1.12 var(--serif-zh); letter-spacing: .01em; }
+.copy p { font-size: 18px; max-width: 30em; text-shadow: 0 1px 14px rgba(20,45,130,.45), 0 0 2px rgba(20,45,130,.25); }
+.copy .row { display: flex; gap: 12px; margin-top: 30px; }
+.hint { position: absolute; z-index: 4; left: 50%; bottom: 26px; translate: -50% 0; font: 12.5px var(--mono); letter-spacing: .04em; color: #fff; opacity: .85; padding: 7px 14px; border-radius: 999px; background: rgba(16,40,10,.35); backdrop-filter: blur(4px); white-space: nowrap; }
+
+/* the product window, buried in the grass */
+.app { position: absolute; z-index: 2; right: max(24px, calc((100vw - 1280px) / 2)); top: 25%; width: min(660px, 52vw); height: 66%;
+  background: #fbfbf7; color: var(--ink); border-radius: 14px; box-shadow: 0 30px 80px -20px rgba(20,40,80,.45), 0 0 0 1px rgba(255,255,255,.6);
+  overflow: hidden; display: grid; grid-template-rows: 42px 1fr; }
+.app .bar { display: flex; align-items: center; gap: 7px; padding: 0 14px; border-bottom: 1px solid #ecebe3; font-size: 12.5px; color: var(--muted); }
+.app .bar i { width: 10px; height: 10px; border-radius: 50%; background: #e3e1d7; }
+.app .bar span { margin-left: 12px; }
+.app .bar .live { margin-left: auto; display: flex; align-items: center; gap: 6px; color: var(--leaf); }
+.app .bar .live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #3aa34a; box-shadow: 0 0 0 3px rgba(58,163,74,.18); animation: pulse 2s infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(58,163,74,0); } }
+.board { position: relative; background: radial-gradient(#dcdbd1 1px, transparent 1.2px) 0 0 / 18px 18px; }
+.board svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.board path { fill: none; stroke: #b9c7a9; stroke-width: 1.6; }
+.board path.flow { stroke: var(--leaf); stroke-dasharray: 5 9; animation: flow 1.2s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -14; } }
+.node { position: absolute; width: 190px; background: #fff; border-radius: 10px; padding: 10px 12px; font-size: 12.5px; box-shadow: 0 1px 0 #e7e6dc, 0 8px 22px -12px rgba(30,50,20,.35); border: 1px solid #ecebe3; }
+.node .k { display: flex; align-items: center; gap: 7px; font-weight: 500; font-size: 13px; }
+.node .k s { text-decoration: none; width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; font-size: 11px; color: #fff; }
+.node small { display: block; color: var(--muted); margin-top: 3px; }
+.node.on { border-color: #9fcf8f; box-shadow: 0 0 0 3px rgba(58,163,74,.14), 0 8px 22px -12px rgba(30,50,20,.35); }
+.chip { display: inline-block; margin-top: 7px; font: 11px var(--mono); padding: 2px 7px; border-radius: 5px; background: #eef5e8; color: var(--leaf); }
+
+/* ---------- sections ---------- */
+section.steps { padding: 120px 0 40px; }
+.eyebrow { font: 12.5px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--leaf); }
+h2 { font: 400 clamp(40px, 4.6vw, 66px)/1.02 var(--serif); letter-spacing: -.015em; margin-top: 12px; max-width: 14em; }
+html[data-lang="zh"] h2 { font: 600 clamp(34px, 3.6vw, 52px)/1.25 var(--serif-zh); }
+.steps .head { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: end; margin-bottom: 56px; }
+.steps .head p { color: var(--muted); font-size: 17.5px; max-width: 28em; justify-self: end; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.card { background: #fff; border-radius: 18px; padding: 26px; border: 1px solid #e7e5da; transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s; }
+.card:hover { transform: translateY(-4px); box-shadow: 0 24px 50px -30px rgba(30,60,20,.4); }
+.card .num { font: 400 46px/1 var(--serif); color: #b8c7a8; }
+.card h3 { font: 500 21px/1.25 var(--sans); margin: 14px 0 6px; letter-spacing: -.01em; }
+.card p { color: var(--muted); font-size: 15.5px; }
+.mini { margin-top: 22px; background: #f6f6f0; border-radius: 12px; padding: 14px; font-size: 13px; min-height: 176px; }
+.opt { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; }
+.opt i { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px #b5bfaa; flex: none; }
+.opt.sel { background: #fff; box-shadow: 0 1px 0 #e5e4da; }
+.opt.sel i { box-shadow: inset 0 0 0 4.5px var(--leaf); }
+.log { font: 12px/1.9 var(--mono); }
+.log div { display: flex; gap: 10px; white-space: nowrap; overflow: hidden; }
+.log em { font-style: normal; color: #9aa592; }
+.tag { margin-left: auto; padding: 0 7px; border-radius: 5px; }
+.tag.ok { background: #e6f3df; color: #2f6b1f; } .tag.re { background: #fbefd9; color: #9a6410; } .tag.wa { background: #ece9f6; color: #5d4f9a; }
+.bars { display: flex; align-items: flex-end; gap: 7px; height: 92px; margin-top: 10px; }
+.bars u { flex: 1; background: linear-gradient(#7fb35e, #3d7d22); border-radius: 4px 4px 1px 1px; transform-origin: bottom; transform: scaleY(.05); transition: transform .9s cubic-bezier(.2,.8,.2,1); }
+.in .bars u { transform: scaleY(1); }
+.big { font: 400 34px/1 var(--serif); }
+.big small { font: 12.5px var(--sans); color: var(--muted); margin-left: 6px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #dedcd0; border-bottom: 1px solid #dedcd0; margin: 100px auto 0; }
+.stats div { padding: 34px 28px; }
+.stats div + div { border-left: 1px solid #dedcd0; }
+.stats b { display: block; font: 400 clamp(48px, 5vw, 72px)/1 var(--serif); letter-spacing: -.02em; }
+.stats span { color: var(--muted); font-size: 15px; }
+
+blockquote { text-align: center; padding: 120px 0 110px; }
+blockquote p { font: italic 400 clamp(30px, 3.4vw, 48px)/1.2 var(--serif); max-width: 22em; margin: 0 auto; letter-spacing: -.01em; }
+html[data-lang="zh"] blockquote p { font: 600 clamp(24px, 2.6vw, 36px)/1.6 var(--serif-zh); font-style: normal; }
+blockquote cite { display: block; margin-top: 22px; font: normal 14px var(--sans); color: var(--muted); }
+
+/* ---------- closing meadow ---------- */
+.field { position: relative; height: 640px; overflow: hidden; color: #fff; text-align: center;
+  background: linear-gradient(180deg, #f5f3ea 0%, #f0dcc8 22%, #e9b9a6 45%, #c98fa6 62%, #8a77b4 100%); }
+.field canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.field .inner { position: relative; z-index: 2; padding-top: 120px; color: var(--ink); }
+.field h2 { margin: 12px auto 26px; }
+.nogl .field { background: radial-gradient(120% 40% at 50% 100%, #3d7d22 60%, transparent 61%), linear-gradient(180deg, #f5f3ea, #e9b9a6 50%, #8a77b4); }
+
+footer { background: #10180f; color: #a9b3a2; font-size: 13px; line-height: 1.85; }
+footer .wrap { padding: 44px 0 52px; }
+footer .top { display: flex; justify-content: space-between; align-items: center; color: #e8eee2; margin-bottom: 18px; }
+footer b { color: #e8eee2; font-weight: 500; }
+
+@media (max-width: 960px) {
+  nav ul { display: none; }
+  nav .right .btn.line { display: none; }
+  .app { left: 24px; right: 24px; width: auto; top: 58%; height: 46%; }
+  .node { width: 160px; }
+  .node.n2 { left: auto !important; right: 14px; top: 120px !important; }
+  .copy p { font-size: 16.5px; }
+  .hint { display: none; }
+  .steps .head, .cards, .stats { grid-template-columns: 1fr; }
+  .steps .head p { justify-self: start; }
+  .stats div + div { border-left: 0; border-top: 1px solid #dedcd0; }
+  .field { height: 560px; }
+}
+@media (max-width: 480px) {
+  .copy .row { flex-wrap: wrap; }
+  .node.n3, .node.n4 { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .bars u { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero" id="hero">
+  <canvas id="back"></canvas>
+  <div class="wrap">
+    <nav>
+      <a class="logo" href="#"><svg viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="13" fill="#fff"/><path d="M13 20v-7" stroke="#2f6b1f" stroke-width="2.2" stroke-linecap="round"/><path d="M13 13c0-3.6 2.4-5.8 6-5.8 0 3.6-2.4 5.8-6 5.8Z" fill="#3d7d22"/><path d="M13 15c0-2.8-1.9-4.6-4.8-4.6 0 2.8 1.9 4.6 4.8 4.6Z" fill="#7fb35e"/></svg>Tend</a>
+      <ul>
+        <li><span lang="en">Product</span><span lang="zh">产品</span></li>
+        <li><span lang="en">Templates</span><span lang="zh">模板</span></li>
+        <li><span lang="en">Pricing</span><span lang="zh">价格</span></li>
+        <li><span lang="en">Changelog</span><span lang="zh">更新日志</span></li>
+      </ul>
+      <div class="right">
+        <button class="lang" data-lang-toggle aria-label="Switch language"><span lang="en">中文</span><span lang="zh">EN</span></button>
+        <a class="btn line" href="#"><span lang="en">Log in</span><span lang="zh">登录</span></a>
+        <a class="btn white" href="#"><span lang="en">Start free</span><span lang="zh">免费开始</span></a>
+      </div>
+    </nav>
+    <div class="copy">
+      <span class="pill"><b><span lang="en">New</span><span lang="zh">新</span></b><span lang="en">Runs now water themselves when they fail</span><span lang="zh">流程失败后会自己重试了</span></span>
+      <h1><span lang="en">Workflows that <em>grow</em> on their own.</span><span lang="zh">种下一条流程，<br>它自己会长。</span></h1>
+      <p><span lang="en">Tend strings approvals, invoices and reminders into one living workflow. Plant it once and it keeps itself watered: retries, waits, reroutes.</span><span lang="zh">Tend 把审批、对账、催款提醒这些重复的活儿连成一条线。种下去之后，重试、等待、改道它都自己来，你不用天天去浇水。</span></p>
+      <div class="row">
+        <a class="btn white" href="#"><span lang="en">Plant your first workflow</span><span lang="zh">种下第一条流程</span></a>
+        <a class="btn line" href="#steps"><span lang="en">How it grows</span><span lang="zh">看它怎么长</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="app" aria-hidden="true">
+    <div class="bar"><i></i><i></i><i></i><span><span lang="en">Invoice approvals · v12</span><span lang="zh">发票审批 · 第 12 版</span></span><span class="live"><span lang="en">Running</span><span lang="zh">运行中</span></span></div>
+    <div class="board">
+      <svg viewBox="0 0 660 560" preserveAspectRatio="none">
+        <path class="flow" d="M200 74 C 260 74, 250 170, 300 170"/>
+        <path class="flow" d="M490 190 C 540 190, 520 290, 470 290"/>
+        <path d="M280 300 C 200 300, 220 400, 140 400"/>
+        <path class="flow" d="M400 330 C 420 400, 440 410, 470 420"/>
+      </svg>
+      <div class="node on" style="left:22px;top:42px"><div class="k"><s style="background:#3d7d22">✉</s><span lang="en">New invoice email</span><span lang="zh">收到发票邮件</span></div><small><span lang="en">Trigger · finance@</span><span lang="zh">触发 · 财务邮箱</span></small><span class="chip">+3 / min</span></div>
+      <div class="node on n2" style="left:300px;top:140px"><div class="k"><s style="background:#6a59b8">✦</s><span lang="en">Read &amp; classify</span><span lang="zh">读取并分类</span></div><small><span lang="en">Vendor, amount, due date</span><span lang="zh">供应商、金额、到期日</span></small><span class="chip">98.6%</span></div>
+      <div class="node n3" style="left:290px;top:270px"><div class="k"><s style="background:#c27a1b">⇄</s><span lang="en">Over ¥50,000?</span><span lang="zh">金额超过 5 万？</span></div><small><span lang="en">Route to CFO, else auto-approve</span><span lang="zh">是就转给财务总监，否则自动通过</span></small></div>
+      <div class="node n4" style="left:40px;top:380px"><div class="k"><s style="background:#9a9c90">⏲</s><span lang="en">Wait for sign-off</span><span lang="zh">等待签字</span></div><small><span lang="en">Nudge after 24 h</span><span lang="zh">24 小时后催一次</span></small></div>
+      <div class="node on" style="left:440px;top:400px"><div class="k"><s style="background:#2456d6">✓</s><span lang="en">Pay &amp; file</span><span lang="zh">付款并归档</span></div><small><span lang="en">Bank transfer · ledger</span><span lang="zh">银行转账 · 记账</span></small></div>
+    </div>
+  </div>
+
+  <canvas id="front"></canvas>
+  <div class="hint"><span lang="en">Run your cursor through the grass</span><span lang="zh">把鼠标伸进草里试试</span></div>
+</header>
+
+<main class="wrap">
+  <section class="steps" id="steps">
+    <div class="head">
+      <div><div class="eyebrow"><span lang="en">From seed to harvest</span><span lang="zh">从播种到收获</span></div>
+        <h2><span lang="en">You plant it once. Tend does the gardening.</span><span lang="zh">你只种一次，<br>剩下的园艺交给 Tend。</span></h2></div>
+      <p><span lang="en">Most automations wilt the first time an API times out. Tend expects bad weather, so every step knows how to wait, retry and find another way round.</span><span lang="zh">大多数自动化流程，接口超时一次就蔫了。Tend 默认天气会变坏，所以每一步都会等、会重试，也会绕路。</span></p>
+    </div>
+    <div class="cards">
+      <article class="card">
+        <div class="num">01</div>
+        <h3><span lang="en">Plant a trigger</span><span lang="zh">播种：选一个起点</span></h3>
+        <p><span lang="en">An email, a form, a new row in a sheet. Anything that happens can start a run.</span><span lang="zh">一封邮件、一张表单、表格里新加的一行，发生的任何事都能当起点。</span></p>
+        <div class="mini">
+          <div class="opt"><i></i><span lang="en">Form submitted</span><span lang="zh">有人提交了表单</span></div>
+          <div class="opt sel"><i></i><span lang="en">Email to finance@</span><span lang="zh">财务邮箱收到邮件</span></div>
+          <div class="opt"><i></i><span lang="en">New row in “Orders”</span><span lang="zh">“订单”表新增一行</span></div>
+          <div class="opt"><i></i><span lang="en">Every Monday 9:00</span><span lang="zh">每周一早上 9 点</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="num">02</div>
+        <h3><span lang="en">Let it tend itself</span><span lang="zh">照料：它自己管自己</span></h3>
+        <p><span lang="en">Failures retry with back-off, slow steps wait politely, and dead ends reroute.</span><span lang="zh">失败了就隔一会儿再试，慢的步骤就耐心等，走不通就换一条路。</span></p>
+        <div class="mini log" id="log"></div>
+      </article>
+      <article class="card" id="harvest">
+        <div class="num">03</div>
+        <h3><span lang="en">Harvest the hours</span><span lang="zh">收获：省下来的时间</span></h3>
+        <p><span lang="en">Every run reports what it saved, so you can see the field getting greener.</span><span lang="zh">每次运行都会记下省了多少时间，你能看着这片地一点点变绿。</span></p>
+        <div class="mini">
+          <div class="big">41.5 h<small><span lang="en">saved this week</span><span lang="zh">本周省下</span></small></div>
+          <div class="bars"></div>
+        </div>
+      </article>
+    </div>
+    <div class="stats">
+      <div><b>2.4M</b><span><span lang="en">runs tended last month</span><span lang="zh">上个月照料的运行次数</span></span></div>
+      <div><b>99.98%</b><span><span lang="en">finish without a human</span><span lang="zh">无需人工就能跑完</span></span></div>
+      <div><b>6 min</b><span><span lang="en">median time to first workflow</span><span lang="zh">搭好第一条流程的中位用时</span></span></div>
+    </div>
+  </section>
+
+  <blockquote>
+    <p><span lang="en">“We used to babysit forty scripts. Now we check the meadow on Fridays and it’s fine.”</span><span lang="zh">“以前我们要盯着四十个脚本。现在每周五去看一眼，一切都好好的。”</span></p>
+    <cite><span lang="en">Mara Ilves, Head of Ops at Fernbrook (fictional)</span><span lang="zh">Mara Ilves，Fernbrook 运营负责人（虚构）</span></cite>
+  </blockquote>
+</main>
+
+<section class="field" id="field">
+  <canvas id="fieldgl"></canvas>
+  <div class="inner">
+    <div class="eyebrow"><span lang="en">Scroll and it grows</span><span lang="zh">往下滚，它就长</span></div>
+    <h2><span lang="en">The best time to plant was yesterday.</span><span lang="zh">最好的播种时间是昨天，<br>其次是现在。</span></h2>
+    <a class="btn dark" href="#"><span lang="en">Plant your first workflow</span><span lang="zh">种下第一条流程</span></a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="top"><span class="logo" style="font-size:17px">Tend</span><span><span lang="en">A fictional product, built as a design study.</span><span lang="zh">虚构产品，仅作设计练习。</span></span></div>
+    <b>图源</b>：本页没有使用任何图片。草地、山坡和风都是浏览器里用 WebGL2 实时生成的（每根草都是一个实例，风和鼠标在着色器里计算）。
+    字体：Instrument Serif、Geist、Geist Mono、Noto Serif SC（均为 OFL-1.1）。本页为学习用 demo，品牌与文案均为虚构；版面灵感来自 @uisabor 分享的落地页截图，仅借用“草地掩埋产品界面”的手法，版面与内容为原创。<br>
+    侵权请联系删除。
+  </div>
+</footer>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------------- tiny matrix helpers ---------------- */
+function perspective(fovy, aspect, n, f) {
+  const t = 1 / Math.tan(fovy / 2), nf = 1 / (n - f);
+  return [t / aspect, 0, 0, 0, 0, t, 0, 0, 0, 0, (f + n) * nf, -1, 0, 0, 2 * f * n * nf, 0];
+}
+function lookAt(e, c) {
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const nrm = a => { const l = Math.hypot(...a); return a.map(v => v / l); };
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const z = nrm(sub(e, c)), x = nrm(cross([0, 1, 0], z)), y = cross(z, x);
+  return [x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0, -dot(x, e), -dot(y, e), -dot(z, e), 1];
+}
+function mul(a, b) { // column-major a*b
+  const o = new Array(16);
+  for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) {
+    let s = 0; for (let k = 0; k < 4; k++) s += a[k * 4 + r] * b[c * 4 + k]; o[c * 4 + r] = s;
+  }
+  return o;
+}
+
+/* ---------------- shaders ---------------- */
+const TERRAIN_FN = `
+float hgt(vec2 p) {
+  float near = .8 * sin(p.x * .11 + .6) * sin(p.y * .09 + .3) + .45 * sin(p.x * .23 - p.y * .07 + 2.) + .3 * sin(p.x * .05 + p.y * .13);
+  float far = smoothstep(9., 70., p.y) * (1.9 + 1.1 * sin(p.x * .045 + 1.));
+  return near + far + uLift;
+}`;
+const COMMON = `#version 300 es
+precision highp float;
+uniform mat4 uVP; uniform vec3 uEye; uniform vec3 uFog; uniform vec2 uFogR; uniform float uLift;
+${TERRAIN_FN}
+vec3 fogged(vec3 c, vec3 p) { return mix(c, uFog, smoothstep(uFogR.x, uFogR.y, distance(p, uEye))); }
+`;
+const BLADE_VS = COMMON + `
+in vec2 aV; in vec4 aA; in vec4 aB;
+uniform float uTime, uPush, uAspect, uGrow; uniform vec2 uPtr;
+out vec3 vCol; out float vT;
+void main() {
+  vec2 p = aA.xy; float h = aA.z * uGrow, t = aV.x;
+  vec3 base = vec3(p.x, hgt(p), p.y);
+  vec2 wdir = normalize(vec2(1., .3));
+  float gust = .5 + .5 * sin(dot(p, wdir) * .32 - uTime * 1.6 + sin(p.y * .2) * 1.5); gust *= gust;
+  vec2 bend = wdir * (sin(uTime * 2.2 + aB.y) * .1 + gust * .5 + .08);
+  vec4 bc = uVP * vec4(base + vec3(0., h * .7, 0.), 1.);
+  vec2 d = (bc.xy / bc.w - uPtr) * vec2(uAspect, 1.);
+  float f = exp(-dot(d, d) / .035) * uPush;
+  bend += normalize(d + 1e-5) * vec2(1., 1.8) * f * 1.6;
+  float tt = t * t;
+  vec2 off = bend * h * tt;
+  vec3 pos = base + vec3(off.x, h * t * (1. - .28 * min(dot(bend, bend), 1.6) * tt), off.y);
+  float dist = distance(base, uEye);
+  float w = aA.w * (1. - pow(t, 1.5)) * (1. + dist * .035);
+  pos.xz += vec2(cos(aB.x), sin(aB.x)) * aV.y * w * .5;
+  gl_Position = uVP * vec4(pos, 1.);
+  float tint = aB.z;
+  vec3 c0 = mix(vec3(.02, .09, .03), vec3(.05, .15, .04), tint);
+  vec3 c1 = mix(vec3(.16, .42, .07), vec3(.36, .62, .10), tint);
+  vec3 c2 = mix(vec3(.62, .82, .26), vec3(.96, .72, .90), aB.w);
+  vec3 c = t < .55 ? mix(c0, c1, t / .55) : mix(c1, c2, pow((t - .55) / .45, 1.6));
+  float slope = hgt(p - vec2(.6, 0.)) - hgt(p + vec2(.6, 0.)) + .6 * (hgt(p + vec2(0., .6)) - hgt(p - vec2(0., .6)));
+  c *= clamp(.92 + slope * .55, .55, 1.3);
+  float patchy = sin(p.x * .31 + sin(p.y * .21) * 2.) * sin(p.y * .26 + p.x * .08);
+  c *= .86 + .22 * patchy;
+  c += gust * .14 * t * vec3(.85, 1., .7) + f * .25 * t;
+  vCol = fogged(c, pos); vT = t;
+}`;
+const BLADE_FS = `#version 300 es
+precision highp float;
+in vec3 vCol; in float vT; out vec4 o;
+void main() { float a = 1. - smoothstep(.78, 1., vT) * .55; o = vec4(vCol * a, a); }`;
+const GROUND_VS = COMMON + `
+in vec2 aP; out vec3 vCol;
+void main() {
+  vec3 pos = vec3(aP.x, hgt(aP), aP.y);
+  gl_Position = uVP * vec4(pos, 1.);
+  float n = sin(aP.x * .4 + sin(aP.y * .3)) * sin(aP.y * .35);
+  vCol = fogged(vec3(.07, .2, .05) * (.85 + .25 * n), pos);
+}`;
+const GROUND_FS = `#version 300 es
+precision highp float;
+in vec3 vCol; out vec4 o; void main() { o = vec4(vCol, 1.); }`;
+
+/* ---------------- meadow renderer ---------------- */
+function compile(gl, vs, fs) {
+  const p = gl.createProgram();
+  for (const [type, src] of [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]]) {
+    const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+    gl.attachShader(p, s);
+  }
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  return p;
+}
+function rng(seed) { return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
+
+// opts: blades [z0,z1,count,pow], ground [z0,z1], eye, target, fov, fog, fogR, lift, seed
+function Meadow(canvas, opts) {
+  const gl = canvas.getContext("webgl2", { antialias: true, premultipliedAlpha: true, alpha: true });
+  if (!gl) throw new Error("no webgl2");
+  const bp = compile(gl, BLADE_VS, BLADE_FS), gp = compile(gl, GROUND_VS, GROUND_FS);
+  const U = (p, n) => gl.getUniformLocation(p, n);
+  const SEG = 6;
+
+  // blade strip: pairs of (t, side), then a single tip vertex
+  const strip = [];
+  for (let i = 0; i < SEG; i++) { const t = i / SEG; strip.push(t, -1, t, 1); }
+  strip.push(1, 0);
+  const bvao = gl.createVertexArray(); gl.bindVertexArray(bvao);
+  const sb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, sb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(strip), gl.STATIC_DRAW);
+  let loc = gl.getAttribLocation(bp, "aV"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+  // instances, sorted far → near so alpha tips blend without a depth buffer
+  const [z0, z1, count, pw] = opts.blades, R = rng(opts.seed || 7);
+  const half = Math.tan(opts.fov / 2) * 1.25 * (canvas.clientWidth / canvas.clientHeight || 1.6);
+  const inst = [];
+  for (let i = 0; i < count; i++) {
+    const z = z0 + (z1 - z0) * Math.pow(R(), pw);
+    const xm = (z - opts.eye[2]) * half + 1.5;
+    const x = (R() * 2 - 1) * xm;
+    const far = 1 + Math.max(0, z - 6) * .02;
+    inst.push([x, z, (.32 + R() * .5) * far * (opts.scale || 1), (.035 + R() * .03) * (opts.scale || 1), (R() - .5) * 1.7, R() * 6.28, R(), R() < .09 ? .75 + R() * .25 : 0]);
+  }
+  inst.sort((a, b) => b[1] - a[1]);
+  const flat = new Float32Array(inst.flat());
+  const ib = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, ib); gl.bufferData(gl.ARRAY_BUFFER, flat, gl.STATIC_DRAW);
+  for (const [name, off] of [["aA", 0], ["aB", 16]]) {
+    loc = gl.getAttribLocation(bp, name); gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 4, gl.FLOAT, false, 32, off); gl.vertexAttribDivisor(loc, 1);
+  }
+
+  // ground grid
+  const gvao = gl.createVertexArray(); gl.bindVertexArray(gvao);
+  const [g0, g1] = opts.ground, NX = 120, NZ = 90, gw = (g1 - opts.eye[2]) * half + 4;
+  const gpos = [], gidx = [];
+  for (let j = 0; j <= NZ; j++) for (let i = 0; i <= NX; i++) {
+    const zz = g0 + (g1 - g0) * Math.pow(j / NZ, 1.6);
+    gpos.push((i / NX * 2 - 1) * gw, zz);
+  }
+  for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) {
+    const a = j * (NX + 1) + i; gidx.push(a, a + 1, a + NX + 1, a + 1, a + NX + 2, a + NX + 1);
+  }
+  const gb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, gb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(gpos), gl.STATIC_DRAW);
+  loc = gl.getAttribLocation(gp, "aP"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const eb = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, eb); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(gidx), gl.STATIC_DRAW);
+  gl.bindVertexArray(null);
+
+  let vp, aspect = 1;
+  function resize() {
+    const dpr = Math.min(devicePixelRatio || 1, 2), w = canvas.clientWidth, h = canvas.clientHeight;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+    aspect = w / h;
+    vp = mul(perspective(opts.fov, aspect, .1, 200), lookAt(opts.eye, opts.target));
+  }
+  resize();
+
+  function setCommon(p) {
+    gl.uniformMatrix4fv(U(p, "uVP"), false, vp); gl.uniform3fv(U(p, "uEye"), opts.eye);
+    gl.uniform3fv(U(p, "uFog"), opts.fog); gl.uniform2fv(U(p, "uFogR"), opts.fogR); gl.uniform1f(U(p, "uLift"), opts.lift || 0);
+  }
+  function draw(time, ptr, push, grow) {
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.useProgram(gp); setCommon(gp); gl.bindVertexArray(gvao);
+    gl.drawElements(gl.TRIANGLES, gidx.length, gl.UNSIGNED_INT, 0);
+    gl.useProgram(bp); setCommon(bp); gl.bindVertexArray(bvao);
+    gl.uniform1f(U(bp, "uTime"), time); gl.uniform2fv(U(bp, "uPtr"), ptr); gl.uniform1f(U(bp, "uPush"), push);
+    gl.uniform1f(U(bp, "uAspect"), aspect); gl.uniform1f(U(bp, "uGrow"), grow);
+    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, strip.length / 2, count);
+  }
+  return { resize, draw, canvas };
+}
+
+/* ---------------- scene setup ---------------- */
+const small = innerWidth < 760;
+const SPLIT = small ? 7 : 12;            // blades nearer than this are drawn in front of the product window
+const cam = { eye: [0, 3.6, -3], target: [0, 4.95, 24], fov: 40 * Math.PI / 180, fog: [.86, .83, .87], fogR: [16, 86] };
+let hero = [], field;
+try {
+  hero = [
+    Meadow(document.getElementById("back"),  { ...cam, blades: [SPLIT, 82, small ? 36000 : 100000, 1.7], ground: [0, 90], seed: 3 }),
+    Meadow(document.getElementById("front"), { ...cam, blades: [-1.2, SPLIT, small ? 16000 : 46000, 1.25], ground: [-2, SPLIT + .4], seed: 11, scale: .8 }),
+  ];
+  field = Meadow(document.getElementById("fieldgl"), {
+    eye: [0, 2.2, -3], target: [0, 2.6, 22], fov: 38 * Math.PI / 180, fog: [.74, .62, .74], fogR: [10, 52], lift: -.35,
+    blades: [1.5, 44, small ? 30000 : 80000, 1.5], ground: [0, 54], seed: 21,
+  });
+} catch (e) { document.documentElement.classList.add("nogl"); console.warn(e); }
+
+/* pointer: position in NDC + a push that swells with speed and eases back */
+const ptr = [9, 9]; let push = 0, speed = 0, last = null;
+const heroEl = document.getElementById("hero");
+heroEl.addEventListener("pointermove", e => {
+  const r = heroEl.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width * 2 - 1, y = 1 - (e.clientY - r.top) / r.height * 2;
+  if (last) speed = Math.min(1.6, speed + Math.hypot(x - last[0], y - last[1]) * 6);
+  ptr[0] = x; ptr[1] = y; last = [x, y];
+});
+heroEl.addEventListener("pointerleave", () => { last = null; });
+
+const visible = new Map();
+const vis = new IntersectionObserver(es => es.forEach(e => visible.set(e.target, e.isIntersecting)));
+vis.observe(heroEl); vis.observe(document.getElementById("field"));
+
+function fieldGrow() {
+  const el = document.getElementById("field"), r = el.getBoundingClientRect();
+  const p = 1 - (r.top - innerHeight * .15) / (innerHeight * .85);
+  return reduce ? 1 : Math.min(1, Math.max(.06, p));
+}
+
+let t0 = performance.now();
+function frame(now) {
+  const t = reduce ? 4 : (now - t0) / 1000;
+  speed *= .94;
+  push += ((last ? .55 + speed : 0) - push) * .08;
+  if (visible.get(heroEl)) for (const m of hero) m.draw(t, ptr, reduce ? 0 : push, 1);
+  if (field && visible.get(document.getElementById("field"))) field.draw(t, [9, 9], 0, fieldGrow());
+  if (!reduce) requestAnimationFrame(frame);
+}
+if (hero.length) {
+  addEventListener("resize", () => { for (const m of [...hero, field]) m.resize(); if (reduce) frame(0); });
+  if (reduce) { visible.set(heroEl, true); visible.set(document.getElementById("field"), true); frame(0); addEventListener("scroll", () => frame(0), { passive: true }); }
+  else requestAnimationFrame(frame);
+}
+
+/* ---------------- small UI bits ---------------- */
+const logLines = [
+  ["09:41:02", "classify", "ok", "ok"], ["09:41:05", "erp.post", "re", "retry 1/5"], ["09:41:13", "erp.post", "ok", "ok"],
+  ["09:42:00", "cfo.sign", "wa", "waiting"], ["09:44:31", "bank.pay", "ok", "ok"], ["09:44:32", "ledger", "ok", "ok"],
+];
+const logEl = document.getElementById("log");
+let li = 0;
+function pushLog() {
+  const [ts, step, cls, txt] = logLines[li++ % logLines.length];
+  const row = document.createElement("div");
+  row.innerHTML = `<em>${ts}</em><span>${step}</span><span class="tag ${cls}">${txt}</span>`;
+  logEl.append(row);
+  while (logEl.children.length > 6) logEl.firstChild.remove();
+}
+for (let i = 0; i < 6; i++) pushLog();
+if (!reduce) setInterval(pushLog, 1400);
+
+const bars = [.35, .5, .42, .66, .58, .8, .95];
+document.querySelector(".bars").innerHTML = bars.map((v, i) => `<u style="height:${v * 100}%;transition-delay:${i * 70}ms"></u>`).join("");
+new IntersectionObserver(([e], ob) => { if (e.isIntersecting) { e.target.classList.add("in"); ob.disconnect(); } }, { threshold: .4 })
+  .observe(document.getElementById("harvest"));
+</script>
+</body>
+</html>
