@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Specimen 标本 · the lab notebook that prints itself</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/bricolage-grotesque@5/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/bricolage-grotesque@5/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/bricolage-grotesque@5/800.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-mono@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5/900.css">
+<script src="../../shared/lang.js"></script>
+<style>
+:root {
+  --paper: #f3efe4;
+  --pink: #ff48b0;
+  --blue: #0078bf;
+  --mix: #1e2559;          /* where both drums overprint, used for body text */
+  --mix-2: #4b4f78;
+  --rx: 2px; --ry: -1.5px; /* registration of the pink drum, page-wide */
+  --display: "Bricolage Grotesque", "Noto Sans SC", sans-serif;
+  --display-zh: "Noto Sans SC", sans-serif;
+  --body: "Bricolage Grotesque", "Noto Sans SC", system-ui, sans-serif;
+  --mono: "Space Mono", ui-monospace, monospace;
+  --wrap: min(1240px, calc(100vw - 48px));
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--paper); }
+body { color: var(--mix); font: 17px/1.6 var(--body); background: url(img/paper.png) 0 0 / 256px, var(--paper); background-blend-mode: soft-light; -webkit-font-smoothing: antialiased; }
+html[data-lang="zh"] body { font-family: "Noto Sans SC", var(--body); font-size: 16px; line-height: 1.8; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.wrap { width: var(--wrap); margin: 0 auto; }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+
+/* two-drum type: main copy is the blue drum, a pink ghost is printed on top, both speckled by the grain mask */
+.riso { position: relative; color: var(--blue); -webkit-mask: url(img/grain.png) 0 0 / 256px; mask: url(img/grain.png) 0 0 / 256px; }
+.riso-ghost { position: absolute; inset: 0; margin: 0 !important; color: var(--pink); mix-blend-mode: multiply; transform: translate(var(--rx), var(--ry)); pointer-events: none; }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: -.02em; }
+html[data-lang="zh"] h1, html[data-lang="zh"] h2 { font-family: var(--display-zh); font-weight: 900; letter-spacing: .01em; }
+
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px; font: 600 15px var(--body); border-radius: 999px; transition: transform .15s ease, background-color .2s; white-space: nowrap; }
+html[data-lang="zh"] .btn { font-family: "Noto Sans SC", sans-serif; font-weight: 700; }
+.btn:active { transform: scale(.97); }
+.btn.ink { background: var(--mix); color: var(--paper); }
+.btn.ink:hover { background: #2c3577; }
+.btn.line { box-shadow: inset 0 0 0 1.5px var(--mix); }
+.btn.line:hover { background: rgba(30,37,89,.06); }
+.btn.pink { background: var(--pink); color: #2a0b1d; }
+.btn.pink:hover { background: #ff63bd; }
+
+/* ---------- nav ---------- */
+nav { display: flex; align-items: center; gap: 28px; height: 80px; }
+.logo { display: flex; align-items: center; gap: 10px; font: 800 22px var(--display); letter-spacing: -.02em; }
+.logo i { width: 30px; height: 30px; position: relative; }
+.logo i::before, .logo i::after { content: ""; position: absolute; width: 20px; height: 20px; border-radius: 50%; mix-blend-mode: multiply; }
+.logo i::before { background: var(--pink); left: 0; top: 2px; }
+.logo i::after { background: var(--blue); right: 0; bottom: 2px; }
+nav ul { list-style: none; display: flex; gap: 28px; padding: 0; margin-left: auto; font-size: 15px; }
+nav li a { opacity: .8; } nav li a:hover { opacity: 1; }
+.lang { font: 13px var(--mono); border: 1.5px solid var(--mix); padding: 5px 11px; border-radius: 99px; white-space: nowrap; }
+.lang b { font-weight: 400; opacity: .4; }
+html[data-lang="zh"] .lang .z, html[data-lang="en"] .lang .e { opacity: 1; }
+
+/* ---------- hero ---------- */
+.hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center; padding: 36px 0 90px; }
+.issue { display: flex; gap: 14px; align-items: center; }
+.issue > span { border: 1.5px solid var(--mix); padding: 3px 10px; }
+.issue > span:first-child { background: var(--mix); color: var(--paper); }
+.hero h1 { font-size: clamp(56px, 7.2vw, 118px); line-height: .9; margin: 26px 0 26px; }
+html[data-lang="zh"] .hero h1 { font-size: clamp(56px, 6.6vw, 104px); line-height: 1.08; }
+.hero .lead { font-size: 19px; max-width: 30em; color: var(--mix); }
+html[data-lang="zh"] .hero .lead { font-size: 17px; }
+.hero .row { display: flex; gap: 14px; margin-top: 32px; flex-wrap: wrap; }
+
+.press { position: relative; }
+.sheet { position: relative; background: #f7f4ec; box-shadow: 0 1px 0 rgba(30,37,89,.12), 0 30px 50px -28px rgba(30,37,89,.45); padding: 18px; transform: rotate(1.6deg); cursor: grab; touch-action: none; user-select: none; }
+.sheet:active { cursor: grabbing; }
+.sheet canvas { display: block; width: 100%; aspect-ratio: 1000 / 1403; mix-blend-mode: multiply; }
+.sheet .crop { position: absolute; width: 14px; height: 14px; border: solid var(--mix); opacity: .55; }
+.sheet .crop.tl { top: 6px; left: 6px; border-width: 1px 0 0 1px; } .sheet .crop.tr { top: 6px; right: 6px; border-width: 1px 1px 0 0; }
+.sheet .crop.bl { bottom: 6px; left: 6px; border-width: 0 0 1px 1px; } .sheet .crop.br { bottom: 6px; right: 6px; border-width: 0 1px 1px 0; }
+.sheet .slug { display: flex; justify-content: space-between; margin-top: 12px; color: var(--mix-2); font-size: 10.5px; }
+.sheet.feed { animation: feed .7s cubic-bezier(.2,.8,.2,1); }
+@keyframes feed { from { transform: translateY(-60px) rotate(-1deg); opacity: .2; } to { transform: rotate(1.6deg); opacity: 1; } }
+.tape { position: absolute; width: 110px; height: 30px; background: rgba(255,72,176,.35); top: -12px; left: 42%; transform: rotate(-4deg); mix-blend-mode: multiply; -webkit-mask: url(img/grain.png) 0 0 / 128px; mask: url(img/grain.png) 0 0 / 128px; }
+.controls { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 30px; flex-wrap: wrap; }
+.readout { font: 12px/1.6 var(--mono); color: var(--mix-2); }
+.readout b { color: var(--mix); font-weight: 400; font-variant-numeric: tabular-nums; }
+.hint { position: absolute; right: -6px; top: 42%; writing-mode: vertical-rl; font: 11px var(--mono); letter-spacing: .1em; color: var(--mix-2); transform: translateX(100%); padding-left: 10px; }
+
+/* ---------- drums ---------- */
+.band { border-top: 1.5px solid var(--mix); border-bottom: 1.5px solid var(--mix); padding: 14px 0; overflow: hidden; white-space: nowrap; font: 800 34px var(--display); }
+.band .track { display: inline-block; animation: run 30s linear infinite; }
+.band .track span { margin-right: 36px; }
+.band .track span:nth-child(odd) { color: var(--pink); }
+.band .track span:nth-child(even) { color: var(--blue); }
+html[data-lang="zh"] .band { font-family: var(--display-zh); font-weight: 900; }
+@keyframes run { to { transform: translateX(-50%); } }
+
+.sec { padding: 110px 0 40px; }
+.sec-head { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: end; margin-bottom: 48px; }
+.sec-head h2 { font-size: clamp(44px, 5vw, 76px); line-height: .95; }
+html[data-lang="zh"] .sec-head h2 { line-height: 1.15; }
+.sec-head p { max-width: 30em; justify-self: end; }
+.num { font: 800 15px var(--display); color: var(--pink); margin-bottom: 10px; display: block; }
+
+.drums { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 26px; align-items: end; }
+.drum { background: #f7f4ec; padding: 14px 14px 16px; box-shadow: 0 1px 0 rgba(30,37,89,.12), 0 20px 40px -30px rgba(30,37,89,.5); transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+.drum:nth-child(1) { transform: rotate(-1.2deg); } .drum:nth-child(2) { transform: rotate(.8deg); } .drum:nth-child(3) { transform: rotate(-.4deg); }
+.drum:hover { transform: translateY(-6px) rotate(0); }
+.drum canvas { display: block; width: 100%; aspect-ratio: 820 / 1092; mix-blend-mode: multiply; }
+.drum .cap { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-weight: 600; }
+html[data-lang="zh"] .drum .cap { font-weight: 700; }
+.drum .cap small { margin-left: auto; font: 11px var(--mono); color: var(--mix-2); }
+.swatch { width: 16px; height: 16px; border-radius: 50%; flex: none; }
+.swatch.both { background: linear-gradient(90deg, var(--pink) 50%, var(--blue) 50%); }
+
+/* ---------- zine pull ---------- */
+.pull { height: 260vh; position: relative; margin-top: 60px; }
+.pull-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding-top: 6vh; }
+.pull-head { text-align: center; margin-bottom: 26px; }
+.pull-head h2 { font-size: clamp(38px, 4vw, 60px); line-height: 1; }
+.pull-head p { color: var(--mix-2); margin-top: 8px; }
+.machine { width: min(1080px, 94vw); position: relative; z-index: 2; }
+.roller { height: 54px; border-radius: 27px; background: linear-gradient(180deg, #2b3170, #4c56a8 30%, #8088c9 46%, #3a428a 64%, #1a1f4f); box-shadow: 0 14px 24px -12px rgba(20,25,60,.6); position: relative; }
+.roller::after { content: ""; position: absolute; inset: 10px 30px auto; height: 6px; border-radius: 3px; background: rgba(255,255,255,.22); }
+.roller .lbl { position: absolute; right: 34px; top: 50%; translate: 0 -50%; font: 11px var(--mono); color: rgba(255,255,255,.75); letter-spacing: .12em; }
+.slot { width: min(1020px, 90vw); flex: 1; overflow: hidden; margin-top: -26px; position: relative; }
+.spread { display: grid; grid-template-columns: 1fr 1fr; background: #f7f4ec; box-shadow: 0 30px 60px -30px rgba(30,37,89,.5); transform: translateY(-100%); will-change: transform; position: relative; }
+.spread::after { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(30,37,89,.18); box-shadow: 0 0 18px 6px rgba(30,37,89,.05); }
+.page { padding: 46px 40px 36px; position: relative; min-height: 560px; }
+.page .folio { display: flex; justify-content: space-between; color: var(--mix-2); margin-bottom: 18px; }
+.page h3 { font-size: 34px; line-height: 1; margin-bottom: 14px; }
+html[data-lang="zh"] .page h3 { font-family: var(--display-zh); font-weight: 900; font-size: 36px; line-height: 1.2; }
+.page canvas { width: 54%; float: right; margin: 0 0 12px 18px; aspect-ratio: 820 / 1154; mix-blend-mode: multiply; transform: rotate(1.4deg); }
+.page.left canvas { float: left; margin: 0 18px 12px 0; transform: rotate(-1.6deg); }
+.page p { font-size: 15px; line-height: 1.65; }
+html[data-lang="zh"] .page p { font-size: 14.5px; }
+.page ul { list-style: none; padding: 0; margin-top: 14px; font: 12.5px/1.9 var(--mono); clear: both; }
+.page li::before { content: "◼ "; color: var(--pink); }
+.page li.fail::before { content: "✕ "; color: var(--blue); }
+.stamp { position: absolute; right: 30px; bottom: 26px; border: 2px solid var(--pink); color: var(--pink); padding: 6px 12px; font: 700 13px var(--mono); transform: rotate(-8deg); mix-blend-mode: multiply; -webkit-mask: url(img/grain.png) 0 0 / 200px; mask: url(img/grain.png) 0 0 / 200px; }
+.staple { position: absolute; left: 50%; width: 3px; height: 26px; background: linear-gradient(90deg, #9aa0b8, #e4e6ef, #8a90a8); translate: -50% 0; z-index: 2; border-radius: 1px; }
+
+/* ---------- features ---------- */
+.features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+.feat { border: 1.5px solid var(--mix); padding: 26px 24px 28px; background: rgba(247,244,236,.6); }
+.shapes { height: 150px; position: relative; margin-bottom: 22px; -webkit-mask: url(img/grain.png) 0 0 / 220px; mask: url(img/grain.png) 0 0 / 220px; }
+.shapes i { position: absolute; mix-blend-mode: multiply; }
+.shapes .p { background: var(--pink); transform: translate(var(--rx), var(--ry)); }
+.shapes .b { background: var(--blue); }
+.feat h3 { font-size: 26px; line-height: 1.05; margin-bottom: 8px; }
+html[data-lang="zh"] .feat h3 { font-family: "Noto Sans SC", sans-serif; font-weight: 700; font-size: 21px; letter-spacing: 0; }
+.feat p { font-size: 15.5px; color: var(--mix-2); }
+.feat .mono { display: block; margin-bottom: 14px; color: var(--mix-2); }
+
+/* ---------- closing ---------- */
+.closing { text-align: center; padding: 140px 0 110px; }
+.closing h2 { font-size: clamp(64px, 11vw, 180px); line-height: .86; }
+html[data-lang="zh"] .closing h2 { line-height: 1.1; }
+.closing p { max-width: 30em; margin: 26px auto 34px; }
+footer { border-top: 1.5px solid var(--mix); padding: 30px 0 56px; font-size: 13px; line-height: 1.85; color: var(--mix-2); }
+footer b { color: var(--mix); }
+footer .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; color: var(--mix); }
+
+@media (max-width: 900px) {
+  nav ul { display: none; }
+  nav { gap: 14px; }
+  nav .btn { display: none; }
+  .lang { margin-left: auto; }
+  .hero, .sec-head { grid-template-columns: 1fr; }
+  .hero { gap: 40px; padding-bottom: 60px; }
+  .sec-head p { justify-self: start; }
+  .hint { display: none; }
+  .drums { grid-template-columns: 1fr 1fr; }
+  .drums .drum:nth-child(3) { grid-column: 1 / -1; }
+  .features { grid-template-columns: 1fr; }
+  .pull { height: auto; }
+  .pull-sticky { position: static; height: auto; padding: 60px 0 0; }
+  .slot { overflow: visible; margin-top: -26px; }
+  .spread { grid-template-columns: 1fr; transform: none !important; }
+  .spread::after, .staple { display: none; }
+  .page { min-height: 0; padding: 34px 24px 70px; }
+  .page + .page { border-top: 1px dashed rgba(30,37,89,.25); }
+  .page canvas, .page.left canvas { float: none; width: 100%; margin: 0 0 16px; }
+  .drum .cap { white-space: nowrap; font-size: 14px; }
+  .drum .cap small { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .spread { transform: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <a class="logo" href="#"><i></i>Specimen</a>
+    <ul>
+      <li><a href="#drums"><span lang="en">How it prints</span><span lang="zh">怎么印</span></a></li>
+      <li><a href="#zine"><span lang="en">The weekly zine</span><span lang="zh">每周小志</span></a></li>
+      <li><a href="#features"><span lang="en">Notebook</span><span lang="zh">记录本</span></a></li>
+    </ul>
+    <button class="lang" data-lang-toggle aria-label="Switch language"><b class="z">中</b> / <b class="e">EN</b></button>
+    <a class="btn ink" href="#"><span lang="en">Start a notebook</span><span lang="zh">开一本记录</span></a>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <div class="issue mono"><span><span lang="en">Issue 42</span><span lang="zh">第 42 期</span></span><span><span lang="en">Printed every Friday</span><span lang="zh">每周五付印</span></span></div>
+      <h1 class="riso"><span lang="en">Lab notes, printed like they matter.</span><span lang="zh">实验记录，<br>值得印出来。</span></h1>
+      <p class="lead">
+        <span lang="en">Specimen is a lab notebook for small biology teams. Every Friday it gathers the week's experiments, photos and dead ends, and prints them as a two-colour zine your whole lab actually reads.</span>
+        <span lang="zh">标本是给小型生物实验室用的记录本。每周五，它把这一周的实验、照片和走不通的路收拢起来，印成一本双色小志，整个实验室都会翻。</span>
+      </p>
+      <div class="row">
+        <a class="btn ink" href="#"><span lang="en">Start a notebook, free</span><span lang="zh">免费开一本记录</span></a>
+        <a class="btn line" href="#zine"><span lang="en">Pull this week's zine ↓</span><span lang="zh">抽出本周小志 ↓</span></a>
+      </div>
+    </div>
+
+    <div class="press">
+      <div class="sheet" id="sheet">
+        <span class="tape"></span>
+        <span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span>
+        <canvas id="hero-print" data-plate="medusa" aria-label="Ernst Haeckel, Discomedusae, plate 8, printed in fluorescent pink and blue"></canvas>
+        <div class="slug mono"><span>Haeckel · Discomedusae · Tafel 8</span><span><span lang="en">Fluo pink + blue</span><span lang="zh">荧光粉 + 蓝</span></span></div>
+      </div>
+      <span class="hint"><span lang="en">Drag the print → the blue drum slips</span><span lang="zh">拖动画面，蓝色滚筒会走位</span></span>
+      <div class="controls">
+        <div class="readout">
+          <span lang="en">Copy</span><span lang="zh">第</span> № <b id="copy-no">0042</b><span lang="zh"> 张</span><br>
+          <span lang="en">Registration</span><span lang="zh">套准偏差</span> <b id="reg">+0.0 / +0.0 mm</b>
+        </div>
+        <button class="btn pink" id="run"><span lang="en">↻ Run another copy</span><span lang="zh">↻ 再印一张</span></button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="band" aria-hidden="true"><div class="track"></div></div>
+
+<div class="wrap">
+  <section class="sec" id="drums">
+    <div class="sec-head">
+      <div><span class="num">01</span><h2 class="riso"><span lang="en">Two drums, three colours.</span><span lang="zh">两个滚筒，三种颜色。</span></h2></div>
+      <p><span lang="en">A stencil duplicator lays down one ink per drum. Where pink lands on blue, the inks multiply into a deep violet that neither drum carries. Specimen separates your figures into two drums the same way a print shop would, so a plate scanned in 1904 comes out like it was pulled this morning.</span><span lang="zh">孔版印刷机一个滚筒只上一种墨。粉色压在蓝色上，两种墨叠成一种深紫，这个颜色哪个滚筒里都没有。标本会像印刷店师傅那样，把你的图拆成两版。1904 年扫描的图版印出来，像今天早上刚印的。</span></p>
+    </div>
+    <div class="drums">
+      <figure class="drum"><canvas data-plate="anemone" data-layers="pink"></canvas>
+        <figcaption class="cap"><span class="swatch" style="background:var(--pink)"></span><span lang="en">Drum A · Fluo pink</span><span lang="zh">A 筒 · 荧光粉</span><small>Actiniae</small></figcaption></figure>
+      <figure class="drum"><canvas data-plate="anemone" data-layers="blue"></canvas>
+        <figcaption class="cap"><span class="swatch" style="background:var(--blue)"></span><span lang="en">Drum B · Blue</span><span lang="zh">B 筒 · 蓝</span><small>Actiniae</small></figcaption></figure>
+      <figure class="drum"><canvas data-plate="anemone" data-layers="pink blue"></canvas>
+        <figcaption class="cap"><span class="swatch both"></span><span lang="en">Both drums, overprinted</span><span lang="zh">两筒叠印</span><small>Haeckel, 1904</small></figcaption></figure>
+    </div>
+  </section>
+</div>
+
+<section class="pull" id="zine">
+  <div class="pull-sticky">
+    <div class="pull-head">
+      <span class="num">02</span>
+      <h2 class="riso"><span lang="en">Friday, 5 pm. The zine comes off the drum.</span><span lang="zh">周五下午五点，小志下机。</span></h2>
+      <p><span lang="en">Keep scrolling to pull this week's issue.</span><span lang="zh">继续往下滚，把这一期抽出来。</span></p>
+    </div>
+    <div class="machine"><div class="roller"><span class="lbl">DRUM B · 0078BF</span></div></div>
+    <div class="slot">
+      <div class="spread">
+        <span class="staple" style="top:22%"></span><span class="staple" style="top:70%"></span>
+        <article class="page left">
+          <div class="folio mono"><span>№ 42 · p.2</span><span><span lang="en">Bench notes</span><span lang="zh">台面笔记</span></span></div>
+          <canvas data-plate="diatom" data-layers="pink blue"></canvas>
+          <h3><span lang="en">The diatoms finally settled.</span><span lang="zh">硅藻终于沉下去了。</span></h3>
+          <p><span lang="en">Mira switched to the slower centrifuge protocol on Tuesday. By Thursday the frustules were clean enough to image at 400×. Her notes, photos and the one cursed tube are below.</span><span lang="zh">周二米拉换了慢速离心的方案。到周四，硅藻壳干净到可以用 400 倍拍照了。她的笔记、照片，还有那管出问题的样品，都在下面。</span></p>
+          <ul>
+            <li><span lang="en">Protocol v3: 800 g, 12 min</span><span lang="zh">方案 v3：800 g，12 分钟</span></li>
+            <li><span lang="en">47 images, 3 tagged for the paper</span><span lang="zh">拍了 47 张，3 张标记进论文</span></li>
+            <li class="fail"><span lang="en">Tube 9: contaminated, discarded</span><span lang="zh">9 号管：污染，已弃</span></li>
+          </ul>
+        </article>
+        <article class="page">
+          <div class="folio mono"><span><span lang="en">Results</span><span lang="zh">结果</span></span><span>p.3</span></div>
+          <canvas data-plate="disc" data-layers="pink blue"></canvas>
+          <h3><span lang="en">Medusa count, week 42.</span><span lang="zh">第 42 周水母计数。</span></h3>
+          <p><span lang="en">Tank B held steady at 31 ephyrae after the temperature fix. Jonas thinks the light cycle matters more than we assumed; next week's zine will tell.</span><span lang="zh">温度调好之后，B 缸的碟状幼体稳定在 31 只。乔纳斯觉得光照周期比我们想的更重要，下周的小志见分晓。</span></p>
+          <ul>
+            <li><span lang="en">Tank A 24 → 26</span><span lang="zh">A 缸 24 → 26</span></li>
+            <li><span lang="en">Tank B 29 → 31</span><span lang="zh">B 缸 29 → 31</span></li>
+            <li><span lang="en">Next: split light cycle 12/12 vs 16/8</span><span lang="zh">下一步：光照 12/12 对比 16/8</span></li>
+          </ul>
+          <span class="stamp"><span lang="en">PRINTED · FRI</span><span lang="zh">已付印 · 周五</span></span>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="sec" id="features">
+    <div class="sec-head">
+      <div><span class="num">03</span><h2 class="riso"><span lang="en">A notebook first. The zine is the reward.</span><span lang="zh">先是记录本，小志是奖励。</span></h2></div>
+      <p><span lang="en">Everything the zine shows comes from what your team logs during the week. Nobody writes a newsletter; it writes itself from the bench.</span><span lang="zh">小志里的每一页，都来自大家这一周的记录。没人需要写周报，它从实验台上自己长出来。</span></p>
+    </div>
+    <div class="features">
+      <article class="feat">
+        <div class="shapes"><i class="p" style="width:120px;height:120px;border-radius:50%;left:8%;top:10px"></i><i class="b" style="width:150px;height:96px;left:30%;top:42px"></i></div>
+        <span class="mono"><span lang="en">Log</span><span lang="zh">记</span></span>
+        <h3><span lang="en">Notes that take ten seconds</span><span lang="zh">十秒记一条</span></h3>
+        <p><span lang="en">Snap the gel, say what you did, tag the sample. Specimen keeps the protocol version and the timestamp for you.</span><span lang="zh">拍下胶图，说一句做了什么，标上样品号。方案版本和时间，标本替你记着。</span></p>
+      </article>
+      <article class="feat">
+        <div class="shapes"><i class="b" style="width:110px;height:140px;left:12%;top:4px;border-radius:55px 55px 6px 6px"></i><i class="p" style="width:140px;height:140px;left:34%;top:6px;clip-path:polygon(50% 0,100% 100%,0 100%)"></i></div>
+        <span class="mono"><span lang="en">Print</span><span lang="zh">印</span></span>
+        <h3><span lang="en">A zine every Friday</span><span lang="zh">每周五一本小志</span></h3>
+        <p><span lang="en">Eight pages, two colours, laid out automatically. Print it on your department's duplicator or read it as a PDF on the train.</span><span lang="zh">八页，两色，自动排好。可以拿系里的印刷机印，也可以在地铁上看 PDF。</span></p>
+      </article>
+      <article class="feat">
+        <div class="shapes"><i class="p" style="width:84px;height:84px;border-radius:50%;left:6%;top:30px"></i><i class="p" style="width:84px;height:84px;border-radius:50%;left:30%;top:30px"></i><i class="b" style="width:200px;height:56px;left:14%;top:58px;border-radius:28px"></i></div>
+        <span class="mono"><span lang="en">Keep</span><span lang="zh">藏</span></span>
+        <h3><span lang="en">Every issue, searchable</span><span lang="zh">每一期都能搜</span></h3>
+        <p><span lang="en">Find the week someone first saw the contamination, or every result that used protocol v2. The archive is the lab's memory.</span><span lang="zh">想找谁第一次发现污染的那周，或者所有用过方案 v2 的结果，翻档案就行。档案就是实验室的记性。</span></p>
+      </article>
+    </div>
+  </section>
+
+  <section class="closing">
+    <h2 class="riso"><span lang="en">Your first issue is on us.</span><span lang="zh">第一期，<br>我们来印。</span></h2>
+    <p><span lang="en">Free for labs of up to eight people. Bring your own ink.</span><span lang="zh">八个人以内的实验室免费。墨自己带。</span></p>
+    <a class="btn ink" href="#"><span lang="en">Start a notebook</span><span lang="zh">开一本记录</span></a>
+  </section>
+
+  <footer>
+    <div class="top"><a class="logo" href="#" style="font-size:18px"><i></i>Specimen</a><span><span lang="en">A fictional product, made as a design study.</span><span lang="zh">虚构产品，仅作设计练习。</span></span></div>
+    <b>图源</b>：所有图版均出自恩斯特·海克尔《自然界的艺术形态》（Kunstformen der Natur，1899–1904，莱比锡书目研究所出版，公有领域）：第 8 版盘水母（Discomedusae）、第 88 版盘水母（Discomedusae）、第 49 版海葵（Actiniae，修复版扫描）、第 4 版硅藻（Diatomea）；均经 Wikimedia Commons 获取，经裁切、分色为荧光粉与蓝两版，并在浏览器中按孔版印刷的颗粒与套准误差重新“印刷”。
+    字体：Bricolage Grotesque、Space Mono、Noto Sans SC（均为 OFL-1.1）。本页为学习用 demo，品牌与文案均为虚构。<br>
+    侵权请联系删除。
+  </footer>
+</div>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const INK = { pink: [255, 72, 176], blue: [0, 120, 191] };
+const root = document.documentElement.style;
+
+// ---------- type: give every .riso heading a pink ghost (the second drum) ----------
+document.querySelectorAll(".riso").forEach(el => {
+  const g = el.cloneNode(true);
+  g.className = "riso-ghost"; g.setAttribute("aria-hidden", "true");
+  el.append(g);
+});
+
+// ---------- plates: load the two separations once ----------
+const plates = {};
+function plate(name) {
+  return plates[name] ||= Promise.all(["pink", "blue"].map(k => new Promise(r => {
+    const im = new Image(); im.onload = () => r(im); im.src = `img/${name}-${k}.jpg`;
+  }))).then(([pink, blue]) => ({ pink, blue }));
+}
+
+function rng(seed) { let s = seed >>> 0 || 1; return () => (s ^= s << 13, s ^= s >>> 17, s ^= s << 5, (s >>> 0) / 4294967296); }
+
+// Ink one drum: density map → speckled ink with uneven coverage and faint starvation streaks along the feed.
+function inkLayer(img, w, h, rgb, seed) {
+  const c = new OffscreenCanvas(w, h), x = c.getContext("2d", { willReadFrequently: true });
+  x.drawImage(img, 0, 0, w, h);
+  const src = x.getImageData(0, 0, w, h), d = src.data;
+  const lo = new OffscreenCanvas(w, h), lx = lo.getContext("2d");       // low-frequency coverage noise
+  const r = rng(seed), tiny = new OffscreenCanvas(18, 24), tx = tiny.getContext("2d"), td = tx.createImageData(18, 24);
+  for (let i = 0; i < td.data.length; i += 4) { const v = 150 + r() * 105; td.data[i] = td.data[i + 1] = td.data[i + 2] = v; td.data[i + 3] = 255; }
+  tx.putImageData(td, 0, 0); lx.imageSmoothingQuality = "high"; lx.drawImage(tiny, 0, 0, w, h);
+  const ld = lx.getImageData(0, 0, w, h).data;
+  const streak = new Float32Array(w); for (let i = 0; i < w; i++) streak[i] = 1 - (r() < .012 ? .25 * r() : 0);
+  for (let i = 1; i < w; i++) streak[i] = Math.min(streak[i], (streak[i - 1] + 1) / 2 + .01);
+  const out = x.createImageData(w, h), o = out.data;
+  for (let y = 0, i = 0; y < h; y++) for (let xx = 0; xx < w; xx++, i += 4) {
+    const dens = d[i] / 255;
+    if (dens < .015) continue;
+    const ink = dens * (ld[i] / 230) * streak[xx];
+    const a = Math.min(1, Math.max(0, (ink - r() * .92) * 4 + .5));
+    o[i] = rgb[0]; o[i + 1] = rgb[1]; o[i + 2] = rgb[2]; o[i + 3] = a * 242;
+  }
+  x.putImageData(out, 0, 0);
+  return c;
+}
+
+// A printed sheet on a canvas: builds the drums, then composites them with a registration offset.
+class Print {
+  constructor(canvas) { this.c = canvas; this.ctx = canvas.getContext("2d"); this.layers = (canvas.dataset.layers || "pink blue").split(" "); this.seed = 42; this.off = [0, 0]; }
+  async build() {
+    const p = await plate(this.c.dataset.plate);
+    const dpr = Math.min(devicePixelRatio || 1, 2), r = this.c.getBoundingClientRect();
+    const w = Math.max(2, Math.round(r.width * dpr)), h = Math.max(2, Math.round(r.height * dpr));
+    this.c.width = w; this.c.height = h; this.k = dpr;
+    this.ink = this.layers.map((k, n) => [k, inkLayer(p[k], w, h, INK[k], this.seed * 7 + n * 101)]);
+    this.draw();
+  }
+  draw() {
+    const { ctx, c } = this; ctx.clearRect(0, 0, c.width, c.height);
+    for (const [k, layer] of this.ink) {
+      ctx.globalCompositeOperation = "multiply";
+      const [dx, dy] = k === "blue" ? this.off : [0, 0];
+      ctx.drawImage(layer, dx * this.k, dy * this.k);
+    }
+    ctx.globalCompositeOperation = "source-over";
+  }
+}
+
+const prints = [...document.querySelectorAll("canvas[data-plate]")].map(c => new Print(c));
+// build each print when it first nears the viewport; rebuild on resize
+const io = new IntersectionObserver(es => es.forEach(e => {
+  const p = prints.find(p => p.c === e.target);
+  if (e.isIntersecting && !p.built) { p.built = true; p.build(); }
+}), { rootMargin: "400px" });
+prints.forEach(p => io.observe(p.c));
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => prints.filter(p => p.built).forEach(p => p.build()), 200); });
+
+// ---------- hero: drag the sheet to knock the blue drum out of register (the whole page follows) ----------
+const hero = prints.find(p => p.c.id === "hero-print"), sheet = document.getElementById("sheet");
+const regEl = document.getElementById("reg"), copyEl = document.getElementById("copy-no");
+let copy = 42;
+setReg(1.6, -1.1);  // a fresh copy is never perfectly in register
+function setReg(x, y) {
+  x = Math.max(-14, Math.min(14, x)); y = Math.max(-14, Math.min(14, y));
+  hero.off = [x, y]; hero.ink && hero.draw();
+  root.setProperty("--rx", `${(-x * .5 + 2).toFixed(2)}px`); root.setProperty("--ry", `${(-y * .5 - 1.5).toFixed(2)}px`);
+  const mm = v => (v >= 0 ? "+" : "−") + Math.abs(v * .26).toFixed(1);
+  regEl.textContent = `${mm(x)} / ${mm(y)} mm`;
+}
+let drag = null;
+sheet.addEventListener("pointerdown", e => { drag = { x: e.clientX, y: e.clientY, o: [...hero.off] }; sheet.setPointerCapture(e.pointerId); });
+sheet.addEventListener("pointermove", e => { if (drag) setReg(drag.o[0] + (e.clientX - drag.x) * .12, drag.o[1] + (e.clientY - drag.y) * .12); });
+sheet.addEventListener("pointerup", () => drag = null);
+sheet.addEventListener("dblclick", () => setReg(0, 0));
+
+document.getElementById("run").addEventListener("click", async () => {
+  copy++; copyEl.textContent = String(copy).padStart(4, "0");
+  hero.seed = copy;
+  const j = () => (Math.random() - .5) * 5;
+  await hero.build(); setReg(j(), j());
+  if (!reduce) { sheet.classList.remove("feed"); void sheet.offsetWidth; sheet.classList.add("feed"); }
+});
+
+// ---------- running band ----------
+const words = { en: ["Fluorescent pink", "Blue", "Two drums", "Overprint", "Grain", "Misregistered on purpose"], zh: ["荧光粉", "蓝", "两个滚筒", "叠印", "颗粒", "故意没套准"] };
+function band() {
+  const l = document.documentElement.dataset.lang === "zh" ? "zh" : "en", w = [...words[l], ...words[l]];
+  document.querySelector(".band .track").innerHTML = [...w, ...w].map(t => `<span>${t}</span>`).join("");
+}
+band(); document.querySelector("[data-lang-toggle]").addEventListener("click", () => setTimeout(band, 0));
+
+// ---------- zine: scroll pulls the spread out from under the drum ----------
+const pull = document.querySelector(".pull"), spread = document.querySelector(".spread");
+function onScroll() {
+  if (innerWidth <= 900 || reduce) return;
+  const t = Math.min(1, Math.max(0, (scrollY - pull.offsetTop) / (pull.offsetHeight - innerHeight)));
+  const e = 1 - (1 - t) ** 3;
+  spread.style.transform = `translateY(${(-100 + e * 100).toFixed(2)}%)`;
+}
+addEventListener("scroll", onScroll, { passive: true }); onScroll();
+</script>
+</body>
+</html>
