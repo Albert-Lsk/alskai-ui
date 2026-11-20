@@ -1,6 +1,6 @@
 # Download Commons files by exact title (throttled; other agents share the rate limit).
 import json, sys, time, urllib.parse, urllib.request, subprocess
-UA = {"User-Agent": "ui-remix/0.1 (open-source demo gallery)"}
+UA = {"User-Agent": "alskai-ui/0.1 (open-source demo gallery)"}
 def info(title):
     q = urllib.parse.urlencode({"action": "query", "titles": "File:" + title, "prop": "imageinfo",
                                 "iiprop": "url|extmetadata", "iiurlwidth": 3000, "format": "json"})

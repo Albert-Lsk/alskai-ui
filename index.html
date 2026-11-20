@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ALSKai UI · 20 landing pages from public-domain masterpieces</title>
+<meta name="description" content="20 interactive landing pages built from public-domain museum art and procedural graphics. Made with Claude Code by ALSKai.">
+<meta property="og:image" content="docs/mosaic-en.jpg">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/instrument-serif@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/geist-mono@5/index.css">
+<script src="shared/lang.js"></script>
+<style>
+:root { --bg: #15140f; --fg: #f1ebdd; --dim: #a39d8c; --line: #2e2b22; --accent: #e0703c; }
+* { box-sizing: border-box; margin: 0; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.6 "Geist Mono", ui-monospace, monospace; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+.wrap { width: min(1360px, calc(100vw - 40px)); margin: 0 auto; }
+header { display: flex; align-items: center; justify-content: space-between; padding: 28px 0; border-bottom: 1px solid var(--line); }
+.brand { font-size: 14px; letter-spacing: .12em; text-transform: uppercase; }
+.brand b { color: var(--accent); font-weight: 400; }
+.top a, .top button { font: inherit; font-size: 13px; color: var(--dim); background: none; border: 1px solid var(--line); padding: 6px 12px; cursor: pointer; margin-left: 8px; }
+.top a:hover, .top button:hover { color: var(--fg); border-color: var(--dim); }
+.hero { padding: 88px 0 64px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: end; }
+h1 { font: 400 clamp(48px, 7vw, 104px)/.95 "Instrument Serif", serif; letter-spacing: -.01em; }
+html[data-lang="zh"] h1 { font: 600 clamp(40px, 5.6vw, 80px)/1.15 "Noto Serif SC", serif; }
+h1 em { color: var(--accent); }
+.hero p { color: var(--dim); max-width: 34em; }
+.hero p + p { margin-top: 12px; }
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px 20px; padding-bottom: 96px; }
+.card { display: block; }
+.card .img { aspect-ratio: 16 / 10; overflow: hidden; border: 1px solid var(--line); background: #222; }
+.card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+.card:hover img { transform: scale(1.04); }
+.card .meta { display: flex; gap: 12px; margin-top: 12px; }
+.card .no { color: var(--accent); }
+.card h2 { font-size: 15px; font-weight: 400; line-height: 1.4; }
+.card h2 small { color: var(--dim); margin-left: 6px; }
+.card p { color: var(--dim); font-size: 13px; line-height: 1.5; margin-top: 4px; }
+footer { border-top: 1px solid var(--line); padding: 32px 0 56px; color: var(--dim); font-size: 13px; display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+@media (max-width: 1100px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 800px) { .hero { grid-template-columns: 1fr; padding: 56px 0 40px; } .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .card img { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><b>ALSKai</b> UI</div>
+    <div class="top">
+      <button data-lang-toggle><span lang="en">中文</span><span lang="zh">EN</span></button>
+      <a href="https://github.com/Albert-Lsk/alskai-ui">GitHub</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1><span lang="en">20 landing pages from <em>old masters</em>.</span><span lang="zh">20 个网站，<br>素材全是<em>几百年前</em>的名画。</span></h1>
+    <div>
+      <p><span lang="en">Fan Kuan, Hokusai, Leonardo, Vermeer. Every image is public domain or CC0, every site is one HTML file with one signature interaction. Bilingual, no build step.</span><span lang="zh">范宽、北斋、达·芬奇、维米尔，图片全部来自公有领域或 CC0 的馆藏。每个站一个 HTML 文件，押一个招牌交互，中英双语，不用构建。</span></p>
+      <p><span lang="en">Made with Claude Code · by ALSKai</span><span lang="zh">Claude Code 制作 · ALSKai 出品</span></p>
+    </div>
+  </section>
+
+  <main class="grid" id="grid"></main>
+
+  <footer>
+    <span><span lang="en">Code: MIT + Commons Clause. Images keep their public-domain / CC0 status; fonts are OFL. See CREDITS.md.</span><span lang="zh">代码：MIT + Commons Clause。图片保持公有领域 / CC0，字体为 OFL，详见 CREDITS.md。</span></span>
+    <span><span lang="en">All brands and copy are fictional. Inspired by a post from @uisabor.</span><span lang="zh">品牌与文案均为虚构。起因是 @uisabor 的一条推。侵权请联系删除。</span></span>
+  </footer>
+</div>
+
+<script>
+// [folder, name, en style, zh style, en hook, zh hook]
+const sites = [
+  ["01-halftone", "Acta 公报", "Two-ink halftone", "双色网点印刷", "A newspaper front page printed in rotated dot screens, with a printer's loupe.", "报纸头版用两色网点印出来，放大镜能看到每个网点。"],
+  ["02-collage", "Cloudrift 云隙", "Torn-sky collage", "撕纸拼贴", "Scroll tears the sky open to reveal Vermeer behind it.", "往下滚，云层被撕开，露出背后的维米尔。"],
+  ["03-meadow", "Tend", "WebGL2 meadow", "WebGL2 草地", "146,000 hand-written grass blades that part around your cursor.", "手写 WebGL2，14.6 万根草，鼠标划过会被吹开。"],
+  ["04-object", "Ballast", "Raymarched object", "光线步进实物", "A hardware key rendered live in SDF; hold it to sign a payment.", "SDF 实时渲染的硬件密钥，按住它签一笔付款。"],
+  ["05-ink", "Inkstone 砚", "Ink & handscroll", "水墨手卷", "Fan Kuan's mountain bleeds into paper; a Qing handscroll unrolls as you scroll.", "范宽的山以墨晕显影，往下滚，清代手卷一臂一臂展开。"],
+  ["06-ukiyoe", "Nami 波", "Woodblock print", "浮世绘套印", "The Great Wave printed live from five colour blocks, slipping out of register.", "神奈川冲浪里拆成 5 块色版现场套印，鼠标一动就错版。"],
+  ["07-riso", "Specimen 标本", "Risograph", "孔版双色印刷", "Haeckel's jellyfish on two fluorescent drums; drag to misregister.", "海克尔的水母分成两个荧光滚筒，拖动就错位。"],
+  ["08-cyanotype", "Pressed", "Cyanotype", "蓝晒", "Your cursor is the sun: wherever it lingers, Anna Atkins' algae expose.", "鼠标就是太阳，停在哪里，哪里就晒蓝。"],
+  ["09-onebit", "Speck", "1-bit dithering", "1 比特抖动", "Drag a lens window over Ansel Adams and re-dither it four ways.", "把镜头窗口拖到照片上，底下那块换一种抖动算法。"],
+  ["10-celestial", "Firmament 穹", "Baroque star atlas", "巴洛克星图", "1,010 real stars; Hevelius' 1690 Orion fades in over the real Orion.", "1010 颗真实恒星，赫维留斯 1690 年的猎户像对着真星星浮出。"],
+  ["11-guilloche", "Tessera 契纹", "Security print", "防伪雕版", "Live guilloché rosettes, a UV lamp, microtext under the loupe.", "程序生成的扭索纹，紫外灯和放大镜能看到藏着的字。"],
+  ["12-manuscript", "Rubric 朱批", "Illuminated manuscript", "彩绘手抄本", "WebGL gold leaf catches the light; a page is written in ink, red, then gold.", "WebGL 金箔随鼠标反光，一页纸按墨、朱、金三遍写成。"],
+  ["13-codex", "Mensura 度", "Leonardo's notebook", "达·芬奇手稿", "Drag your height and the Vitruvian Man re-measures you by his ratios.", "拖动身高，维特鲁威人身上的尺寸按他的比例重算。"],
+  ["14-ascii", "Glyph", "Live ASCII", "实时字符画", "Saturn V rendered in characters, decoding into Earthrise as you scroll.", "土星五号用字符实时渲染，往下滚解码成地球升起。"],
+  ["15-glass", "Vitrail 花窗", "Stained glass shader", "彩色玻璃", "A Gothic lancet whose coloured light falls where you point.", "哥特式花窗，彩色的光落在你指的地方。"],
+  ["16-contour", "Saddle 鞍部", "Live contours", "实时等高线", "Sculpt the terrain with your cursor; drag a route for its cross-section.", "用鼠标堆高挖低，拖一条路线看剖面。"],
+  ["17-marble", "Ebb & Comb 流沙笺", "Mathematical marbling", "大理石纹纸", "Drop ink, rake the bath, pull the paper. Exact marbling transforms in WebGL2.", "滴墨、拉梳、拓纸，用论文里的数学变换实时算。"],
+  ["18-swiss", "Raster 栅格", "Swiss grid", "瑞士网格", "A real grid: change the columns and every block reflows.", "真的网格，改一下栏数，每个版块自己找到新位置。"],
+  ["19-bauhaus", "Vorkurs 预科", "Bauhaus physics", "包豪斯物理", "Primary shapes fall, stack and can be thrown, on an inline physics engine.", "红方黄三角蓝圆掉下来堆在标题上，可以扔。"],
+  ["20-vhs", "Rewind 回带", "VHS / CRT", "录像带", "Méliès' moon on worn tape; your cursor is the tracking knob.", "梅里爱的月亮放在旧录像带上，鼠标就是跟踪旋钮。"],
+];
+document.getElementById("grid").innerHTML = sites.map(([f, n, es, zs, eh, zh]) => `
+  <a class="card" href="sites/${f}/">
+    <div class="img"><img loading="lazy" src="docs/thumbs/${f}-zh.jpg" data-en="docs/thumbs/${f}-en.jpg" data-zh="docs/thumbs/${f}-zh.jpg" alt="${n}"></div>
+    <div class="meta"><span class="no">${f.slice(0, 2)}</span><div>
+      <h2>${n}<small><span lang="en">${es}</span><span lang="zh">${zs}</span></small></h2>
+      <p><span lang="en">${eh}</span><span lang="zh">${zh}</span></p>
+    </div></div>
+  </a>`).join("");
+// thumbnails follow the page language
+const syncThumbs = () => document.querySelectorAll(".card img").forEach(i => i.src = i.dataset[document.documentElement.dataset.lang === "zh" ? "zh" : "en"]);
+syncThumbs();
+new MutationObserver(syncThumbs).observe(document.documentElement, { attributes: true, attributeFilter: ["data-lang"] });
+</script>
+</body>
+</html>

@@ -2,8 +2,8 @@
 // any element with [data-lang-toggle] switches. Choice persists; ?lang=zh|en overrides.
 (() => {
   const q = new URLSearchParams(location.search).get("lang");
-  const pick = q || localStorage.getItem("ui-remix-lang") || (navigator.language.startsWith("zh") ? "zh" : "en");
-  const set = l => { document.documentElement.dataset.lang = l; localStorage.setItem("ui-remix-lang", l); };
+  const pick = q || localStorage.getItem("alskai-ui-lang") || (navigator.language.startsWith("zh") ? "zh" : "en");
+  const set = l => { document.documentElement.dataset.lang = l; localStorage.setItem("alskai-ui-lang", l); };
   const st = document.createElement("style");
   // CJK has no true italic; browsers fake an oblique that looks broken, so never slant Chinese.
   st.textContent = 'html[data-lang="en"] [lang="zh"], html[data-lang="zh"] [lang="en"] { display: none !important; }'

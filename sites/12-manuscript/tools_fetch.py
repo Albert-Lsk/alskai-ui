@@ -1,6 +1,6 @@
 # Throttled Commons download: search -> first file hit -> 2000px thumb, prints title + licence.
 import json, sys, time, urllib.parse, urllib.request, subprocess
-UA = {"User-Agent": "ui-remix/0.1 (open-source demo gallery)"}
+UA = {"User-Agent": "alskai-ui/0.1 (open-source demo gallery)"}
 want = {
     "shaw1.jpg": "Illuminated ornaments selected from manuscripts Shaw Madden plate",
     "w189.jpg": "Book of Hours, Annunciation, Walters Manuscript W.189, fol. 19v",

@@ -1,6 +1,6 @@
 # Search Wikimedia Commons files, print title | license | artist | size | url
 import json, sys, urllib.parse, urllib.request
-UA = {"User-Agent": "ui-remix/0.1 (local demo)"}
+UA = {"User-Agent": "alskai-ui/0.1 (local demo)"}
 def get(params):
     url = "https://commons.wikimedia.org/w/api.php?" + urllib.parse.urlencode({**params, "format": "json"})
     return json.load(urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30))
