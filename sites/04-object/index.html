@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ballast · treasury you can hold</title>
+<script src="../../shared/lang.js"></script>
+<style>
+@font-face { font-family: "Geist"; src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-sans@latest/latin-400-normal.woff2) format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+0000-024F, U+2000-206F, U+20A0-20CF, U+2190-21FF, U+2212; }
+@font-face { font-family: "Geist"; src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-sans@latest/latin-500-normal.woff2) format("woff2"); font-weight: 500; font-display: swap; unicode-range: U+0000-024F, U+2000-206F, U+20A0-20CF, U+2190-21FF, U+2212; }
+@font-face { font-family: "Geist"; src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-sans@latest/latin-600-normal.woff2) format("woff2"); font-weight: 600; font-display: swap; unicode-range: U+0000-024F, U+2000-206F, U+20A0-20CF, U+2190-21FF, U+2212; }
+@font-face { font-family: "Geist Mono"; src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-mono@latest/latin-400-normal.woff2) format("woff2"); font-display: swap; unicode-range: U+0000-024F, U+2000-206F, U+20A0-20CF, U+2190-21FF, U+2212; }
+
+:root {
+  --bg: #e8e1d3;
+  --bg-2: #efeadf;
+  --line: #cdc3ae;
+  --ink: #1f1a16;
+  --muted: #847868;
+  --ox: #7b2d2b;
+  --ox-2: #5e201f;
+  --dark: #2a1715;
+  --dark-2: #3a221f;
+  --amber: #f3a95c;
+  --sans: "Geist", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --mono: "Geist Mono", ui-monospace, monospace;
+  --wrap: min(1280px, calc(100vw - 48px));
+}
+* { box-sizing: border-box; margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+.wrap { width: var(--wrap); margin: 0 auto; }
+.mono { font-family: var(--mono); }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; font-size: 14.5px; font-weight: 500; border-radius: 2px; white-space: nowrap; transition: transform .15s ease, background-color .2s ease, box-shadow .2s ease; }
+.btn:active { transform: scale(.97); }
+.btn.ox { background: var(--ox); color: #f6ece6; }
+.btn.ox:hover { background: var(--ox-2); }
+.btn.paper { background: #fbf8f2; color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+.btn.paper:hover { background: #fff; }
+
+/* ---------- nav ---------- */
+nav { position: relative; z-index: 5; display: flex; align-items: center; gap: 36px; height: 76px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 19px; letter-spacing: -.02em; }
+.brand i { width: 28px; height: 28px; border-radius: 9px; background: var(--ox); position: relative; box-shadow: inset 0 -3px 0 rgba(0,0,0,.25); }
+.brand i::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 6px; height: 2px; border-radius: 2px; background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+nav ul { display: flex; gap: 30px; list-style: none; padding: 0; font-size: 14.5px; color: #4f463d; }
+nav ul a:hover { color: var(--ink); }
+nav .right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.lang { font: 12.5px var(--mono); letter-spacing: .06em; padding: 8px 12px; border: 1px solid var(--line); border-radius: 2px; color: #5b5146; }
+.lang:hover { background: var(--bg-2); }
+
+/* ---------- hero ---------- */
+.hero { position: relative; overflow: hidden; }
+.hero-grid { position: relative; z-index: 2; display: grid; grid-template-columns: 5fr 7fr; align-items: center; min-height: min(780px, calc(100vh - 76px)); gap: 20px; padding-bottom: 40px; }
+.tag { display: inline-flex; align-items: center; gap: 8px; font: 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: #5d5347; background: var(--bg-2); box-shadow: 0 0 0 1px var(--line); padding: 6px 10px; border-radius: 2px; }
+.tag b { width: 7px; height: 7px; border-radius: 50%; background: var(--ox); box-shadow: 0 0 0 3px rgba(123,45,43,.15); }
+h1 { font-size: clamp(46px, 5.4vw, 80px); line-height: .98; letter-spacing: -.045em; font-weight: 500; margin: 24px 0 22px; }
+h1 .soft { color: #9a8c7b; }
+html[data-lang="zh"] h1 { letter-spacing: -.01em; line-height: 1.12; font-size: clamp(42px, 4.8vw, 70px); }
+.lede { font-size: 18px; color: #5a5045; max-width: 30em; }
+.hero .ctas { display: flex; gap: 10px; margin-top: 32px; flex-wrap: wrap; }
+
+.stage { position: relative; height: min(680px, 78vh); display: grid; place-items: center; }
+.traces { position: absolute; left: 50%; top: 50%; width: 1800px; height: 1100px; translate: -50% -50%; pointer-events: none; overflow: visible;
+  -webkit-mask-image: linear-gradient(90deg, transparent 21%, #000 33%); mask-image: linear-gradient(90deg, transparent 21%, #000 33%); }
+.traces .base { fill: none; stroke: var(--line); stroke-width: 1.3; }
+.traces .pulse { fill: none; stroke: var(--ox); stroke-width: 2.2; stroke-linecap: round; stroke-dasharray: 46 954; stroke-dashoffset: 1000; animation: flow var(--d, 4s) linear infinite; animation-delay: var(--delay, 0s); filter: drop-shadow(0 0 3px rgba(123,45,43,.55)); opacity: .85; }
+.hero.charging .traces .pulse { animation-duration: calc(var(--d, 4s) * .32); stroke: #a63a35; }
+.hero.signed .traces .pulse { stroke: var(--amber); filter: drop-shadow(0 0 5px rgba(243,169,92,.9)); }
+@keyframes flow { to { stroke-dashoffset: 0; } }
+.traces .node rect { fill: #ece5d7; stroke: var(--line); }
+.traces .node circle, .traces .node line { fill: #a99c88; stroke: #a99c88; stroke-width: 1.4; stroke-linecap: round; }
+
+#key { position: relative; width: min(620px, 100%); aspect-ratio: 1; touch-action: none; cursor: grab; display: block; }
+#key.held { cursor: grabbing; }
+.ring { position: absolute; width: min(430px, 72%); aspect-ratio: 1; pointer-events: none; rotate: -90deg; }
+.ring circle { fill: none; stroke: var(--ox); stroke-width: 1.6; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: .9; }
+.hint { position: absolute; left: 50%; bottom: 7%; translate: -50% 0; font: 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: #6f6355; background: rgba(239,234,223,.85); padding: 6px 10px; box-shadow: 0 0 0 1px var(--line); white-space: nowrap; transition: opacity .3s; }
+
+.pending { position: absolute; right: 2%; top: 13%; width: 268px; background: var(--dark); color: #efe3dc; border-radius: 6px; padding: 16px 16px 14px; box-shadow: 0 30px 60px -28px rgba(42,23,21,.7); font-size: 13px; transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+.pending .row1 { display: flex; justify-content: space-between; align-items: center; color: #bfa9a1; font-size: 12px; }
+.pending .pill { font: 11px var(--mono); padding: 3px 8px; border-radius: 99px; background: #4a2a26; color: #f1c9a8; transition: background-color .3s, color .3s; }
+.pending .amt { font-size: 26px; font-weight: 500; letter-spacing: -.02em; margin: 10px 0 2px; color: #fff; font-variant-numeric: tabular-nums; }
+.pending .to { color: #bfa9a1; }
+.pending .sig { display: flex; gap: 6px; margin-top: 12px; }
+.pending .sig span { flex: 1; height: 4px; border-radius: 4px; background: #4a2a26; overflow: hidden; }
+.pending .sig span i { display: block; height: 100%; width: 0; background: var(--amber); }
+.pending .sig span:first-child i { width: 100%; }
+.hero.signed .pending { transform: translateY(-6px); }
+.hero.signed .pending .pill { background: var(--amber); color: #3a1d10; }
+.hero.signed .pending .sig span:last-child i { width: 100%; transition: width .5s ease; }
+
+/* ---------- steps ---------- */
+.steps-sec { padding: 120px 0 110px; }
+.sec-tag { font: 12px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+h2 { font-size: clamp(36px, 3.8vw, 56px); line-height: 1.02; letter-spacing: -.04em; font-weight: 500; margin-top: 14px; max-width: 15em; }
+html[data-lang="zh"] h2 { letter-spacing: -.005em; line-height: 1.2; }
+.steps { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 64px; }
+.steps svg { position: absolute; left: 0; top: 23px; width: 100%; height: 4px; overflow: visible; }
+.steps svg line { stroke: var(--line); stroke-width: 1.3; }
+.steps svg .run { stroke: var(--ox); stroke-width: 2.2; stroke-dasharray: 60 940; stroke-dashoffset: 1000; animation: flow 3.4s linear infinite; }
+.step { position: relative; padding-right: 20px; }
+.step .num { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; background: var(--bg-2); box-shadow: 0 0 0 1px var(--line), 0 6px 14px -10px rgba(60,40,20,.4); font: 13px var(--mono); position: relative; }
+.step:last-child .num { background: var(--ox); color: #f6e6dc; box-shadow: 0 0 0 1px var(--ox-2), 0 0 0 6px rgba(123,45,43,.12); }
+.step h3 { font-size: 21px; font-weight: 500; letter-spacing: -.02em; margin: 24px 0 8px; }
+.step p { color: #62574b; max-width: 22em; }
+
+/* ---------- ledger (dark) ---------- */
+.ledger { background: var(--dark); color: #efe3dc; padding: 110px 0 90px; position: relative; overflow: hidden; }
+.ledger .sec-tag { color: #a58f86; }
+.ledger h2 { color: #f6ece6; }
+.ledger h2 .soft { color: #8f766d; }
+.board { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-top: 56px; }
+.card { background: var(--dark-2); border-radius: 8px; padding: 22px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); }
+.card .hd { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #b9a39a; }
+.chip { font: 11px var(--mono); color: #d9c3b8; background: #4a2c28; padding: 3px 8px; border-radius: 4px; }
+.big { font-size: clamp(38px, 4.2vw, 58px); font-weight: 500; letter-spacing: -.04em; margin: 14px 0 4px; font-variant-numeric: tabular-nums; color: #fff; }
+.big small { font-size: .45em; color: #9c847b; letter-spacing: 0; margin-left: 6px; }
+.delta { font: 12px var(--mono); color: #f1c9a8; }
+.spark { width: 100%; height: 150px; margin-top: 16px; display: block; }
+.spark .area { fill: url(#sparkfill); }
+.spark .lineP { fill: none; stroke: var(--amber); stroke-width: 2; }
+.donut-wrap { display: flex; align-items: center; gap: 22px; margin-top: 18px; }
+.donut { width: 140px; height: 140px; rotate: -90deg; flex: none; }
+.donut circle { fill: none; stroke-width: 15; transition: stroke-dasharray 1.2s cubic-bezier(.2,.8,.2,1), stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1); }
+.legend { list-style: none; padding: 0; font-size: 13px; display: grid; gap: 9px; }
+.legend li { display: flex; align-items: center; gap: 8px; color: #d5c2b9; }
+.legend i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+.legend b { margin-left: auto; font: 12px var(--mono); color: #fff; font-weight: 400; padding-left: 12px; }
+.rows { margin-top: 12px; }
+.tx { display: grid; grid-template-columns: 64px 1fr auto 30px; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid rgba(255,255,255,.06); font-size: 14px; animation: slidein .6s cubic-bezier(.2,.8,.2,1) both; }
+.tx .t { font: 12px var(--mono); color: #9c847b; }
+.tx .who { color: #f3e7e0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tx .who small { display: block; color: #9c847b; font-size: 12px; }
+.tx .a { font: 13px var(--mono); color: #fff; }
+.tx .av { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 10px var(--mono); background: #5a3530; color: #f1c9a8; }
+.tx.mine .av { background: var(--amber); color: #3a1d10; }
+@keyframes slidein { from { opacity: 0; transform: translateY(-8px); } }
+.runway .bar { height: 10px; border-radius: 10px; background: #4a2c28; margin: 16px 0 10px; overflow: hidden; }
+.runway .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--ox), var(--amber)); border-radius: 10px; transition: width 1.6s cubic-bezier(.2,.8,.2,1); }
+.in .runway .bar i { width: 74%; }
+.limits { display: grid; gap: 10px; margin-top: 18px; font-size: 13px; color: #d5c2b9; }
+.limits div { display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,.06); padding-top: 10px; }
+.limits b { font: 12px var(--mono); font-weight: 400; color: #fff; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 80px; border-top: 1px solid rgba(255,255,255,.09); }
+.stats div { padding: 28px 24px 0 0; }
+.stats div + div { padding-left: 24px; border-left: 1px solid rgba(255,255,255,.09); }
+.stats b { display: block; font-size: clamp(38px, 4vw, 56px); font-weight: 500; letter-spacing: -.04em; color: #fff; font-variant-numeric: tabular-nums; }
+.stats span { color: #a58f86; font-size: 14.5px; }
+
+/* ---------- closing ---------- */
+.closing { padding: 130px 0 120px; text-align: center; }
+.closing h2 { margin: 14px auto 0; }
+.closing p { color: #62574b; margin: 18px auto 32px; max-width: 32em; }
+footer { border-top: 1px solid var(--line); padding: 36px 0 56px; font-size: 12.5px; line-height: 1.85; color: var(--muted); }
+footer b { color: #554b40; font-weight: 600; }
+footer .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; color: #554b40; gap: 20px; }
+
+@media (max-width: 960px) {
+  nav ul { display: none; }
+  .hero-grid { grid-template-columns: 1fr; padding-top: 12px; }
+  .stage { height: 520px; order: -1; }
+  #key { width: 460px; max-width: 120%; }
+  .pending { right: 0; top: auto; bottom: 0; width: 230px; padding: 12px; }
+  .pending .amt { font-size: 21px; }
+  .steps, .board, .stats { grid-template-columns: 1fr; }
+  .steps svg { display: none; }
+  .stats div + div { padding-left: 0; border-left: 0; border-top: 1px solid rgba(255,255,255,.09); margin-top: 24px; }
+  .tx { grid-template-columns: 54px 1fr auto 26px; gap: 8px; }
+}
+@media (max-width: 520px) {
+  nav .btn { display: none; }
+  .stage { height: 440px; }
+  #key { width: 400px; }
+  .hint { top: 6%; bottom: auto; }
+  .donut-wrap { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .traces .pulse, .steps svg .run { display: none; }
+  .in .runway .bar i { width: 74%; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero" id="hero">
+  <div class="wrap">
+    <nav>
+      <a class="brand" href="#"><i></i>Ballast</a>
+      <ul>
+        <li><a href="#how"><span lang="en">How it works</span><span lang="zh">流程</span></a></li>
+        <li><a href="#ledger"><span lang="en">Dashboard</span><span lang="zh">看板</span></a></li>
+        <li><a href="#order"><span lang="en">Pricing</span><span lang="zh">价格</span></a></li>
+      </ul>
+      <div class="right">
+        <button class="lang" data-lang-toggle aria-label="Switch language"><span lang="en">中文</span><span lang="zh">EN</span></button>
+        <a class="btn paper" href="#order"><span lang="en">Sign in</span><span lang="zh">登录</span></a>
+        <a class="btn ox" href="#order"><span lang="en">Order a key</span><span lang="zh">订一把密钥</span></a>
+      </div>
+    </nav>
+
+    <div class="hero-grid">
+      <div>
+        <span class="tag"><b></b><span lang="en">Treasury hardware · v3</span><span lang="zh">资金硬件密钥 · 第三代</span></span>
+        <h1><span lang="en">Money that stays <span class="soft">where you put it.</span></span><span lang="zh">钱放在哪，<br><span class="soft">就稳稳待在哪。</span></span></h1>
+        <p class="lede">
+          <span lang="en">Ballast pairs a treasury dashboard with a key that fits in your palm. Nothing leaves your accounts until someone holds it down and says yes.</span>
+          <span lang="zh">Ballast 把资金看板和一把握在手里的密钥配在一起。没有人按住它点头，一分钱都出不了账户。</span>
+        </p>
+        <div class="ctas">
+          <a class="btn ox" href="#order"><span lang="en">Order a key</span><span lang="zh">订一把密钥</span></a>
+          <a class="btn paper" href="#ledger"><span lang="en">See the dashboard</span><span lang="zh">先看看看板</span></a>
+        </div>
+      </div>
+
+      <div class="stage">
+        <svg class="traces" viewBox="-900 -550 1800 1100" aria-hidden="true"><g class="bases"></g><g class="pulses"></g><g class="nodes"></g></svg>
+        <svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="49" pathLength="1"/></svg>
+        <canvas id="key" role="button" tabindex="0" aria-label="Ballast key. Press and hold to sign the pending payment."></canvas>
+        <div class="hint mono"><span lang="en">Press and hold the key to sign</span><span lang="zh">按住密钥，签下这笔</span></div>
+        <div class="pending">
+          <div class="row1"><span><span lang="en">Pending payment</span><span lang="zh">待签付款</span></span><span class="pill"><span class="pl-wait"><span lang="en">1 of 2 signed</span><span lang="zh">已签 1/2</span></span></span></div>
+          <div class="amt">$48,200.00</div>
+          <div class="to"><span lang="en">to Halden Freight · invoice 0921</span><span lang="zh">付给 Halden 货运 · 发票 0921</span></div>
+          <div class="sig"><span><i></i></span><span><i></i></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="steps-sec" id="how">
+  <div class="wrap">
+    <div class="sec-tag"><span lang="en">How a payment moves</span><span lang="zh">一笔钱怎么走</span></div>
+    <h2><span lang="en">Three hands touch every dollar. The last one is yours.</span><span lang="zh">每一笔钱都经过三道手，最后一道是你。</span></h2>
+    <div class="steps">
+      <svg preserveAspectRatio="none" viewBox="0 0 1000 4" aria-hidden="true"><line x1="0" y1="2" x2="1000" y2="2"/><line class="run" x1="0" y1="2" x2="1000" y2="2" pathLength="1000"/></svg>
+      <div class="step"><div class="num">01</div><h3><span lang="en">Drafted</span><span lang="zh">发起</span></h3><p><span lang="en">Anyone on the team can draft a payment, attach the invoice and pick the account.</span><span lang="zh">团队里谁都能发起付款，附上发票，选好从哪个账户出。</span></p></div>
+      <div class="step"><div class="num">02</div><h3><span lang="en">Checked</span><span lang="zh">复核</span></h3><p><span lang="en">Rules look at limits, payees and timing, and flag anything that doesn't look like you.</span><span lang="zh">规则会核对额度、收款方和时间，不像你们平时会做的，就先拦下来。</span></p></div>
+      <div class="step"><div class="num">03</div><h3><span lang="en">Signed</span><span lang="zh">签名</span></h3><p><span lang="en">It only leaves when a key holder presses down. The key never touches the internet.</span><span lang="zh">只有持钥人按下去，钱才会走。密钥本身从不联网。</span></p></div>
+    </div>
+  </div>
+</section>
+
+<section class="ledger" id="ledger">
+  <div class="wrap">
+    <div class="sec-tag"><span lang="en">The dashboard</span><span lang="zh">看板</span></div>
+    <h2><span lang="en">Your whole treasury, <span class="soft">one quiet screen.</span></span><span lang="zh">整个金库，<span class="soft">一块安静的屏幕。</span></span></h2>
+    <div class="board">
+      <div class="card">
+        <div class="hd"><span><span lang="en">Total balance · all accounts</span><span lang="zh">总余额 · 全部账户</span></span><span class="chip">LIVE</span></div>
+        <div class="big" id="bal">$12,480,316<small>.42</small></div>
+        <div class="delta">▲ 2.4% <span lang="en">vs last month</span><span lang="zh">较上月</span></div>
+        <svg class="spark" viewBox="0 0 600 150" preserveAspectRatio="none" aria-hidden="true">
+          <defs><linearGradient id="sparkfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3a95c" stop-opacity=".35"/><stop offset="1" stop-color="#f3a95c" stop-opacity="0"/></linearGradient></defs>
+          <path class="area"/><path class="lineP"/>
+        </svg>
+      </div>
+      <div class="card">
+        <div class="hd"><span><span lang="en">Where it sits</span><span lang="zh">钱放在哪</span></span><span class="chip">4</span></div>
+        <div class="donut-wrap">
+          <svg class="donut" viewBox="0 0 140 140" aria-hidden="true"></svg>
+          <ul class="legend"></ul>
+        </div>
+        <div class="limits">
+          <div><span><span lang="en">Idle cash swept to reserve</span><span lang="zh">闲置资金已转入储备</span></span><b>$1.2M</b></div>
+          <div><span><span lang="en">Reserve yield</span><span lang="zh">储备收益率</span></span><b>4.1%</b></div>
+          <div><span><span lang="en">Next tax payment</span><span lang="zh">下次缴税</span></span><b>Dec 15</b></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="hd"><span><span lang="en">Signed today</span><span lang="zh">今天签过的</span></span><span class="chip" id="count">5</span></div>
+        <div class="rows" id="rows"></div>
+      </div>
+      <div class="card runway">
+        <div class="hd"><span><span lang="en">Runway</span><span lang="zh">还能撑多久</span></span><span class="chip">AUTO</span></div>
+        <div class="big">31<small><span lang="en">months</span><span lang="zh">个月</span></small></div>
+        <div class="bar"><i></i></div>
+        <div class="limits">
+          <div><span><span lang="en">Daily signing limit</span><span lang="zh">单日签名额度</span></span><b>$250,000</b></div>
+          <div><span><span lang="en">Keys enrolled</span><span lang="zh">已绑定密钥</span></span><b>3 / 5</b></div>
+          <div><span><span lang="en">Second signer above</span><span lang="zh">超过此额需双签</span></span><b>$25,000</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="stats">
+      <div><b>1,900+</b><span><span lang="en">finance teams holding a key</span><span lang="zh">家财务团队在用</span></span></div>
+      <div><b>0</b><span><span lang="en">keys ever extracted</span><span lang="zh">次密钥被提取</span></span></div>
+      <div><b>11 s</b><span><span lang="en">median time to sign</span><span lang="zh">签一笔的中位耗时</span></span></div>
+    </div>
+  </div>
+</section>
+
+<section class="closing" id="order">
+  <div class="wrap">
+    <div class="sec-tag"><span lang="en">$29 per key, per month</span><span lang="zh">每把密钥每月 29 美元</span></div>
+    <h2><span lang="en">Put some weight behind your money.</span><span lang="zh">给你的钱，装一块压舱石。</span></h2>
+    <p><span lang="en">Keys ship in a felt pouch within three days. Your first one is on us for 60 days.</span><span lang="zh">密钥装在毛毡袋里，三天内寄到。第一把免费用 60 天。</span></p>
+    <a class="btn ox" href="#hero"><span lang="en">Order a key</span><span lang="zh">订一把密钥</span></a>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <div class="top"><span class="brand" style="font-size:16px"><i style="width:22px;height:22px;border-radius:7px"></i>Ballast</span><span><span lang="en">A fictional product, built as a design study.</span><span lang="zh">虚构产品，仅作设计练习。</span></span></div>
+    <b>图源</b>：本页不使用任何图片。首屏的密钥是浏览器里用 WebGL2 实时光线步进（SDF raymarching）算出来的 3D 模型，电路走线、图表都是代码绘制。
+    字体：Geist / Geist Mono（OFL-1.1）；中文使用系统字体。本页为学习用 demo，品牌与文案均为虚构，设计手法受 @uisabor 分享的落地页截图启发。<br>
+    侵权请联系删除。
+  </footer>
+</div>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const hero = document.getElementById("hero");
+const isZh = () => document.documentElement.dataset.lang === "zh";
+
+/* ---------- circuit traces (object-centred coordinates) ---------- */
+const routes = [
+  [[-900,-300],[-520,-300],[-520,-112],[-190,-112]],
+  [[-900,40],[-660,40],[-660,-24],[-200,-24]],
+  [[-900,330],[-400,330],[-400,96],[-190,96]],
+  [[-300,-550],[-300,-210],[-96,-210],[-96,-165]],
+  [[900,-240],[470,-240],[470,-64],[190,-64]],
+  [[900,150],[620,150],[620,44],[200,44]],
+  [[320,550],[320,240],[110,240],[110,178]],
+  [[150,-550],[150,-320],[60,-320],[60,-165]],
+];
+function rounded(pts, r = 18) {
+  let d = `M${pts[0]}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const [p, c, n] = [pts[i - 1], pts[i], pts[i + 1]];
+    const u = (a, b) => { const l = Math.hypot(b[0] - a[0], b[1] - a[1]); return [(b[0] - a[0]) / l, (b[1] - a[1]) / l]; };
+    const a = u(c, p), b = u(c, n);
+    d += ` L${c[0] + a[0] * r},${c[1] + a[1] * r} Q${c} ${c[0] + b[0] * r},${c[1] + b[1] * r}`;
+  }
+  return d + ` L${pts.at(-1)}`;
+}
+const ns = "http://www.w3.org/2000/svg";
+const el = (t, a) => { const e = document.createElementNS(ns, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+const g = s => document.querySelector(`.traces .${s}`);
+routes.forEach((pts, i) => {
+  const d = rounded(pts);
+  g("bases").append(el("path", { d, class: "base" }));
+  const p = el("path", { d, class: "pulse", pathLength: 1000 });
+  p.style.setProperty("--d", `${3.2 + (i * 1.7) % 3.4}s`); p.style.setProperty("--delay", `${-(i * 1.3) % 4}s`);
+  g("pulses").append(p);
+  // a small chip on the second corner of each route
+  const [x, y] = pts[1], node = el("g", { class: "node", transform: `translate(${x},${y})` });
+  node.append(el("rect", { x: -20, y: -13, width: 40, height: 26, rx: 9 }));
+  if (i % 3 === 0) [-7, 0, 7].forEach(cx => node.append(el("circle", { cx, cy: 0, r: 1.8 })));
+  else if (i % 3 === 1) [-6, 0, 6].forEach(x2 => node.append(el("line", { x1: x2, y1: -5, x2, y2: 5 })));
+  else node.append(el("line", { x1: -8, y1: 0, x2: 8, y2: 0 }), el("circle", { cx: 8, cy: 0, r: 2.4 }));
+  g("nodes").append(node);
+});
+
+/* ---------- the key: WebGL2 SDF raymarcher ---------- */
+const canvas = document.getElementById("key");
+const gl = canvas.getContext("webgl2", { premultipliedAlpha: true, alpha: true, antialias: false });
+const FRAG = `#version 300 es
+precision highp float;
+uniform vec2 uRes; uniform float uTime; uniform vec2 uRot; uniform float uCharge; uniform float uSigned;
+out vec4 o;
+const vec3 B = vec3(.50, .15, .50); const float R = .21;
+mat2 rot(float a){ float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
+float sdRect(vec2 p, vec2 b){ vec2 d = abs(p) - b; return length(max(d, 0.)) + min(max(d.x, d.y), 0.); }
+float sdSeg(vec2 p, vec2 a, vec2 b){ vec2 pa = p - a, ba = b - a; float h = clamp(dot(pa, ba) / dot(ba, ba), 0., 1.); return length(pa - ba * h); }
+float bob(){ return .035 * sin(uTime * 1.1); }
+vec3 toObj(vec3 p){ p.y -= bob(); p.yz *= rot(uRot.y); p.xz *= rot(uRot.x); p.y += uCharge * .03; return p; }
+float band(vec3 p){ return length(vec2(sdRect(p.xz, B.xz) - R + .004, p.y + .045)) - .016; }
+float body(vec3 p){
+  vec3 q = abs(p) - B;
+  float d = length(max(q, 0.)) + min(max(q.x, max(q.y, q.z)), 0.) - R;
+  // engraved six-point mark on the top face
+  float s = 1e9;
+  for (int i = 0; i < 3; i++) { float a = float(i) * 1.0472; vec2 dir = vec2(cos(a), sin(a)); s = min(s, sdSeg(p.xz, -dir * .12, dir * .12)); }
+  d = max(d, -max(s - .022, -(p.y - (B.y + R - .016))));
+  // groove that carries the light strip
+  d = max(d, -(length(vec2(sdRect(p.xz, B.xz) - R, p.y + .045)) - .026));
+  return d;
+}
+float map(vec3 p){ p = toObj(p); return min(body(p), band(p)); }
+vec3 nrm(vec3 p){ vec2 e = vec2(.0007, 0); return normalize(vec3(map(p + e.xyy) - map(p - e.xyy), map(p + e.yxy) - map(p - e.yxy), map(p + e.yyx) - map(p - e.yyx))); }
+float shadow(vec3 ro, vec3 rd){ float r = 1., t = .02; for (int i = 0; i < 48; i++) { float h = map(ro + rd * t); r = min(r, 10. * h / t); t += clamp(h, .01, .2); if (r < .001 || t > 4.) break; } return clamp(r, 0., 1.); }
+float ao(vec3 p, vec3 n){ float a = 0., w = 1.; for (int i = 1; i <= 5; i++) { float h = .03 * float(i); a += w * (h - map(p + n * h)); w *= .6; } return clamp(1. - 3. * a, 0., 1.); }
+void main(){
+  vec2 uv = (gl_FragCoord.xy - .5 * uRes) / uRes.y;
+  vec3 ro = vec3(0., 2.5, 5.7), ta = vec3(0., -.12, 0.);
+  vec3 ww = normalize(ta - ro), uu = normalize(cross(ww, vec3(0, 1, 0))), vv = cross(uu, ww);
+  vec3 rd = normalize(uv.x * uu + uv.y * vv + 2.35 * ww);
+  vec3 L = normalize(vec3(-.55, 1., .45));
+  float t = .5 + fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) * .06, glow = 0., hit = -1.;
+  for (int i = 0; i < 110; i++) {
+    vec3 p = ro + rd * t; vec3 q = toObj(p);
+    float db = band(q), d = min(body(q), db);
+    if (d < .0006) { hit = t; break; }
+    float st = d * .9;
+    glow += min(st, .05) * exp(-db * 24.);
+    t += st; if (t > 10.) break;
+  }
+  float strip = .8 + 1.8 * uCharge + 1.2 * uSigned;
+  vec3 amber = vec3(1., .63, .32);
+  vec3 col = vec3(0.); float a = 0.;
+  if (hit > 0.) {
+    vec3 p = ro + rd * hit, n = nrm(p), q = toObj(p);
+    float isBand = smoothstep(.006, 0., band(q));
+    vec3 base = vec3(.27, .062, .055);
+    float dif = clamp(dot(n, L), 0., 1.), sh = shadow(p + n * .003, L), oc = ao(p, n);
+    vec3 h = normalize(L - rd);
+    float spec = pow(clamp(dot(n, h), 0., 1.), 90.) * .55 + pow(clamp(dot(n, h), 0., 1.), 10.) * .06;
+    float fre = pow(1. - clamp(dot(n, -rd), 0., 1.), 4.);
+    vec3 key = vec3(1., .93, .84) * dif * sh;
+    vec3 fill = vec3(.62, .58, .62) * (.5 + .5 * n.y) * .32;
+    vec3 rim = vec3(1., .82, .7) * fre * .35;
+    col = base * (key * 1.25 + fill) * oc + spec * sh * vec3(1., .95, .9) + rim * oc;
+    // the strip's light spills onto the body near it
+    float spill = exp(-max(band(q), 0.) * 26.);
+    col += amber * spill * strip * .22 * base * 4.;
+    col = mix(col, amber * (.8 + strip * .9), isBand);
+    a = 1.;
+  } else {
+    // shadow-catcher floor
+    float fy = -.60; float tp = (fy - ro.y) / rd.y;
+    if (tp > 0.) {
+      vec3 p = ro + rd * tp;
+      float sh = shadow(p, L);
+      float blob = exp(-dot(p.xz - vec2(.12, -.1), p.xz - vec2(.12, -.1)) * 3.2);
+      float dark = smoothstep(.05, 1., 1. - sh) * .42 + blob * .22;
+      dark *= smoothstep(2.4, .6, length(p.xz));
+      col = vec3(.16, .09, .06); a = dark;
+      // warm light pool from the strip
+      float pool = exp(-dot(p.xz, p.xz) * 2.2) * (.06 + .16 * uCharge + .14 * uSigned);
+      col = mix(col, amber, pool / max(a + pool, 1e-3)); a += pool;
+    }
+  }
+  col += amber * glow * strip * .5;
+  a = clamp(a + glow * strip * .35, 0., 1.);
+  col = col / (1. + col * .35);
+  col = pow(col, vec3(1. / 2.2));
+  o = vec4(col * a, a);
+}`;
+let uni = {}, rot = { x: .55, y: 0, tx: .55, ty: 0 }, charge = 0, signedT = 0, holding = false, visible = true;
+if (gl) {
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(s)); return s; };
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, `#version 300 es
+in vec2 p; void main(){ gl_Position = vec4(p, 0, 1); }`));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(prog); gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  for (const n of ["uRes", "uTime", "uRot", "uCharge", "uSigned"]) uni[n] = gl.getUniformLocation(prog, n);
+}
+function size() {
+  const dpr = Math.min(devicePixelRatio || 1, 2), r = canvas.getBoundingClientRect();
+  canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr);
+}
+new ResizeObserver(size).observe(canvas);
+
+const ringC = document.querySelector(".ring circle"), hint = document.querySelector(".hint");
+let last = performance.now(), clock = 0;
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  if (!reduce) clock += dt;
+  rot.x += (rot.tx - rot.x) * Math.min(1, dt * 5); rot.y += (rot.ty - rot.y) * Math.min(1, dt * 5);
+  const was = charge;
+  charge = holding ? Math.min(1, charge + dt / 1.1) : Math.max(0, charge - dt * 2.2);
+  if (charge >= 1 && was < 1) sign();
+  signedT = Math.max(0, signedT - dt * .45);
+  ringC.style.strokeDashoffset = 1 - charge;
+  hero.classList.toggle("charging", holding && charge < 1);
+  if (gl && canvas.width) {
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.uniform2f(uni.uRes, canvas.width, canvas.height);
+    gl.uniform1f(uni.uTime, clock);
+    gl.uniform2f(uni.uRot, rot.x + (reduce ? 0 : Math.sin(clock * .35) * .18), rot.y);
+    gl.uniform1f(uni.uCharge, charge); gl.uniform1f(uni.uSigned, signedT);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  if (visible) requestAnimationFrame(frame); else stopped = true;
+}
+let stopped = false;
+new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible && stopped) { stopped = false; last = performance.now(); requestAnimationFrame(frame); } }).observe(canvas);
+requestAnimationFrame(frame);
+
+// cursor + scroll steer the key
+hero.addEventListener("pointermove", e => {
+  const r = canvas.getBoundingClientRect();
+  rot.tx = .55 + ((e.clientX - r.left) / r.width - .5) * 1.4;
+  rot.ty = ((e.clientY - r.top) / r.height - .5) * .5;
+});
+hero.addEventListener("pointerleave", () => { rot.tx = .55; rot.ty = 0; });
+addEventListener("scroll", () => { if (scrollY < innerHeight) rot.tx = .55 + scrollY * .003; }, { passive: true });
+
+// press and hold to sign (pointer or keyboard)
+const start = () => { holding = true; canvas.classList.add("held"); hint.style.opacity = 0; };
+const stop = () => { holding = false; canvas.classList.remove("held"); };
+canvas.addEventListener("pointerdown", e => { canvas.setPointerCapture(e.pointerId); start(); });
+canvas.addEventListener("pointerup", stop); canvas.addEventListener("pointercancel", stop);
+canvas.addEventListener("keydown", e => { if ((e.key === " " || e.key === "Enter") && !e.repeat) { e.preventDefault(); start(); } });
+canvas.addEventListener("keyup", e => { if (e.key === " " || e.key === "Enter") stop(); });
+
+const pill = document.querySelector(".pending .pill");
+function sign() {
+  hero.classList.add("signed"); signedT = 1;
+  pill.innerHTML = `<span lang="en">Signed · sent</span><span lang="zh">已签 · 已发出</span>`;
+  addRow({ t: new Date(), who: "Halden Freight", whoZh: "Halden 货运", memo: "Invoice 0921", memoZh: "发票 0921", amt: 48200, av: "YOU", mine: true });
+  setTimeout(() => {
+    hero.classList.remove("signed");
+    pill.innerHTML = `<span lang="en">1 of 2 signed</span><span lang="zh">已签 1/2</span>`;
+    hint.style.opacity = 1;
+  }, 3200);
+}
+
+/* ---------- ledger ---------- */
+const fmt = (n, d = 0) => n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const rows = document.getElementById("rows"), count = document.getElementById("count");
+const pool = [
+  ["Northwind Payroll", "Northwind 薪资", "October run", "十月工资", 182400, "MK"],
+  ["Ostrava Cloud", "Ostrava 云服务", "Usage, Q3", "三季度用量", 12880, "JL"],
+  ["Pell & Frey LLP", "Pell & Frey 律所", "Retainer", "法律顾问费", 9500, "MK"],
+  ["Tamsin Studio", "Tamsin 工作室", "Brand refresh", "品牌更新", 26000, "RS"],
+  ["City Tax Office", "城市税务局", "Q3 estimate", "三季度预缴", 64210, "JL"],
+  ["Larkspur Leasing", "Larkspur 租赁", "Office rent", "办公室租金", 31750, "RS"],
+];
+function addRow(r) {
+  const d = document.createElement("div");
+  d.className = "tx" + (r.mine ? " mine" : "");
+  const hh = r.t.toTimeString().slice(0, 5);
+  d.innerHTML = `<span class="t">${hh}</span><span class="who"><span lang="en">${r.who}</span><span lang="zh">${r.whoZh}</span><small><span lang="en">${r.memo}</span><span lang="zh">${r.memoZh}</span></small></span><span class="a">$${fmt(r.amt)}</span><span class="av">${r.av === "YOU" ? (isZh() ? "我" : "YOU") : r.av}</span>`;
+  rows.prepend(d);
+  while (rows.children.length > 5) rows.lastChild.remove();
+  count.textContent = +count.textContent + 1;
+}
+// seed with earlier times today
+pool.slice(0, 5).forEach((p, i) => addRow({ t: new Date(Date.now() - (5 - i) * 47 * 60000), who: p[0], whoZh: p[1], memo: p[2], memoZh: p[3], amt: p[4], av: p[5] }));
+count.textContent = "5";
+let pi = 5;
+setInterval(() => {
+  if (reduce || document.hidden) return;
+  const p = pool[pi++ % pool.length];
+  addRow({ t: new Date(), who: p[0], whoZh: p[1], memo: p[2], memoZh: p[3], amt: p[4], av: p[5] });
+}, 7000);
+
+// balance ticker + sparkline
+let bal = 12480316.42;
+const balEl = document.getElementById("bal"), pts = [];
+for (let i = 0, v = 60; i < 60; i++) { v += Math.sin(i * .35) * 3 + (Math.random() - .42) * 6; pts.push(v); }
+function drawSpark() {
+  const min = Math.min(...pts) - 10, max = Math.max(...pts) + 10;
+  const xy = pts.map((v, i) => [i / (pts.length - 1) * 600, 150 - (v - min) / (max - min) * 140]);
+  const line = "M" + xy.map(p => p.map(n => n.toFixed(1)).join(",")).join(" L");
+  document.querySelector(".spark .lineP").setAttribute("d", line);
+  document.querySelector(".spark .area").setAttribute("d", line + " L600,150 L0,150 Z");
+}
+drawSpark();
+setInterval(() => {
+  if (reduce || document.hidden) return;
+  bal += (Math.random() - .35) * 2400;
+  const [i, f] = fmt(bal, 2).split(".");
+  balEl.innerHTML = `$${i}<small>.${f}</small>`;
+  pts.shift(); pts.push(pts.at(-1) + (Math.random() - .4) * 7); drawSpark();
+}, 1400);
+
+// donut
+const parts = [["Operating", "日常运营", 46, "#f3a95c"], ["Reserve", "储备金", 28, "#c2584f"], ["Payroll", "薪资", 17, "#8a3a35"], ["Tax", "税款", 9, "#e8d6c8"]];
+const donut = document.querySelector(".donut"), legend = document.querySelector(".legend");
+donut.append(el("circle", { cx: 70, cy: 70, r: 54, stroke: "#4a2c28", "stroke-width": 15, fill: "none" }));
+const segs = []; let acc = 0;
+for (const [en, zh, v, c] of parts) {
+  const s = el("circle", { cx: 70, cy: 70, r: 54, stroke: c, pathLength: 100, "stroke-dasharray": "0 100", "stroke-dashoffset": 0 });
+  donut.append(s); segs.push([s, v - 1.2, acc]); acc += v;
+  legend.insertAdjacentHTML("beforeend", `<li><i style="background:${c}"></i><span lang="en">${en}</span><span lang="zh">${zh}</span><b>${v}%</b></li>`);
+}
+new IntersectionObserver(([e], ob) => {
+  if (!e.isIntersecting) return;
+  e.target.classList.add("in");
+  segs.forEach(([s, v, off]) => { s.setAttribute("stroke-dasharray", `${v} ${100 - v}`); s.setAttribute("stroke-dashoffset", -off); });
+  ob.disconnect();
+}, { threshold: .25 }).observe(document.querySelector(".ledger"));
+</script>
+</body>
+</html>
