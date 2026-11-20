@@ -1,0 +1,954 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vorkurs 预科 · hands first, theory later</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jost@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jost@5/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jost@5/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-mono@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-mono@5/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5/900.css">
+<script src="../../shared/lang.js"></script>
+<style>
+:root {
+  --paper: #efe9dc;
+  --paper-2: #e6dfcf;
+  --ink: #141414;
+  --ink-2: #3d3a35;
+  --red: #d8342a;
+  --yellow: #f3c21b;
+  --blue: #1f4fa3;
+  --sans: "Jost", "Noto Sans SC", system-ui, sans-serif;
+  --mono: "Space Mono", ui-monospace, monospace;
+  --zh: "Noto Sans SC", "PingFang SC", sans-serif;
+  --wrap: min(1280px, calc(100vw - 48px));
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--paper); }
+body { color: var(--ink); font: 400 18px/1.6 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+html[data-lang="zh"] body { font-family: var(--zh); font-size: 17px; line-height: 1.8; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.wrap { width: var(--wrap); margin: 0 auto; }
+.mono { font: 400 12px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+
+/* Chinese headlines: geometric weight, no fake styles */
+html[data-lang="zh"] h1, html[data-lang="zh"] h2, html[data-lang="zh"] h3, html[data-lang="zh"] .big { font-family: var(--zh); font-weight: 900; letter-spacing: .01em; }
+
+/* ---------- buttons ---------- */
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px; background: var(--ink); color: var(--paper); font-weight: 500; font-size: 16px; white-space: nowrap; transition: transform .15s ease, box-shadow .15s ease; box-shadow: 0 0 0 0 var(--red); }
+.btn:hover { transform: translate(-3px, -3px); box-shadow: 5px 5px 0 0 var(--red); }
+.btn:active { transform: translate(0, 0); box-shadow: 0 0 0 0 var(--red); }
+.btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
+.btn.ghost:hover { box-shadow: inset 0 0 0 2px var(--ink), 5px 5px 0 0 var(--blue); }
+.btn.yellow { background: var(--yellow); color: var(--ink); }
+.btn.yellow:hover { box-shadow: 5px 5px 0 0 var(--paper); }
+
+/* ---------- nav ---------- */
+nav { position: relative; z-index: 5; display: flex; align-items: center; gap: 32px; height: 76px; border-bottom: 2px solid var(--ink); }
+.logo { display: flex; align-items: center; gap: 10px; font: 700 22px var(--sans); letter-spacing: -.01em; }
+.logo small { font: 500 15px var(--zh); color: var(--ink-2); }
+.logo svg { width: 46px; height: 22px; }
+nav ul { list-style: none; display: flex; gap: 28px; padding: 0; margin-left: auto; font-weight: 500; font-size: 15px; }
+nav ul a { position: relative; }
+nav ul a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 3px; background: var(--red); transform: scaleX(0); transform-origin: left; transition: transform .2s ease; }
+nav ul a:hover::after { transform: scaleX(1); }
+.lang { font: 700 13px var(--mono); padding: 7px 12px; box-shadow: inset 0 0 0 2px var(--ink); white-space: nowrap; }
+.lang b { font-weight: 700; opacity: .35; }
+html[data-lang="zh"] .lang .z, html[data-lang="en"] .lang .e { opacity: 1; }
+nav .btn { padding: 10px 18px; font-size: 15px; }
+
+/* ---------- hero: physics playground ---------- */
+.hero { position: relative; height: max(660px, calc(100vh - 76px)); overflow: hidden; border-bottom: 2px solid var(--ink); touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+.hero-inner { position: relative; z-index: 1; padding-top: clamp(110px, 15vh, 150px); pointer-events: none; }
+.hero-inner a, .hero-inner button { pointer-events: auto; }
+.eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.eyebrow i { width: 34px; height: 3px; background: var(--ink); }
+.hero h1 { margin-top: 0; font: 700 clamp(64px, 9.4vw, 152px)/.86 var(--sans); letter-spacing: -.035em; }
+html[data-lang="zh"] .hero h1 { font-size: clamp(60px, 8.6vw, 136px); line-height: 1; }
+.hero h1 .l1, .hero h1 .l2 { display: block; width: fit-content; }
+.hero h1 .l2 { margin: .1em 0 0 .6em; padding: .02em .22em .1em; background: var(--blue); color: var(--paper); transform: rotate(-6deg); transform-origin: center; }
+html[data-lang="zh"] .hero h1 .l2 { padding: .04em .26em .1em; }
+.hero .copy { width: min(500px, 100%); margin-top: clamp(34px, 5vh, 60px); padding: 22px 24px 24px; background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); }
+.hero .copy p { color: var(--ink-2); font-size: 17px; }
+.hero .row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+.hud { position: absolute; z-index: 2; right: max(24px, calc((100vw - var(--wrap)) / 2)); bottom: 22px; display: flex; align-items: center; gap: 14px; pointer-events: none; }
+.hud > * { pointer-events: auto; }
+.hud .hint { background: var(--paper); padding: 6px 10px; box-shadow: inset 0 0 0 1.5px var(--ink); }
+.hud .count { background: var(--ink); color: var(--paper); padding: 6px 10px; }
+.hud button { background: var(--yellow); padding: 6px 12px; box-shadow: inset 0 0 0 1.5px var(--ink); }
+.hud button:hover { background: var(--paper); }
+.touch-hint { display: none; }
+@media (pointer: coarse) { .mouse-hint { display: none; } .touch-hint { display: inline; } }
+
+/* ---------- section heads ---------- */
+section.block { padding: 120px 0; border-bottom: 2px solid var(--ink); }
+.head { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: end; margin-bottom: 64px; }
+.head h2 { font: 700 clamp(44px, 5.4vw, 84px)/.95 var(--sans); letter-spacing: -.03em; margin-top: 18px; }
+html[data-lang="zh"] .head h2 { font-size: clamp(34px, 4vw, 58px); line-height: 1.18; }
+.head p { color: var(--ink-2); max-width: 32em; }
+.tag { display: inline-flex; gap: 10px; align-items: center; }
+.tag::before { content: ""; width: 12px; height: 12px; background: var(--red); }
+
+/* ---------- questionnaire ---------- */
+.q-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; align-items: start; }
+.form { background: #f7f3ea; box-shadow: inset 0 0 0 2px var(--ink), 10px 10px 0 0 var(--ink); padding: 30px 32px 28px; }
+.form .fhead { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 14px; border-bottom: 2px solid var(--ink); }
+.form .fields { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; margin: 18px 0 24px; font-size: 15px; color: var(--ink-2); }
+.form .fields span:nth-child(2n) { border-bottom: 1.5px solid var(--ink-2); font-family: var(--mono); font-size: 13px; color: var(--ink); padding-left: 6px; }
+.slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.slot { aspect-ratio: 1; display: grid; place-items: center; background: transparent; position: relative; }
+.slot svg { width: 86%; height: 86%; overflow: visible; }
+.slot svg .s { fill: transparent; stroke: var(--ink); stroke-width: 3; transition: fill .35s ease, transform .35s cubic-bezier(.3, 1.6, .5, 1); transform-origin: center; transform-box: fill-box; }
+.slot:hover svg .s { stroke-dasharray: 7 5; }
+.slot.filled svg .s { stroke-dasharray: none; }
+.slot.pop svg .s { transform: scale(1.08); }
+.slot .lab { position: absolute; bottom: -24px; left: 0; right: 0; text-align: center; }
+.palette { display: flex; align-items: center; gap: 12px; margin-top: 52px; padding-top: 18px; border-top: 1.5px dashed var(--ink-2); flex-wrap: wrap; }
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px 8px 8px; box-shadow: inset 0 0 0 2px var(--ink); font-weight: 500; font-size: 15px; transition: transform .12s ease; }
+.chip i { width: 22px; height: 22px; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.chip:active { transform: scale(.96); }
+.palette .reset { margin-left: auto; text-decoration: underline; text-underline-offset: 3px; font-size: 14px; color: var(--ink-2); }
+.result { margin-top: 22px; min-height: 3.4em; font-size: 16px; color: var(--ink-2); }
+.result b { color: var(--ink); font-weight: 700; }
+.poster-wrap { position: sticky; top: 30px; }
+.poster { aspect-ratio: 300 / 420; width: 100%; max-width: 440px; margin-left: auto; background: #f7f3ea; outline: 2px solid var(--ink); outline-offset: -2px; position: relative; overflow: hidden; }
+.poster svg { width: 100%; height: 100%; display: block; }
+.poster svg .el { opacity: 0; transform: translateY(12px) scale(.96); transform-box: fill-box; transform-origin: center; animation: drop .55s cubic-bezier(.2, 1.4, .4, 1) forwards; }
+@keyframes drop { to { opacity: 1; transform: none; } }
+.poster .empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 40px; color: var(--ink-2); font-size: 15px; }
+.poster-bar { display: flex; justify-content: space-between; align-items: center; max-width: 440px; margin: 14px 0 0 auto; gap: 12px; }
+.poster-bar button { text-decoration: underline; text-underline-offset: 3px; font-size: 14px; }
+.poster-bar button:disabled { opacity: .35; cursor: default; }
+
+/* ---------- curriculum wheel ---------- */
+.wheel-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center; }
+.wheel svg { width: 100%; max-width: 620px; display: block; margin: 0 auto; overflow: visible; }
+.wheel .seg { cursor: pointer; transition: transform .35s cubic-bezier(.3, 1.4, .5, 1); }
+.wheel .seg path { stroke: var(--ink); stroke-width: 2.5; }
+.wheel text { font-family: var(--sans); font-weight: 700; pointer-events: none; }
+html[data-lang="zh"] .wheel text.t { font-family: var(--zh); font-weight: 900; }
+.wheel .ringtext { font: 700 13px var(--mono); letter-spacing: .18em; fill: var(--ink); }
+.panel { box-shadow: inset 0 0 0 2px var(--ink); padding: 32px; background: #f7f3ea; position: relative; }
+.panel .num { font: 700 88px/.8 var(--sans); letter-spacing: -.04em; }
+.panel h3 { font: 700 34px/1.1 var(--sans); margin: 18px 0 10px; letter-spacing: -.01em; }
+html[data-lang="zh"] .panel h3 { font-size: 30px; }
+.panel p { color: var(--ink-2); min-height: 3.4em; }
+.panel .meta { display: flex; gap: 18px; margin-top: 22px; padding-top: 14px; border-top: 1.5px solid var(--ink); }
+.panel .swatch { position: absolute; top: 32px; right: 32px; width: 54px; height: 54px; transition: background-color .3s ease, border-radius .3s ease, clip-path .3s ease; }
+.weeks { display: flex; gap: 4px; margin-top: 22px; }
+.weeks i { flex: 1; height: 10px; background: var(--paper-2); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.weeks i.on { background: var(--ink); }
+
+/* ---------- teachers ---------- */
+.teachers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.teacher { box-shadow: inset 0 0 0 2px var(--ink); background: #f7f3ea; }
+.teacher .stage { height: 330px; display: grid; place-items: end center; border-bottom: 2px solid var(--ink); overflow: hidden; }
+.teacher .stage svg { width: 210px; height: 315px; overflow: visible; }
+.teacher .who { padding: 20px 22px 24px; }
+.teacher h3 { font: 700 24px/1.2 var(--sans); }
+html[data-lang="zh"] .teacher h3 { font-size: 22px; }
+.teacher .role { margin: 6px 0 10px; color: var(--ink-2); }
+.teacher p { font-size: 16px; color: var(--ink-2); }
+.fig { transform-box: view-box; animation: bob 2.4s ease-in-out infinite; }
+.fig .arm { animation: swing 2.4s ease-in-out infinite; }
+.fig .arm.r { animation-delay: -1.2s; }
+.fig .leg { animation: step 2.4s ease-in-out infinite; }
+.fig .leg.r { animation-delay: -1.2s; }
+.teacher:nth-child(2) .fig, .teacher:nth-child(2) .fig * { animation-duration: 3s; }
+.teacher:nth-child(3) .fig, .teacher:nth-child(3) .fig * { animation-duration: 2.7s; }
+.teacher:hover .stage svg { animation: spin 1.1s cubic-bezier(.5, 0, .3, 1) 1; }
+@keyframes bob { 50% { transform: translateY(-8px); } }
+@keyframes swing { 0%, 100% { transform: rotate(-22deg); } 50% { transform: rotate(26deg); } }
+@keyframes step { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(8deg); } }
+@keyframes spin { from { transform: rotateY(0); } to { transform: rotateY(360deg); } }
+
+/* ---------- pricing ---------- */
+.plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; box-shadow: inset 0 0 0 2px var(--ink); }
+.plan { padding: 34px 30px 32px; display: flex; flex-direction: column; gap: 16px; }
+.plan + .plan { border-left: 2px solid var(--ink); }
+.plan.hl { background: var(--ink); color: var(--paper); }
+.plan .mark { height: 96px; display: flex; align-items: center; }
+.plan h3 { font: 700 40px/1 var(--sans); letter-spacing: -.02em; display: flex; align-items: baseline; gap: 12px; }
+html[data-lang="zh"] .plan h3 { font-size: 36px; }
+.plan h3 small { font: 400 14px var(--mono); letter-spacing: .06em; opacity: .7; }
+.plan .price { font: 700 30px var(--sans); }
+.plan .price small { font-size: 15px; font-weight: 400; opacity: .75; }
+.plan ul { list-style: none; padding: 0; display: grid; gap: 8px; font-size: 16px; flex: 1; }
+.plan li { display: flex; gap: 10px; align-items: baseline; }
+.plan li::before { content: ""; flex: none; width: 8px; height: 8px; background: var(--red); transform: translateY(-1px); }
+.plan.hl li::before { background: var(--yellow); }
+.plan .btn { align-self: flex-start; }
+.plan.hl .btn.ghost { color: var(--paper); box-shadow: inset 0 0 0 2px var(--paper); }
+
+/* ---------- closing ---------- */
+.closing { position: relative; overflow: hidden; background: var(--ink); color: var(--paper); padding: 150px 0 170px; }
+.closing .disc { position: absolute; width: 520px; height: 520px; border-radius: 50%; background: var(--red); right: -120px; top: -160px; }
+.closing .tri { position: absolute; left: 6%; bottom: -40px; width: 0; height: 0; border-left: 120px solid transparent; border-right: 120px solid transparent; border-bottom: 210px solid var(--yellow); }
+.closing .bar { position: absolute; left: -5%; right: -5%; top: 82%; height: 18px; background: var(--blue); transform: rotate(-6deg); }
+.closing .wrap { position: relative; }
+.closing .big { font: 700 clamp(64px, 10vw, 160px)/.9 var(--sans); letter-spacing: -.04em; max-width: 9em; transform: rotate(-6deg); transform-origin: left; }
+html[data-lang="zh"] .closing .big { font-size: clamp(56px, 8.6vw, 136px); line-height: 1.1; }
+.closing .big .sq { display: inline-block; width: .66em; height: .66em; background: var(--yellow); vertical-align: -.02em; margin-left: .12em; }
+.closing p { margin: 56px 0 26px; font-size: 19px; max-width: 30em; }
+
+footer { padding: 40px 0 56px; font-size: 13px; line-height: 1.85; color: var(--ink-2); }
+footer .top { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; color: var(--ink); }
+footer b { color: var(--ink); }
+
+@media (max-width: 960px) {
+  nav ul { display: none; }
+  nav { gap: 14px; }
+  .logo small { display: none; }
+  .logo { margin-right: auto; }
+  .head, .q-grid, .wheel-grid { grid-template-columns: 1fr; gap: 28px; }
+  .head { margin-bottom: 40px; }
+  .teachers, .plans { grid-template-columns: 1fr; }
+  .plan + .plan { border-left: 0; border-top: 2px solid var(--ink); }
+  .poster-wrap { position: static; }
+  .poster, .poster-bar { margin-left: 0; }
+  section.block { padding: 80px 0; }
+  .hero { height: auto; min-height: 0; padding-bottom: 260px; }
+  .hero h1 { font-size: clamp(54px, 16vw, 96px); }
+  html[data-lang="zh"] .hero h1 { font-size: clamp(44px, 12.4vw, 90px); }
+  html[data-lang="zh"] .head h2 { font-size: clamp(26px, 8.2vw, 44px); }
+  html[data-lang="zh"] .closing .big { font-size: clamp(36px, 10.4vw, 80px); }
+  .hero { padding-bottom: 230px; }
+  .hero .copy { margin-top: 36px; padding: 18px 18px 20px; }
+  .hud { left: 24px; right: 24px; bottom: 150px; flex-wrap: wrap; gap: 8px; }
+  .hud .hint { flex-basis: 100%; }
+  .form { padding: 22px 18px 22px; box-shadow: inset 0 0 0 2px var(--ink), 6px 6px 0 0 var(--ink); }
+  .teacher .stage { height: 280px; }
+  .teacher .stage svg { width: 180px; height: 270px; }
+  .closing { padding: 110px 0 140px; }
+  .closing .disc { width: 300px; height: 300px; right: -110px; top: -110px; }
+  .closing .tri { border-left-width: 70px; border-right-width: 70px; border-bottom-width: 122px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .poster svg .el { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <a class="logo" href="#"><svg viewBox="0 0 46 22" aria-hidden="true"><rect x="0" y="2" width="18" height="18" fill="#d8342a"/><polygon points="20,20 30,2 40,20" fill="#f3c21b" style="mix-blend-mode:multiply"/><circle cx="37" cy="11" r="9" fill="#1f4fa3" style="mix-blend-mode:multiply"/></svg>Vorkurs<small>预科</small></a>
+    <ul>
+      <li><a href="#test"><span lang="en">The 1923 test</span><span lang="zh">1923 问卷</span></a></li>
+      <li><a href="#course"><span lang="en">Course</span><span lang="zh">课程</span></a></li>
+      <li><a href="#teachers"><span lang="en">Teachers</span><span lang="zh">老师</span></a></li>
+      <li><a href="#pricing"><span lang="en">Pricing</span><span lang="zh">价格</span></a></li>
+    </ul>
+    <button class="lang" data-lang-toggle aria-label="Switch language"><b class="z">中</b> / <b class="e">EN</b></button>
+    <a class="btn" href="#pricing"><span lang="en">Enrol</span><span lang="zh">报名</span></a>
+  </nav>
+</div>
+
+<section class="hero" id="play">
+  <canvas id="phys" aria-label="Geometric shapes you can drag and throw"></canvas>
+  <div class="hero-inner wrap">
+    <h1>
+      <span class="l1 coll" data-inset=".14"><span lang="en">hands first.</span><span lang="zh">先动手，</span></span>
+      <span class="l2 coll" data-rot="-6"><span lang="en">theory later.</span><span lang="zh">再讲理论。</span></span>
+    </h1>
+    <div class="copy coll">
+      <div class="eyebrow mono"><i></i><span lang="en">Vorkurs · a six-week foundation course</span><span lang="zh">预科 · 六周设计基础课</span></div>
+      <p><span lang="en">Vorkurs teaches form, colour and material the way the Bauhaus did in 1919: paper, scissors, wood, and a lot of play. Every shape on this page is solid enough to pick up. Go on, throw one.</span><span lang="zh">预科教形状、颜色和材料，用的是包豪斯 1919 年那套办法：纸、剪刀、木头，再加上大量的玩。这页上的每个形状都拿得起来，不信扔一个试试。</span></p>
+      <div class="row">
+        <a class="btn" href="#pricing"><span lang="en">Enrol for spring</span><span lang="zh">报名春季班</span></a>
+        <a class="btn ghost" href="#test"><span lang="en">Take the 1923 test ↓</span><span lang="zh">做一下 1923 年的问卷 ↓</span></a>
+      </div>
+    </div>
+  </div>
+  <div class="hud mono">
+    <span class="hint"><span class="mouse-hint"><span lang="en">drag · throw · click empty space to drop a shape</span><span lang="zh">拖动、甩出去，点空白处再掉一个</span></span><span class="touch-hint"><span lang="en">tap a shape to kick it · tap empty space to drop one</span><span lang="zh">点形状踢一下，点空白处再掉一个</span></span></span>
+    <span class="count"><b id="count">0</b> <span lang="en">shapes</span><span lang="zh">个形状</span></span>
+    <button id="again"><span lang="en">drop again</span><span lang="zh">重新掉一遍</span></button>
+  </div>
+</section>
+
+<!-- 01 questionnaire -->
+<section class="block" id="test">
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <div class="tag mono"><span lang="en">01 · Fragebogen, Weimar 1923</span><span lang="zh">01 · 1923 年魏玛的一张问卷</span></div>
+        <h2><span lang="en">three shapes. three colours. one right answer?</span><span lang="zh">三个形状，三种颜色，<br>有标准答案吗？</span></h2>
+      </div>
+      <p><span lang="en">In 1923 Wassily Kandinsky gave everyone at the Bauhaus a questionnaire: fill the triangle, the square and the circle with yellow, red or blue. He was sure the question had a correct answer. Pick a colour, then click a shape.</span><span lang="zh">1923 年，康定斯基给包豪斯的每个人发了一张问卷：给三角形、正方形和圆各填一种颜色，黄、红或蓝。他相信这道题有标准答案。先选一个颜色，再点一个形状。</span></p>
+    </div>
+    <div class="q-grid">
+      <div class="form">
+        <div class="fhead mono"><span><span lang="en">Workshop for wall painting</span><span lang="zh">壁画工坊</span></span><span>Weimar · 1923</span></div>
+        <div class="fields">
+          <span><span lang="en">Name</span><span lang="zh">姓名</span></span><span id="fname">you</span>
+          <span><span lang="en">Profession</span><span lang="zh">职业</span></span><span>student</span>
+        </div>
+        <div class="slots">
+          <button class="slot" data-shape="triangle" aria-label="Triangle"><svg viewBox="0 0 100 100"><polygon class="s" points="50,8 96,90 4,90"/></svg><span class="lab mono"><span lang="en">triangle</span><span lang="zh">三角形</span></span></button>
+          <button class="slot" data-shape="square" aria-label="Square"><svg viewBox="0 0 100 100"><rect class="s" x="9" y="9" width="82" height="82"/></svg><span class="lab mono"><span lang="en">square</span><span lang="zh">正方形</span></span></button>
+          <button class="slot" data-shape="circle" aria-label="Circle"><svg viewBox="0 0 100 100"><circle class="s" cx="50" cy="50" r="43"/></svg><span class="lab mono"><span lang="en">circle</span><span lang="zh">圆</span></span></button>
+        </div>
+        <div class="palette">
+          <button class="chip" data-color="yellow" aria-pressed="true"><i style="background:var(--yellow)"></i><span lang="en">yellow</span><span lang="zh">黄</span></button>
+          <button class="chip" data-color="red" aria-pressed="false"><i style="background:var(--red)"></i><span lang="en">red</span><span lang="zh">红</span></button>
+          <button class="chip" data-color="blue" aria-pressed="false"><i style="background:var(--blue)"></i><span lang="en">blue</span><span lang="zh">蓝</span></button>
+          <button class="reset" id="qreset"><span lang="en">clear the form</span><span lang="zh">重填</span></button>
+        </div>
+        <div class="result" id="result" aria-live="polite"><span lang="en">Three shapes left to fill.</span><span lang="zh">还有三个形状没填。</span></div>
+      </div>
+      <div class="poster-wrap">
+        <div class="poster" id="poster">
+          <div class="empty" id="pempty"><span><span lang="en">Fill in all three shapes and your answers get printed as a poster here.</span><span lang="zh">三个形状都填好，你的答案就会在这里印成一张海报。</span></span></div>
+        </div>
+        <div class="poster-bar mono">
+          <span><span lang="en">your poster</span><span lang="zh">你的海报</span></span>
+          <button id="recompose" disabled><span lang="en">recompose</span><span lang="zh">换一种构图</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 course wheel -->
+<section class="block" id="course">
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <div class="tag mono"><span lang="en">02 · the course</span><span lang="zh">02 · 课程</span></div>
+        <h2><span lang="en">from the outer ring to the centre.</span><span lang="zh">从最外圈，<br>学到正中心。</span></h2>
+      </div>
+      <p><span lang="en">Six weeks of Vorkurs on the outside, six workshops in the middle, and at the centre one real object you made yourself. Hover a workshop, or tap it.</span><span lang="zh">最外圈是六周预科，中间一圈是六个工坊，正中心是你亲手做出来的一件东西。把鼠标移到一个工坊上，或者点一下。</span></p>
+    </div>
+    <div class="wheel-grid">
+      <div class="wheel"><svg id="wheel" viewBox="-260 -260 520 520" role="img" aria-label="Course wheel"></svg></div>
+      <div class="panel" id="panel" aria-live="polite">
+        <div class="swatch" id="pswatch"></div>
+        <div class="num" id="pnum">01</div>
+        <h3 id="ptitle"></h3>
+        <p id="pdesc"></p>
+        <div class="weeks" id="pweeks"></div>
+        <div class="meta mono"><span id="pmeta1"></span><span id="pmeta2"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 teachers -->
+<section class="block" id="teachers">
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <div class="tag mono"><span lang="en">03 · teachers</span><span lang="zh">03 · 老师</span></div>
+        <h2><span lang="en">three teachers, drawn in their own shapes.</span><span lang="zh">三位老师，<br>各用各的形状画出来。</span></h2>
+      </div>
+      <p><span lang="en">Each teacher picked the three shapes that describe them best. We let them dance a little. Hover one and they take a bow.</span><span lang="zh">每位老师挑了最像自己的三个形状，我们让他们跳一小段舞。把鼠标放上去，他们会转一圈。</span></p>
+    </div>
+    <div class="teachers">
+      <article class="teacher">
+        <div class="stage" style="background:var(--blue)">
+          <svg viewBox="0 0 200 300" aria-hidden="true"><g class="fig">
+            <rect class="leg l" x="80" y="214" width="12" height="70" fill="#141414" style="transform-origin:86px 214px"/>
+            <rect class="leg r" x="108" y="214" width="12" height="70" fill="#141414" style="transform-origin:114px 214px"/>
+            <rect class="arm l" x="34" y="96" width="62" height="10" fill="#141414" style="transform-origin:94px 101px"/>
+            <rect class="arm r" x="104" y="96" width="62" height="10" fill="#141414" style="transform-origin:106px 101px"/>
+            <circle cx="40" cy="101" r="9" fill="#efe9dc"/><circle cx="160" cy="101" r="9" fill="#efe9dc"/>
+            <polygon points="100,88 158,224 42,224" fill="#f3c21b"/>
+            <rect x="88" y="78" width="24" height="14" fill="#141414"/>
+            <circle cx="100" cy="52" r="27" fill="#efe9dc"/><circle cx="110" cy="48" r="4" fill="#141414"/>
+            <rect x="96" y="20" width="8" height="8" fill="#d8342a"/>
+          </g></svg>
+        </div>
+        <div class="who"><h3>Hanne Vogt</h3><div class="role mono"><span lang="en">colour</span><span lang="zh">色彩</span></div>
+          <p><span lang="en">Mixes paint before coffee. Will ask you why that blue, and wait for the answer.</span><span lang="zh">早上先调颜料，再喝咖啡。会问你为什么偏偏是这个蓝，然后等你回答。</span></p></div>
+      </article>
+      <article class="teacher">
+        <div class="stage" style="background:var(--red)">
+          <svg viewBox="0 0 200 300" aria-hidden="true"><g class="fig">
+            <rect class="leg l" x="78" y="196" width="14" height="88" fill="#141414" style="transform-origin:85px 196px"/>
+            <rect class="leg r" x="108" y="196" width="14" height="88" fill="#141414" style="transform-origin:115px 196px"/>
+            <g class="arm l" style="transform-origin:66px 150px"><rect x="20" y="145" width="48" height="10" fill="#141414"/><rect x="10" y="138" width="20" height="24" fill="#f3c21b"/></g>
+            <g class="arm r" style="transform-origin:134px 150px"><rect x="132" y="145" width="48" height="10" fill="#141414"/><rect x="170" y="138" width="20" height="24" fill="#f3c21b"/></g>
+            <circle cx="100" cy="150" r="50" fill="#1f4fa3"/>
+            <rect x="72" y="36" width="56" height="56" fill="#efe9dc"/><rect x="104" y="56" width="8" height="8" fill="#141414"/>
+            <rect x="92" y="92" width="16" height="10" fill="#141414"/>
+          </g></svg>
+        </div>
+        <div class="who"><h3>Ilse Brandt</h3><div class="role mono"><span lang="en">material</span><span lang="zh">材料</span></div>
+          <p><span lang="en">Has never met a material she would not cut in half to see what's inside.</span><span lang="zh">没有哪种材料她不想切成两半，看看里面是什么样。</span></p></div>
+      </article>
+      <article class="teacher">
+        <div class="stage" style="background:var(--yellow)">
+          <svg viewBox="0 0 200 300" aria-hidden="true"><g class="fig">
+            <rect class="leg l" x="76" y="206" width="12" height="78" fill="#141414" style="transform-origin:82px 206px"/>
+            <rect class="leg r" x="112" y="206" width="12" height="78" fill="#141414" style="transform-origin:118px 206px"/>
+            <rect class="arm l" x="12" y="118" width="80" height="9" fill="#141414" style="transform-origin:90px 122px"/>
+            <rect class="arm r" x="108" y="118" width="80" height="9" fill="#141414" style="transform-origin:110px 122px"/>
+            <circle cx="14" cy="122" r="10" fill="#d8342a"/><circle cx="186" cy="122" r="10" fill="#d8342a"/>
+            <rect x="62" y="110" width="76" height="100" fill="#d8342a"/>
+            <polygon points="100,22 136,96 64,96" fill="#1f4fa3"/><circle cx="106" cy="72" r="4" fill="#efe9dc"/>
+            <rect x="92" y="96" width="16" height="14" fill="#141414"/>
+          </g></svg>
+        </div>
+        <div class="who"><h3><span lang="en">Zhou Wei</span><span lang="zh">周未</span></h3><div class="role mono"><span lang="en">form</span><span lang="zh">形态</span></div>
+          <p><span lang="en">Draws only with a ruler and a compass. On good days, only the compass.</span><span lang="zh">只用直尺和圆规画画。心情好的时候，只用圆规。</span></p></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 04 pricing -->
+<section class="block" id="pricing">
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <div class="tag mono"><span lang="en">04 · pricing</span><span lang="zh">04 · 价格</span></div>
+        <h2><span lang="en">point, line, plane.</span><span lang="zh">点、线、面。</span></h2>
+      </div>
+      <p><span lang="en">Named after Kandinsky's 1926 book. Start with a point and see how far it takes you.</span><span lang="zh">名字来自康定斯基 1926 年的那本书。先从一个点开始，看看它能带你走多远。</span></p>
+    </div>
+    <div class="plans">
+      <div class="plan">
+        <div class="mark"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" fill="#141414"/></svg></div>
+        <h3><span lang="en">Point</span><span lang="zh">点</span><small>Punkt</small></h3>
+        <div class="price"><span lang="en">Free</span><span lang="zh">免费</span></div>
+        <ul>
+          <li><span lang="en">Lesson one, paper and scissors</span><span lang="zh">第一课：纸和剪刀</span></li>
+          <li><span lang="en">The 1923 questionnaire</span><span lang="zh">1923 年问卷</span></li>
+          <li><span lang="en">Open critiques every Friday</span><span lang="zh">每周五的公开点评</span></li>
+        </ul>
+        <a class="btn ghost" href="#play"><span lang="en">Start free</span><span lang="zh">免费开始</span></a>
+      </div>
+      <div class="plan">
+        <div class="mark"><svg width="180" height="20" viewBox="0 0 180 20"><rect y="6" width="180" height="9" fill="#141414" transform="rotate(-4 90 10)"/></svg></div>
+        <h3><span lang="en">Line</span><span lang="zh">线</span><small>Linie</small></h3>
+        <div class="price">$12 <small><span lang="en">/ month</span><span lang="zh">/ 月</span></small></div>
+        <ul>
+          <li><span lang="en">One assignment a week</span><span lang="zh">每周一个作业</span></li>
+          <li><span lang="en">Written feedback from a teacher</span><span lang="zh">老师书面批改</span></li>
+          <li><span lang="en">Videos for all six workshops</span><span lang="zh">六个工坊的全部视频</span></li>
+        </ul>
+        <a class="btn ghost" href="#pricing"><span lang="en">Choose Line</span><span lang="zh">选线</span></a>
+      </div>
+      <div class="plan hl">
+        <div class="mark"><svg width="96" height="96" viewBox="0 0 96 96"><rect x="6" y="6" width="84" height="84" fill="#d8342a"/></svg></div>
+        <h3><span lang="en">Plane</span><span lang="zh">面</span><small>Fläche</small></h3>
+        <div class="price">$240 <small><span lang="en">once</span><span lang="zh">一次付清</span></small></div>
+        <ul>
+          <li><span lang="en">The full six weeks</span><span lang="zh">完整六周</span></li>
+          <li><span lang="en">Live critiques with all three teachers</span><span lang="zh">三位老师现场点评</span></li>
+          <li><span lang="en">Portfolio review at the end</span><span lang="zh">结课作品集评审</span></li>
+        </ul>
+        <a class="btn yellow" href="#pricing"><span lang="en">Choose Plane</span><span lang="zh">选面</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="disc"></div><div class="bar"></div><div class="tri"></div>
+  <div class="wrap">
+    <div class="big"><span lang="en">start with a square.</span><span lang="zh">从一个方块开始。</span><span class="sq"></span></div>
+    <p><span lang="en">Spring term begins on 3 March. Bring scissors.</span><span lang="zh">春季班 3 月 3 日开课，记得带剪刀。</span></p>
+    <a class="btn yellow" href="#pricing"><span lang="en">Enrol</span><span lang="zh">报名</span></a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="top"><span class="logo" style="font-size:18px"><svg viewBox="0 0 46 22" aria-hidden="true"><rect x="0" y="2" width="18" height="18" fill="#d8342a"/><polygon points="20,20 30,2 40,20" fill="#f3c21b" style="mix-blend-mode:multiply"/><circle cx="37" cy="11" r="9" fill="#1f4fa3" style="mix-blend-mode:multiply"/></svg>Vorkurs</span><span><span lang="en">A fictional product, built as a design study.</span><span lang="zh">虚构产品，仅作设计练习。</span></span></div>
+    <b>图源</b>：本页没有使用任何图片。所有形状、人物、课程轮盘和海报都是在浏览器里用 canvas 与 SVG 实时画出来的；首屏的形状由页面里一个手写的二维刚体物理引擎驱动。1923 年的色形问卷和康定斯基的答案（黄三角、红方块、蓝圆）是史实参考，问卷、课程表和人物的画法均为原创，没有复制任何包豪斯原作。
+    字体：Jost、Space Mono、Noto Sans SC（均为 OFL-1.1）。本页为学习用 demo，品牌与文案均为虚构，三位老师 Hanne Vogt、Ilse Brandt、周未也都是虚构人物。<br>
+    侵权请联系删除。
+  </div>
+</footer>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const coarse = matchMedia("(pointer: coarse)").matches;
+const COL = { red: "#d8342a", yellow: "#f3c21b", blue: "#1f4fa3", ink: "#141414" };
+const isZh = () => document.documentElement.dataset.lang === "zh";
+
+/* =====================================================================
+   A tiny 2D rigid-body engine: convex polygons + circles, SAT contacts
+   with face clipping, sequential impulses with friction, positional
+   correction and naive sleeping. ponytail: no warm starting or islands;
+   fine for ~70 bodies, add persistent contacts if stacks need to be taller.
+   ===================================================================== */
+const G = 2200, ITER = 8, SUB = 2, SLOP = .6, MU = .55;
+const bodies = [];
+function shapeBody(kind, x, y, size) {
+  let verts, r = 0, color;
+  if (kind === "square") { const s = size / 2; verts = [[-s, -s], [s, -s], [s, s], [-s, s]]; color = COL.red; }
+  else if (kind === "bar") { const w = size * .85, h = size * .16; verts = [[-w, -h], [w, -h], [w, h], [-w, h]]; color = COL.ink; }
+  else if (kind === "triangle") { const s = size * 1.2, h = s * .866; verts = [[0, -h * 2 / 3], [s / 2, h / 3], [-s / 2, h / 3]]; color = COL.yellow; }
+  else if (kind === "dot") { r = size * .22; color = COL.ink; }
+  else { r = size * .56; color = COL.blue; }
+  const b = verts ? makePoly(verts.map(([x, y]) => ({ x, y })), x, y) : makeCircle(r, x, y);
+  b.kind = kind; b.color = color; b.a = Math.random() * Math.PI * 2; b.w = (Math.random() - .5) * 2;
+  updateWorld(b);
+  return b;
+}
+function base(x, y) { return { x, y, a: 0, vx: 0, vy: 0, w: 0, im: 0, iI: 0, sleep: 0, asleep: false, static: false }; }
+function makeCircle(r, x, y, isStatic) {
+  const b = base(x, y); b.type = "circle"; b.r = r;
+  if (!isStatic) { const m = Math.PI * r * r; b.im = 1 / m; b.iI = 1 / (.5 * m * r * r); } else b.static = true;
+  return b;
+}
+function makePoly(local, x, y, isStatic) {
+  let A = 0, cx = 0, cy = 0;
+  for (let i = 0; i < local.length; i++) {
+    const p = local[i], q = local[(i + 1) % local.length], c = p.x * q.y - q.x * p.y;
+    A += c; cx += (p.x + q.x) * c; cy += (p.y + q.y) * c;
+  }
+  A *= .5; cx /= 6 * A; cy /= 6 * A;
+  const verts = local.map(p => ({ x: p.x - cx, y: p.y - cy }));
+  let I = 0;
+  for (let i = 0; i < verts.length; i++) {
+    const p = verts[i], q = verts[(i + 1) % verts.length], c = Math.abs(p.x * q.y - q.x * p.y);
+    I += c * (p.x * p.x + p.x * q.x + q.x * q.x + p.y * p.y + p.y * q.y + q.y * q.y) / 12;
+  }
+  const norms = verts.map((p, i) => {
+    const q = verts[(i + 1) % verts.length]; let nx = q.y - p.y, ny = -(q.x - p.x); const l = Math.hypot(nx, ny);
+    nx /= l; ny /= l;
+    if (nx * p.x + ny * p.y < 0) { nx = -nx; ny = -ny; }  // outward, whatever the winding
+    return { x: nx, y: ny };
+  });
+  const b = base(x + cx, y + cy); b.type = "poly"; b.verts = verts; b.norms = norms;
+  b.wv = verts.map(() => ({ x: 0, y: 0 })); b.wn = norms.map(() => ({ x: 0, y: 0 }));
+  if (!isStatic) { const m = Math.abs(A); b.im = 1 / m; b.iI = 1 / I; } else b.static = true;
+  return b;
+}
+function updateWorld(b) {
+  if (b.type === "circle") { b.minx = b.x - b.r; b.maxx = b.x + b.r; b.miny = b.y - b.r; b.maxy = b.y + b.r; return; }
+  const c = Math.cos(b.a), s = Math.sin(b.a);
+  let minx = 1e9, miny = 1e9, maxx = -1e9, maxy = -1e9;
+  for (let i = 0; i < b.verts.length; i++) {
+    const v = b.verts[i], n = b.norms[i], w = b.wv[i], wn = b.wn[i];
+    w.x = c * v.x - s * v.y + b.x; w.y = s * v.x + c * v.y + b.y;
+    wn.x = c * n.x - s * n.y; wn.y = s * n.x + c * n.y;
+    if (w.x < minx) minx = w.x; if (w.x > maxx) maxx = w.x; if (w.y < miny) miny = w.y; if (w.y > maxy) maxy = w.y;
+  }
+  b.minx = minx; b.maxx = maxx; b.miny = miny; b.maxy = maxy;
+}
+function axisLeast(A, B) {
+  let best = -1e9, bi = 0;
+  for (let i = 0; i < A.wn.length; i++) {
+    const n = A.wn[i]; let min = 1e9, s = null;
+    for (const v of B.wv) { const d = v.x * n.x + v.y * n.y; if (d < min) { min = d; s = v; } }
+    const v = A.wv[i], d = (s.x - v.x) * n.x + (s.y - v.y) * n.y;
+    if (d > best) { best = d; bi = i; }
+  }
+  return [best, bi];
+}
+function clip(pts, nx, ny, c) {
+  const out = [], [a, b] = pts, d1 = nx * a.x + ny * a.y - c, d2 = nx * b.x + ny * b.y - c;
+  if (d1 <= 0) out.push(a); if (d2 <= 0) out.push(b);
+  if (d1 * d2 < 0) { const t = d1 / (d1 - d2); out.push({ x: a.x + t * (b.x - a.x), y: a.y + t * (b.y - a.y) }); }
+  return out;
+}
+function polyPoly(A, B) {
+  const [sa, ia] = axisLeast(A, B); if (sa >= 0) return null;
+  const [sb, ib] = axisLeast(B, A); if (sb >= 0) return null;
+  let ref, inc, ri, flip;
+  if (sa >= sb * .95 + sa * .01) { ref = A; inc = B; ri = ia; flip = false; } else { ref = B; inc = A; ri = ib; flip = true; }
+  const n = ref.wn[ri];
+  let ii = 0, mind = 1e9;
+  for (let i = 0; i < inc.wn.length; i++) { const d = inc.wn[i].x * n.x + inc.wn[i].y * n.y; if (d < mind) { mind = d; ii = i; } }
+  let pts = [inc.wv[ii], inc.wv[(ii + 1) % inc.wv.length]];
+  const r0 = ref.wv[ri], r1 = ref.wv[(ri + 1) % ref.wv.length];
+  let tx = r1.x - r0.x, ty = r1.y - r0.y; const tl = Math.hypot(tx, ty); tx /= tl; ty /= tl;
+  pts = clip(pts, -tx, -ty, -(tx * r0.x + ty * r0.y)); if (pts.length < 2) return null;
+  pts = clip(pts, tx, ty, tx * r1.x + ty * r1.y); if (pts.length < 2) return null;
+  const refC = n.x * r0.x + n.y * r0.y, out = [];
+  for (const p of pts) { const sep = n.x * p.x + n.y * p.y - refC; if (sep <= 0) out.push({ x: p.x, y: p.y, depth: -sep }); }
+  if (!out.length) return null;
+  return { n: flip ? { x: -n.x, y: -n.y } : { x: n.x, y: n.y }, pts: out };
+}
+function polyCircle(P, C) { // normal points from P to C
+  let best = -1e9, bi = 0;
+  for (let i = 0; i < P.wn.length; i++) {
+    const s = P.wn[i].x * (C.x - P.wv[i].x) + P.wn[i].y * (C.y - P.wv[i].y);
+    if (s > C.r) return null; if (s > best) { best = s; bi = i; }
+  }
+  const v1 = P.wv[bi], v2 = P.wv[(bi + 1) % P.wv.length], nr = P.wn[bi];
+  const face = () => ({ n: { x: nr.x, y: nr.y }, pts: [{ x: C.x - nr.x * C.r, y: C.y - nr.y * C.r, depth: C.r - best }] });
+  if (best < 1e-6) return face();
+  const d1 = (C.x - v1.x) * (v2.x - v1.x) + (C.y - v1.y) * (v2.y - v1.y);
+  const d2 = (C.x - v2.x) * (v1.x - v2.x) + (C.y - v2.y) * (v1.y - v2.y);
+  if (d1 <= 0 || d2 <= 0) {
+    const v = d1 <= 0 ? v1 : v2, dx = C.x - v.x, dy = C.y - v.y, d = Math.hypot(dx, dy);
+    if (d > C.r || d === 0) return null;
+    return { n: { x: dx / d, y: dy / d }, pts: [{ x: v.x, y: v.y, depth: C.r - d }] };
+  }
+  return face();
+}
+function collide(A, B) {
+  if (A.type === "circle" && B.type === "circle") {
+    const dx = B.x - A.x, dy = B.y - A.y, d = Math.hypot(dx, dy), rr = A.r + B.r;
+    if (d >= rr) return null;
+    const n = d ? { x: dx / d, y: dy / d } : { x: 0, y: 1 };
+    return { n, pts: [{ x: A.x + n.x * A.r, y: A.y + n.y * A.r, depth: rr - d }] };
+  }
+  if (A.type === "poly" && B.type === "circle") return polyCircle(A, B);
+  if (A.type === "circle") { const c = polyCircle(B, A); if (c) { c.n.x = -c.n.x; c.n.y = -c.n.y; } return c; }
+  return polyPoly(A, B);
+}
+const live = b => !b.static && !b.asleep;
+const speed2 = b => b.vx * b.vx + b.vy * b.vy;
+let grab = null;
+function substep(dt) {
+  for (const b of bodies) if (live(b)) { b.vy += G * dt; b.vx *= .9995; b.vy *= .9995; b.w *= .996; }
+  if (grab) {
+    const b = grab.b, c = Math.cos(b.a), s = Math.sin(b.a);
+    const rx = c * grab.lx - s * grab.ly, ry = s * grab.lx + c * grab.ly;
+    const vpx = b.vx - b.w * ry, vpy = b.vy + b.w * rx;
+    const dvx = (grab.mx - (b.x + rx)) * 14 - vpx, dvy = (grab.my - (b.y + ry)) * 14 - vpy;
+    const k = b.im + b.iI * (rx * rx + ry * ry);
+    const jx = dvx / k * .3, jy = dvy / k * .3;
+    b.vx += jx * b.im; b.vy += jy * b.im; b.w += (rx * jy - ry * jx) * b.iI; b.w *= .9;
+    const sp = Math.hypot(b.vx, b.vy); if (sp > 3200) { b.vx *= 3200 / sp; b.vy *= 3200 / sp; }
+  }
+  // contacts
+  const contacts = [];
+  for (let i = 0; i < bodies.length; i++) {
+    const A = bodies[i];
+    for (let j = i + 1; j < bodies.length; j++) {
+      const B = bodies[j];
+      if (!live(A) && !live(B)) continue;
+      if (A.maxx < B.minx || B.maxx < A.minx || A.maxy < B.miny || B.maxy < A.miny) continue;
+      const c = collide(A, B); if (!c) continue;
+      // wake a sleeper when something lands on it with real speed
+      if (A.asleep && speed2(B) > 900) { A.asleep = false; A.sleep = 0; }
+      if (B.asleep && speed2(A) > 900) { B.asleep = false; B.sleep = 0; }
+      c.A = A; c.B = B; contacts.push(c);
+    }
+  }
+  for (const c of contacts) {
+    const A = c.A, B = c.B, n = c.n;
+    c.imA = live(A) ? A.im : 0; c.iIA = live(A) ? A.iI : 0; c.imB = live(B) ? B.im : 0; c.iIB = live(B) ? B.iI : 0;
+    for (const p of c.pts) {
+      p.ax = p.x - A.x; p.ay = p.y - A.y; p.bx = p.x - B.x; p.by = p.y - B.y;
+      const rnA = p.ax * n.y - p.ay * n.x, rnB = p.bx * n.y - p.by * n.x;
+      p.mn = 1 / (c.imA + c.imB + rnA * rnA * c.iIA + rnB * rnB * c.iIB || 1);
+      const tx = -n.y, ty = n.x, rtA = p.ax * ty - p.ay * tx, rtB = p.bx * ty - p.by * tx;
+      p.mt = 1 / (c.imA + c.imB + rtA * rtA * c.iIA + rtB * rtB * c.iIB || 1);
+      const dvx = (B.vx - B.w * p.by) - (A.vx - A.w * p.ay), dvy = (B.vy + B.w * p.bx) - (A.vy + A.w * p.ax);
+      const vn = dvx * n.x + dvy * n.y;
+      p.bounce = vn < -240 ? -.18 * vn : 0;
+      p.Pn = 0; p.Pt = 0;
+    }
+  }
+  for (let it = 0; it < ITER; it++) for (const c of contacts) {
+    const A = c.A, B = c.B, n = c.n;
+    for (const p of c.pts) {
+      let dvx = (B.vx - B.w * p.by) - (A.vx - A.w * p.ay), dvy = (B.vy + B.w * p.bx) - (A.vy + A.w * p.ax);
+      let d = p.mn * (-(dvx * n.x + dvy * n.y) + p.bounce);
+      const P0 = p.Pn; p.Pn = Math.max(P0 + d, 0); d = p.Pn - P0;
+      let jx = n.x * d, jy = n.y * d;
+      A.vx -= jx * c.imA; A.vy -= jy * c.imA; A.w -= (p.ax * jy - p.ay * jx) * c.iIA;
+      B.vx += jx * c.imB; B.vy += jy * c.imB; B.w += (p.bx * jy - p.by * jx) * c.iIB;
+      dvx = (B.vx - B.w * p.by) - (A.vx - A.w * p.ay); dvy = (B.vy + B.w * p.bx) - (A.vy + A.w * p.ax);
+      const tx = -n.y, ty = n.x;
+      let dt2 = p.mt * -(dvx * tx + dvy * ty);
+      const T0 = p.Pt, max = MU * p.Pn; p.Pt = Math.max(-max, Math.min(max, T0 + dt2)); dt2 = p.Pt - T0;
+      jx = tx * dt2; jy = ty * dt2;
+      A.vx -= jx * c.imA; A.vy -= jy * c.imA; A.w -= (p.ax * jy - p.ay * jx) * c.iIA;
+      B.vx += jx * c.imB; B.vy += jy * c.imB; B.w += (p.bx * jy - p.by * jx) * c.iIB;
+    }
+  }
+  for (const b of bodies) if (live(b)) { b.x += b.vx * dt; b.y += b.vy * dt; b.a += b.w * dt; updateWorld(b); }
+  for (const c of contacts) {
+    let depth = 0; for (const p of c.pts) depth = Math.max(depth, p.depth);
+    const sum = c.imA + c.imB; if (!sum) continue;
+    const k = Math.max(depth - SLOP, 0) / sum * .45;
+    if (!k) continue;
+    if (c.imA) { c.A.x -= c.n.x * k * c.imA; c.A.y -= c.n.y * k * c.imA; updateWorld(c.A); }
+    if (c.imB) { c.B.x += c.n.x * k * c.imB; c.B.y += c.n.y * k * c.imB; updateWorld(c.B); }
+  }
+  for (const b of bodies) if (live(b) && (!grab || grab.b !== b)) {
+    if (speed2(b) < 30 && Math.abs(b.w) < .08) { if (++b.sleep > 50) { b.asleep = true; b.vx = b.vy = b.w = 0; } } else b.sleep = 0;
+  }
+}
+function wakeAll() { for (const b of bodies) if (!b.static) { b.asleep = false; b.sleep = 0; } }
+function hit(b, x, y) {
+  if (b.type === "circle") return (x - b.x) ** 2 + (y - b.y) ** 2 <= b.r * b.r;
+  for (let i = 0; i < b.wv.length; i++) if (b.wn[i].x * (x - b.wv[i].x) + b.wn[i].y * (y - b.wv[i].y) > 0) return false;
+  return true;
+}
+
+/* ---------------- hero wiring ---------------- */
+const hero = document.querySelector(".hero"), cv = document.getElementById("phys"), ctx = cv.getContext("2d");
+const countEl = document.getElementById("count");
+let W = 0, H = 0, statics = [], queue = [], visible = true;
+const unit = () => W < 700 ? Math.min(54, W / 8.5) : Math.max(30, Math.min(78, W / 19));
+function pick() {
+  const r = Math.random();
+  return r < .27 ? "square" : r < .54 ? "triangle" : r < .8 ? "circle" : r < .9 ? "bar" : "dot";
+}
+function addShape(kind, x, y) {
+  const b = shapeBody(kind, x, y, unit() * (.8 + Math.random() * .5));
+  b.vy = 200 + Math.random() * 200;
+  bodies.push(b);
+  const dyn = bodies.filter(b => !b.static);
+  if (dyn.length > 70) bodies.splice(bodies.indexOf(dyn[0]), 1);
+  countEl.textContent = bodies.filter(b => !b.static).length;
+}
+function dropBatch() {
+  for (let i = bodies.length - 1; i >= 0; i--) if (!bodies[i].static) bodies.splice(i, 1);
+  const n = W < 700 ? 14 : 26;
+  // ponytail: most shapes fall on the open right half so the headline stays readable; a few land on it as shelves
+  const spawnX = () => W < 700 || Math.random() < .25 ? 40 + Math.random() * (W - 80) : W * .52 + Math.random() * (W * .48 - 50);
+  // on narrow screens the copy box spans the width, so most shapes drop in below it, onto the floor strip
+  const cr = hero.querySelector(".copy").getBoundingClientRect(), floorY = cr.bottom - hero.getBoundingClientRect().top + 50;
+  queue = Array.from({ length: n }, (_, i) => ({ t: i * 7, kind: i < 3 ? ["square", "triangle", "circle"][i] : pick(), x: spawnX(), y: W < 700 && i % 4 ? floorY : -80 }));
+  countEl.textContent = 0;
+}
+function rebuildStatics() {
+  for (const s of statics) bodies.splice(bodies.indexOf(s), 1);
+  const hr = hero.getBoundingClientRect(); statics = [];
+  const box = (cx, cy, w, h, a) => {
+    const b = makePoly([{ x: -w / 2, y: -h / 2 }, { x: w / 2, y: -h / 2 }, { x: w / 2, y: h / 2 }, { x: -w / 2, y: h / 2 }], cx, cy, true);
+    b.a = a; updateWorld(b); statics.push(b);
+  };
+  box(W / 2, H + 200, W + 800, 400, 0);
+  box(-200, H / 2 - 600, 400, H + 2400, 0);
+  box(W + 200, H / 2 - 600, 400, H + 2400, 0);
+  for (const el of hero.querySelectorAll(".coll")) {
+    const r = el.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
+    if (!w || !h) continue;
+    const inset = +(el.dataset.inset || 0) * h;
+    box(r.left - hr.left + r.width / 2, r.top - hr.top + r.height / 2 + inset * .2, w, h - inset * 1.6, (+(el.dataset.rot || 0)) * Math.PI / 180);
+  }
+  bodies.unshift(...statics);
+  wakeAll();
+}
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = hero.clientWidth; H = hero.clientHeight;
+  cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  rebuildStatics();
+  for (const b of bodies) if (!b.static) { b.x = Math.min(Math.max(b.x, 30), W - 30); if (b.y > H) b.y = H - 60; updateWorld(b); }
+}
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  for (const b of bodies) {
+    if (b.static || b.maxy < 0) continue;
+    ctx.beginPath();
+    if (b.type === "circle") ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+    else { ctx.moveTo(b.wv[0].x, b.wv[0].y); for (let i = 1; i < b.wv.length; i++) ctx.lineTo(b.wv[i].x, b.wv[i].y); ctx.closePath(); }
+    ctx.fillStyle = b.color; ctx.fill();
+    if (grab && grab.b === b) { ctx.lineWidth = 3; ctx.strokeStyle = b.color === COL.ink ? COL.red : COL.ink; ctx.stroke(); }
+  }
+}
+let last = 0, acc = 0, frame = 0;
+function loop(t) {
+  requestAnimationFrame(loop);
+  if (!visible) { last = t; return; }
+  const dt = Math.min(.05, (t - last) / 1000 || 0); last = t; acc += dt;
+  let n = 0;
+  while (acc >= 1 / 60 && n < 3) {
+    frame++;
+    while (queue.length && queue[0].t <= 0) { const q = queue.shift(); addShape(q.kind, q.x, q.y); }
+    for (const q of queue) q.t--;
+    for (let s = 0; s < SUB; s++) substep(1 / 60 / SUB);
+    acc -= 1 / 60; n++;
+  }
+  draw();
+}
+// pointer: drag + throw on mouse, kick on touch, click empty space to drop
+const local = e => { const r = hero.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+let down = null;
+hero.addEventListener("pointerdown", e => {
+  if (reduce || e.target.closest("a, button")) return;
+  const [x, y] = local(e);
+  const b = [...bodies].reverse().find(b => !b.static && hit(b, x, y));
+  down = { x, y, b, moved: false, t: performance.now() };
+  if (b && !coarse) {
+    const c = Math.cos(-b.a), s = Math.sin(-b.a), dx = x - b.x, dy = y - b.y;
+    grab = { b, lx: c * dx - s * dy, ly: s * dx + c * dy, mx: x, my: y };
+    b.asleep = false; b.sleep = 0; wakeAll();
+    hero.setPointerCapture(e.pointerId); hero.style.cursor = "grabbing"; e.preventDefault();
+  }
+});
+hero.addEventListener("pointermove", e => {
+  const [x, y] = local(e);
+  if (down && Math.hypot(x - down.x, y - down.y) > 6) down.moved = true;
+  if (grab) { grab.mx = x; grab.my = y; return; }
+  if (!coarse && !reduce) hero.style.cursor = bodies.some(b => !b.static && hit(b, x, y)) ? "grab" : "";
+});
+const up = e => {
+  if (down && !down.moved && !reduce) {
+    if (down.b && coarse) { const b = down.b; b.asleep = false; b.vy -= 1100; b.vx += (Math.random() - .5) * 500; b.w += (Math.random() - .5) * 12; wakeAll(); }
+    else if (!down.b && !statics.some(s => hit(s, down.x, down.y))) addShape(pick(), down.x, down.y - 10);
+  }
+  grab = null; down = null; hero.style.cursor = "";
+};
+hero.addEventListener("pointerup", up);
+hero.addEventListener("pointercancel", up);
+document.getElementById("again").addEventListener("click", () => { dropBatch(); if (reduce) settle(); });
+new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(hero);
+function settle() { // reduced motion: simulate silently, draw the resting pile once
+  for (let f = 0; f < 700; f++) { while (queue.length && queue[0].t <= 0) { const q = queue.shift(); addShape(q.kind, q.x, q.y); } for (const q of queue) q.t--; for (let s = 0; s < SUB; s++) substep(1 / 60 / SUB); }
+  draw();
+}
+resize();
+dropBatch();
+new ResizeObserver(() => { resize(); if (reduce) draw(); }).observe(hero);
+document.fonts.ready.then(() => { resize(); if (reduce) draw(); });
+document.querySelector("[data-lang-toggle]").addEventListener("click", () => setTimeout(() => { resize(); renderPanel(); renderResult(); if (reduce) draw(); }, 30));
+if (reduce) settle(); else requestAnimationFrame(loop);
+
+/* ---------------- 1923 questionnaire ---------------- */
+const KANDINSKY = { triangle: "yellow", square: "red", circle: "blue" };
+const answer = { triangle: null, square: null, circle: null };
+let sel = "yellow", seed = 1;
+const chips = [...document.querySelectorAll(".chip")], slots = [...document.querySelectorAll(".slot")];
+const resultEl = document.getElementById("result"), posterEl = document.getElementById("poster"), recompose = document.getElementById("recompose");
+const NAMES = { en: { yellow: "yellow", red: "red", blue: "blue", triangle: "triangle", square: "square", circle: "circle" }, zh: { yellow: "黄", red: "红", blue: "蓝", triangle: "三角", square: "方块", circle: "圆" } };
+function setSel(c) { sel = c; chips.forEach(ch => ch.setAttribute("aria-pressed", ch.dataset.color === c)); }
+chips.forEach(ch => ch.addEventListener("click", () => setSel(ch.dataset.color)));
+slots.forEach(sl => sl.addEventListener("click", () => {
+  const shape = sl.dataset.shape;
+  for (const k in answer) if (answer[k] === sel) answer[k] = null;  // one colour per shape, like the form
+  answer[shape] = sel;
+  const next = ["yellow", "red", "blue"].find(c => !Object.values(answer).includes(c));
+  if (next) setSel(next);
+  sl.classList.add("pop"); setTimeout(() => sl.classList.remove("pop"), 260);
+  paintSlots(); renderResult();
+  if (Object.values(answer).every(Boolean)) { seed++; printPoster(); }
+}));
+document.getElementById("qreset").addEventListener("click", () => {
+  for (const k in answer) answer[k] = null; setSel("yellow"); paintSlots(); renderResult();
+  posterEl.innerHTML = ""; posterEl.append(emptyEl); recompose.disabled = true;
+});
+recompose.addEventListener("click", () => { seed++; printPoster(); });
+const emptyEl = document.getElementById("pempty");
+function paintSlots() {
+  slots.forEach(sl => { const c = answer[sl.dataset.shape]; sl.querySelector(".s").style.fill = c ? COL[c] : "transparent"; sl.classList.toggle("filled", !!c); });
+}
+function renderResult() {
+  const left = Object.values(answer).filter(v => !v).length;
+  if (left) {
+    resultEl.innerHTML = `<span lang="en">${left === 3 ? "Three shapes" : left === 2 ? "Two shapes" : "One shape"} left to fill.</span><span lang="zh">还有${"零一两三"[left]}个形状没填。</span>`;
+    return;
+  }
+  const n = Object.keys(KANDINSKY).filter(k => answer[k] === KANDINSKY[k]).length;
+  const en = n === 3 ? "All three. You think the way he did." : n === 0 ? "Not one. Fine: people at the Bauhaus argued about this too." : "Some, not all. Colour is personal, after all.";
+  const zh = n === 3 ? "全对上了，你跟他想到一块儿去了。" : n === 0 ? "一个都没对上。没关系，当年包豪斯里也有人跟他争。" : "对上了一部分。颜色这件事，本来就因人而异。";
+  resultEl.innerHTML = `<span lang="en">You matched Kandinsky on <b>${n} of 3</b>. ${en} His answer: yellow triangle, red square, blue circle. In his theory yellow is sharp like an acute angle, red is steady like a right angle, and blue is deep like a circle.</span>` +
+    `<span lang="zh">你和康定斯基对上了 <b>${n} 个</b>。${zh}他的答案是黄三角、红方块、蓝圆。按他的理论，黄色尖锐，像锐角；红色稳重，像直角；蓝色深沉，像圆。</span>`;
+}
+function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function printPoster() {
+  const R = rng(seed * 7919), f = k => COL[answer[k]], j = (v, s) => v + (R() - .5) * s;
+  const tri = (cx, cy, s, rot) => `<g class="el"><polygon points="${cx},${cy - s * .58} ${cx + s / 2},${cy + s * .29} ${cx - s / 2},${cy + s * .29}" fill="${f("triangle")}" transform="rotate(${rot} ${cx} ${cy})"/></g>`;
+  const sq = (cx, cy, s, rot) => `<g class="el"><rect x="${cx - s / 2}" y="${cy - s / 2}" width="${s}" height="${s}" fill="${f("square")}" transform="rotate(${rot} ${cx} ${cy})"/></g>`;
+  const ci = (cx, cy, r) => `<circle class="el" cx="${cx}" cy="${cy}" r="${r}" fill="${f("circle")}"/>`;
+  const bar = (x, y, w, h, rot) => `<g class="el"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#141414" transform="rotate(${rot} ${x + w / 2} ${y + h / 2})"/></g>`;
+  const layout = seed % 3;
+  let s = "";
+  if (layout === 0) {
+    s += ci(j(196, 30), j(120, 30), j(78, 14)) + sq(j(96, 24), j(272, 30), j(118, 20), j(0, 16)) + tri(j(168, 30), j(262, 30), j(130, 24), j(0, 30));
+    s += bar(-20, j(204, 30), 340, 12, j(-14, 10)) + bar(36, 36, 8, j(110, 30), 0);
+  } else if (layout === 1) {
+    s += sq(j(150, 30), j(206, 30), j(150, 24), j(14, 20)) + ci(j(72, 20), j(88, 20), j(40, 12)) + tri(j(226, 20), j(320, 24), j(120, 20), j(180, 40));
+    s += bar(24, j(372, 12), 150, 10, 0) + bar(24, j(352, 12), 90, 10, 0);
+  } else {
+    s += tri(j(92, 20), j(98, 20), j(112, 20), j(-8, 30)) + sq(j(158, 20), j(212, 20), j(96, 18), j(30, 30)) + ci(j(222, 20), j(320, 20), j(54, 12));
+    s += bar(j(40, 20), -20, 10, 480, j(18, 10)) + bar(-20, j(150, 20), 340, 6, j(-28, 8));
+  }
+  const dots = Array.from({ length: 5 }, (_, i) => `<circle class="el" cx="${30 + i * 14}" cy="398" r="4" fill="#141414"/>`).join("");
+  const mark = k => ({ yellow: "Y", red: "R", blue: "B" })[answer[k]];
+  posterEl.innerHTML = `<svg viewBox="0 0 300 420" aria-label="Your poster"><g style="mix-blend-mode:multiply">${s}</g><rect x="0" y="0" width="300" height="60" fill="#f7f3ea"/><rect x="18" y="60" width="264" height="1.5" fill="#141414"/>${dots}
+    <text class="el" x="282" y="34" text-anchor="end" font-family="Jost, sans-serif" font-weight="700" font-size="30" letter-spacing="-1" fill="#141414">vorkurs</text>
+    <text class="el" x="282" y="50" text-anchor="end" font-family="Space Mono, monospace" font-size="9" letter-spacing="1.5" fill="#141414">FRAGEBOGEN · 1923 · ▲${mark("triangle")} ■${mark("square")} ●${mark("circle")}</text>
+    <text class="el" x="282" y="402" text-anchor="end" font-family="Space Mono, monospace" font-size="9" letter-spacing="1.5" fill="#141414">NO. ${String(seed).padStart(3, "0")}</text></svg>`;
+  posterEl.querySelectorAll(".el").forEach((el, i) => el.style.animationDelay = i * 70 + "ms");
+  recompose.disabled = false;
+}
+
+/* ---------------- course wheel ---------------- */
+const WS = [
+  { k: "paper", en: "Paper", zh: "纸", c: "yellow", w: 2, n: 5, den: "Fold, score and cut one sheet until it stands up on its own.", dzh: "一张纸，折、划、剪，直到它自己能立起来。" },
+  { k: "wood", en: "Wood", zh: "木", c: "red", w: 2, n: 4, den: "Join two pieces of wood without a single screw.", dzh: "不用一颗螺丝，把两块木头接在一起。" },
+  { k: "metal", en: "Metal", zh: "金属", c: "blue", w: 3, n: 4, den: "Hammer a flat sheet into a bowl you would actually eat from.", dzh: "把一片平铁皮敲成一只你真愿意拿来吃饭的碗。" },
+  { k: "weave", en: "Weaving", zh: "织", c: "yellow", w: 3, n: 3, den: "Design a pattern on the loom, not on the screen.", dzh: "在织机上设计花纹，不在屏幕上。" },
+  { k: "print", en: "Print", zh: "印", c: "red", w: 2, n: 4, den: "Set type by hand and print a poster in two colours.", dzh: "手工排字，印一张双色海报。" },
+  { k: "light", en: "Light", zh: "光", c: "ink", w: 2, n: 6, den: "Photograph one object in twelve kinds of light.", dzh: "同一件东西，用十二种光各拍一张。" },
+];
+const CENTER = { en: "Build", zh: "造", c: "ink", w: 6, n: 1, den: "Final project: one object, made by you, that you will use every day.", dzh: "结课作品：一件你亲手做、天天都用得上的东西。" };
+const svg = document.getElementById("wheel"), NS = "http://www.w3.org/2000/svg";
+const P = (r, a) => [r * Math.sin(a), -r * Math.cos(a)];
+function sector(r0, r1, a0, a1) {
+  const [x0, y0] = P(r1, a0), [x1, y1] = P(r1, a1), [x2, y2] = P(r0, a1), [x3, y3] = P(r0, a0);
+  return `M${x0} ${y0}A${r1} ${r1} 0 0 1 ${x1} ${y1}L${x2} ${y2}A${r0} ${r0} 0 0 0 ${x3} ${y3}Z`;
+}
+let cur = 0, touched = false;
+const ring = document.createElementNS(NS, "g"), labels = [];
+svg.innerHTML = `<defs><path id="rp" d="M0,-226 A226,226 0 1,1 -0.1,-226"/></defs>
+  <circle r="246" fill="#efe9dc" stroke="#141414" stroke-width="2.5"/><circle r="206" fill="none" stroke="#141414" stroke-width="2.5"/>
+  <text class="ringtext"><textPath href="#rp">VORKURS · 预科 · FORM · 形 · FARBE · 色 · MATERIAL · 材 · VORKURS · 预科 · FORM · 形 · FARBE · 色 · MATERIAL · 材 ·</textPath></text>`;
+svg.append(ring);
+WS.forEach((w, i) => {
+  const a0 = i / 6 * Math.PI * 2, a1 = (i + 1) / 6 * Math.PI * 2, am = (a0 + a1) / 2;
+  const g = document.createElementNS(NS, "g"); g.setAttribute("class", "seg"); g.dataset.i = i; g.setAttribute("tabindex", "0");
+  g.innerHTML = `<path d="${sector(104, 202, a0, a1)}" fill="${COL[w.c]}"/>`;
+  const [lx, ly] = P(153, am), lab = document.createElementNS(NS, "g");
+  const tc = w.c === "yellow" ? "#141414" : "#efe9dc";
+  lab.innerHTML = `<text class="t" text-anchor="middle" y="-2" font-size="22" fill="${tc}"></text><text text-anchor="middle" y="18" font-size="11" font-family="Space Mono, monospace" fill="${tc}">0${i + 1}</text>`;
+  lab.dataset.x = lx; lab.dataset.y = ly; labels.push(lab); g.append(lab); g._am = am;
+  ring.append(g);
+  const sel = () => { touched = true; select(i); };
+  g.addEventListener("mouseenter", sel); g.addEventListener("click", sel); g.addEventListener("focus", sel);
+});
+const core = document.createElementNS(NS, "g"); core.setAttribute("class", "seg"); core.setAttribute("tabindex", "0");
+core.innerHTML = `<circle r="96" fill="#141414" stroke="#141414" stroke-width="2.5"/><text class="t" text-anchor="middle" y="10" font-size="38" fill="#efe9dc"></text><text text-anchor="middle" y="36" font-size="11" font-family="Space Mono, monospace" fill="#f3c21b">07</text>`;
+svg.append(core);
+["mouseenter", "click", "focus"].forEach(ev => core.addEventListener(ev, () => { touched = true; select(6); }));
+let spin = 0;
+function placeLabels() {
+  ring.setAttribute("transform", `rotate(${spin})`);
+  labels.forEach((l, i) => l.setAttribute("transform", `translate(${l.dataset.x},${l.dataset.y}) rotate(${-spin})`));
+  ring.querySelectorAll(".seg").forEach((g, i) => {
+    const [dx, dy] = P(i === cur ? 12 : 0, g._am); g.style.transform = `translate(${dx}px, ${dy}px)`;
+  });
+}
+function select(i) { cur = i; placeLabels(); renderPanel(); }
+function renderPanel() {
+  const zh = isZh();
+  ring.querySelectorAll(".seg .t").forEach((t, i) => t.textContent = zh ? WS[i].zh : WS[i].en);
+  core.querySelector(".t").textContent = zh ? CENTER.zh : CENTER.en;
+  const w = cur === 6 ? CENTER : WS[cur];
+  document.getElementById("pnum").textContent = String(cur + 1).padStart(2, "0");
+  document.getElementById("ptitle").textContent = zh ? (cur === 6 ? "毕业作品 · 造" : w.zh + "工坊") : (cur === 6 ? "Final project · Build" : w.en + " workshop");
+  document.getElementById("pdesc").textContent = zh ? w.dzh : w.den;
+  document.getElementById("pmeta1").textContent = zh ? `${w.w} 周` : `${w.w} weeks`;
+  document.getElementById("pmeta2").textContent = zh ? `${w.n} 个作业` : `${w.n} assignment${w.n > 1 ? "s" : ""}`;
+  const sw = document.getElementById("pswatch");
+  sw.style.background = COL[w.c];
+  sw.style.borderRadius = ["circle"].includes(["square", "triangle", "circle"][cur % 3]) ? "50%" : "0";
+  sw.style.clipPath = cur % 3 === 1 ? "polygon(50% 0, 100% 100%, 0 100%)" : "none";
+  document.getElementById("pweeks").innerHTML = Array.from({ length: 6 }, (_, k) => `<i class="${k < w.w ? "on" : ""}"></i>`).join("");
+}
+let wheelVisible = false;
+new IntersectionObserver(([e]) => { wheelVisible = e.isIntersecting; }, { threshold: .3 }).observe(svg);
+if (!reduce) {
+  setInterval(() => { if (wheelVisible && !touched) select((cur + 1) % 7); }, 3200);
+  addEventListener("scroll", () => {
+    const r = svg.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
+    spin = ((innerHeight / 2 - (r.top + r.height / 2)) / innerHeight) * 24; placeLabels();
+  }, { passive: true });
+}
+select(0);
+renderResult();
+</script>
+</body>
+</html>

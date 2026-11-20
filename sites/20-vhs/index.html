@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rewind 回带 · AI tape restoration</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/vt323@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/archivo-black@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5/900.css">
+<script src="../../shared/lang.js"></script>
+<style>
+:root {
+  --bg: #0e0c0b;
+  --bg-2: #161311;
+  --ink: #f2ebe0;
+  --mute: #a89f92;
+  --dim: #6f675d;
+  --line: rgba(242,235,224,.12);
+  --orange: #ff6a2b;
+  --amber: #ffb547;
+  --s1: #e8412c; --s2: #f28c28; --s3: #f6c544; --s4: #47b07a; --s5: #2f7fd6;
+  --osd: "VT323", ui-monospace, monospace;
+  --display: "Archivo Black", "Noto Sans SC", sans-serif;
+  --sans: "Space Grotesk", "Noto Sans SC", system-ui, sans-serif;
+  --wrap: min(1240px, calc(100vw - 48px));
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--bg); }
+body { color: var(--ink); font: 17px/1.65 var(--sans); -webkit-font-smoothing: antialiased;
+  background: radial-gradient(1200px 700px at 72% 18%, rgba(255,140,60,.08), transparent 60%), var(--bg); overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.wrap { width: var(--wrap); margin: 0 auto; }
+html[data-lang="zh"] h1, html[data-lang="zh"] h2, html[data-lang="zh"] h3 { font-family: "Noto Sans SC", sans-serif; font-weight: 900; letter-spacing: .01em; }
+
+/* cassette-sleeve stripes, the page's recurring motif */
+.stripes { display: flex; height: 6px; }
+.stripes i { flex: 1; } .stripes i:nth-child(1) { background: var(--s1); } .stripes i:nth-child(2) { background: var(--s2); }
+.stripes i:nth-child(3) { background: var(--s3); } .stripes i:nth-child(4) { background: var(--s4); } .stripes i:nth-child(5) { background: var(--s5); }
+
+/* ---------- nav ---------- */
+nav { display: flex; align-items: center; gap: 32px; height: 76px; }
+.brand { display: flex; align-items: center; gap: 12px; font: 22px var(--display); letter-spacing: -.01em; }
+.brand small { font: 500 15px var(--sans); color: var(--mute); }
+.cas { width: 34px; height: 22px; border-radius: 4px; background: #1f1c19; border: 1.5px solid #4a443d; position: relative; }
+.cas::before, .cas::after { content: ""; position: absolute; top: 6px; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--orange); }
+.cas::before { left: 6px; } .cas::after { right: 6px; }
+nav ul { list-style: none; display: flex; gap: 28px; padding: 0; margin-left: auto; font-size: 15px; color: var(--mute); }
+nav li a:hover { color: var(--ink); }
+.lang { font: 18px var(--osd); letter-spacing: .06em; border: 1px solid #3a352f; padding: 3px 12px; border-radius: 4px; color: var(--mute); }
+html[data-lang="zh"] .lang .z, html[data-lang="en"] .lang .e { color: var(--ink); }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 22px; border-radius: 6px; font-weight: 500; font-size: 15.5px; white-space: nowrap; transition: transform .15s ease, background-color .2s, border-color .2s; }
+.btn:active { transform: scale(.97); }
+.btn.solid { background: var(--orange); color: #1a0c04; }
+.btn.solid:hover { background: #ff7f45; }
+.btn.ghost { border: 1px solid #3f3a33; }
+.btn.ghost:hover { border-color: #6b6358; }
+
+/* ---------- hero ---------- */
+.hero { display: grid; grid-template-columns: .92fr 1.08fr; gap: 56px; align-items: center; padding: 36px 0 90px; min-height: calc(100vh - 76px); }
+.eyebrow { font: 21px/1 var(--osd); letter-spacing: .12em; color: var(--amber); text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+.eyebrow::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--s1); box-shadow: 0 0 10px var(--s1); animation: rec 2s steps(1) infinite; }
+@keyframes rec { 50% { opacity: .25; } }
+h1 { font: clamp(46px, 5.2vw, 80px)/.98 var(--display); letter-spacing: -.025em; margin: 22px 0 24px; }
+html[data-lang="zh"] h1 { font-size: clamp(34px, 3.2vw, 46px); line-height: 1.2; }
+h1 .lit { color: var(--orange); }
+.lead { color: #cfc6b9; max-width: 31em; font-size: 18px; }
+.hero .row { display: flex; gap: 14px; margin-top: 34px; flex-wrap: wrap; }
+
+/* TV */
+.tvwrap { position: relative; }
+.tv { position: relative; background: linear-gradient(180deg, #2b2723, #171412 70%); border-radius: 30px; padding: 26px 26px 58px; box-shadow: 0 50px 90px -40px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.07), inset 0 -2px 0 rgba(0,0,0,.5); }
+.tv::after { content: ""; position: absolute; left: 50%; bottom: -16px; translate: -50% 0; width: 42%; height: 16px; background: #0b0a09; border-radius: 0 0 14px 14px; z-index: -1; }
+.tv .plate { position: absolute; left: 34px; bottom: 20px; font: 17px var(--osd); letter-spacing: .3em; color: #8c8378; }
+.tv .led { position: absolute; right: 36px; bottom: 25px; width: 8px; height: 8px; border-radius: 50%; background: #3dff8a; box-shadow: 0 0 8px #3dff8a; }
+.tv .knobs { position: absolute; right: 58px; bottom: 19px; display: flex; gap: 10px; }
+.tv .knobs i { width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #4a443d, #1b1816); box-shadow: 0 1px 0 rgba(255,255,255,.08); }
+.screen { position: relative; aspect-ratio: 4 / 3; border-radius: 22px / 26px; overflow: hidden; background: #050505; box-shadow: inset 0 0 0 3px #0a0908, inset 0 0 40px rgba(0,0,0,.9); isolation: isolate; }
+.screen canvas, .screen img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.screen img { object-fit: cover; filter: grayscale(.2) contrast(1.05); }
+.screen canvas { z-index: 1; }
+.screen .glass { position: absolute; inset: 0; z-index: 3; pointer-events: none; border-radius: inherit;
+  background: radial-gradient(120% 80% at 30% 8%, rgba(255,255,255,.09), transparent 45%), radial-gradient(140% 120% at 50% 50%, transparent 62%, rgba(0,0,0,.55)); }
+.osd { position: absolute; inset: 6% 7%; z-index: 2; pointer-events: none; font: clamp(18px, 2.1vw, 30px)/1 var(--osd); color: #fff; letter-spacing: .04em;
+  text-shadow: 2px 0 rgba(255,40,90,.55), -2px 0 rgba(40,200,255,.55), 0 0 10px rgba(255,255,255,.35); }
+.osd > * { position: absolute; }
+.osd .tl { left: 0; top: 0; } .osd .tr { right: 0; top: 0; } .osd .bl { left: 0; bottom: 0; } .osd .br { right: 0; bottom: 0; }
+.osd .mid { left: 0; right: 0; top: 42%; text-align: center; font-size: 1.2em; transition: opacity .3s; }
+.osd .fade { transition: opacity .4s; }
+
+/* deck */
+.deck { margin: 30px 18px 0; background: linear-gradient(180deg, #221f1c, #171513); border-radius: 12px; padding: 16px 18px; display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; box-shadow: 0 20px 40px -24px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.06); }
+.transport { display: flex; gap: 6px; }
+.transport button { width: 50px; height: 40px; border-radius: 6px; background: linear-gradient(180deg, #34302b, #24211e); box-shadow: 0 2px 0 #0b0a09, inset 0 1px 0 rgba(255,255,255,.08); font: 20px var(--osd); color: #d8cfc2; transition: transform .08s, background-color .2s; }
+.transport button:active { transform: translateY(2px); box-shadow: 0 0 0 #0b0a09; }
+.transport button[aria-pressed="true"] { color: var(--amber); background: linear-gradient(180deg, #3a2e20, #2a2118); box-shadow: 0 1px 0 #0b0a09, inset 0 0 0 1px rgba(255,181,71,.35); }
+.lcd { justify-self: center; background: #120d07; border-radius: 5px; padding: 6px 14px; font: 26px/1 var(--osd); color: var(--amber); text-shadow: 0 0 8px rgba(255,181,71,.55); letter-spacing: .08em; box-shadow: inset 0 2px 6px rgba(0,0,0,.8); min-width: 168px; text-align: center; }
+.tracking { display: flex; align-items: center; gap: 12px; }
+.tracking label { font: 17px var(--osd); letter-spacing: .12em; color: var(--mute); }
+.tracking input { width: 120px; accent-color: var(--orange); }
+.auto { font: 18px var(--osd); letter-spacing: .1em; padding: 7px 12px; border-radius: 6px; border: 1px solid #4a4239; color: var(--ink); transition: background-color .2s, color .2s; }
+.auto[aria-pressed="true"] { background: var(--orange); color: #1a0c04; border-color: var(--orange); }
+.hint { margin: 16px 20px 0; font-size: 14px; color: var(--mute); display: flex; gap: 10px; align-items: baseline; }
+.hint b { font: 18px var(--osd); color: var(--amber); font-weight: 400; }
+
+/* ---------- section heads ---------- */
+section.block { padding: 110px 0 30px; }
+.kicker { font: 21px var(--osd); letter-spacing: .14em; color: var(--amber); text-transform: uppercase; }
+h2 { font: clamp(34px, 3.6vw, 54px)/1.05 var(--display); letter-spacing: -.02em; margin: 12px 0 16px; max-width: 16em; }
+html[data-lang="zh"] h2 { font-size: clamp(32px, 3.3vw, 48px); line-height: 1.2; }
+.sub { color: var(--mute); max-width: 40em; }
+
+/* before / after */
+.ba { margin-top: 44px; display: grid; grid-template-columns: minmax(0, 720px) minmax(240px, 320px); gap: 56px; align-items: center; }
+.split { position: relative; aspect-ratio: 4 / 3; border-radius: 14px; overflow: hidden; background: #000; cursor: ew-resize; touch-action: pan-y; box-shadow: 0 40px 80px -40px rgba(0,0,0,.9); }
+.split canvas, .split img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.split img { object-fit: cover; }
+.split canvas { z-index: 1; }
+.split .bar { position: absolute; z-index: 2; top: 0; bottom: 0; width: 2px; background: var(--ink); box-shadow: 0 0 18px rgba(255,255,255,.5); translate: -1px 0; pointer-events: none; }
+.split .bar::after { content: "◀ ▶"; position: absolute; top: 50%; left: 50%; translate: -50% -50%; background: var(--ink); color: var(--bg); font: 18px var(--osd); padding: 6px 10px; border-radius: 99px; white-space: nowrap; }
+.split .tag { position: absolute; z-index: 2; top: 16px; font: 20px var(--osd); letter-spacing: .08em; padding: 3px 10px; border-radius: 4px; background: rgba(0,0,0,.55); }
+.split .tag.l { left: 16px; color: #ff9b7a; } .split .tag.r { right: 16px; color: #9fe7c4; }
+.split input { position: absolute; z-index: 3; inset: auto 0 0 0; width: 100%; opacity: 0; height: 30px; cursor: ew-resize; }
+.split input:focus-visible { opacity: .6; }
+.ba-notes { display: grid; gap: 22px; }
+.ba-notes div { border-left: 2px solid var(--line); padding: 2px 0 2px 16px; }
+.ba-notes b { display: block; font: 22px var(--osd); letter-spacing: .06em; color: var(--ink); font-weight: 400; }
+.ba-notes span { color: var(--mute); font-size: 15px; line-height: 1.55; display: block; }
+.ba-notes .num { font: 40px/1 var(--display); color: var(--orange); letter-spacing: -.02em; }
+
+/* three passes */
+.passes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 44px; }
+.pass { background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; padding: 14px 14px 24px; }
+.pass .screen { border-radius: 12px / 14px; }
+.pass .osd { font-size: 21px; inset: 7% 8%; }
+.pass h3 { font: 22px/1.2 var(--display); letter-spacing: -.01em; margin: 20px 6px 8px; display: flex; gap: 12px; align-items: baseline; }
+html[data-lang="zh"] .pass h3 { font-size: 21px; }
+.pass h3 em { font: 22px var(--osd); color: var(--amber); font-style: normal; }
+.pass p { margin: 0 6px; color: var(--mute); font-size: 15.5px; line-height: 1.6; }
+
+/* pricing: cassettes */
+.tapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 48px; }
+.tape { background: #171412; border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; }
+.shell { position: relative; aspect-ratio: 188 / 104; background: linear-gradient(180deg, #24201d, #141211); border-radius: 10px; box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 18px 30px -20px rgba(0,0,0,.9); overflow: hidden; }
+.shell .label { position: absolute; left: 7%; right: 7%; top: 9%; height: 50%; background: #efe7d9; border-radius: 4px; color: #1b1714; padding: 8px 12px; display: flex; flex-direction: column; justify-content: space-between; }
+.shell .label .stripes { height: 9px; margin: 0 -12px; }
+.shell .label b { font: 22px/1 var(--display); letter-spacing: -.01em; }
+.shell .label small { font: 18px/1 var(--osd); color: #5b534a; }
+.shell .window { position: absolute; left: 24%; right: 24%; bottom: 10%; height: 26%; background: #0c0b0a; border-radius: 999px; display: flex; justify-content: space-between; align-items: center; padding: 0 8%; box-shadow: inset 0 2px 6px rgba(0,0,0,.9); }
+.reel { width: 26%; aspect-ratio: 1; border-radius: 50%; background: repeating-conic-gradient(#d9cfc0 0 12deg, #2a2521 12deg 60deg); box-shadow: 0 0 0 3px #3a2d22; }
+.tape:hover .reel { animation: spin 1.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.tape h3 { font: 24px var(--display); margin: 22px 2px 4px; letter-spacing: -.01em; }
+.price { font: 40px/1 var(--osd); color: var(--amber); margin: 6px 2px 14px; }
+.price small { font-size: 22px; color: var(--mute); }
+.tape ul { list-style: none; padding: 0; margin: 0 2px 20px; color: #cfc6b9; font-size: 15px; display: grid; gap: 7px; }
+.tape li::before { content: "▶ "; font-family: var(--osd); color: var(--orange); }
+.tape .btn { margin-top: auto; justify-content: center; }
+
+/* closing */
+.closing { padding: 140px 0 110px; text-align: center; position: relative; }
+.closing h2 { margin: 18px auto 18px; font-size: clamp(52px, 8vw, 120px); line-height: .95; max-width: none; }
+html[data-lang="zh"] .closing h2 { font-size: clamp(44px, 6.4vw, 92px); line-height: 1.15; }
+.closing .rec { color: var(--s1); text-shadow: 0 0 10px var(--s1); animation: rec 2s steps(1) infinite; }
+.closing p { color: var(--mute); margin: 0 auto 34px; max-width: 32em; }
+.closing .stripes { width: min(420px, 70vw); margin: 0 auto; height: 8px; border-radius: 4px; overflow: hidden; }
+
+footer { border-top: 1px solid var(--line); padding: 36px 0 56px; font-size: 13px; line-height: 1.9; color: var(--dim); }
+footer b { color: var(--mute); font-weight: 500; }
+footer .top { display: flex; justify-content: space-between; gap: 20px; margin-bottom: 14px; color: var(--mute); flex-wrap: wrap; }
+
+@media (max-width: 1180px) {
+  .hero { grid-template-columns: 1fr; gap: 40px; padding-top: 10px; min-height: 0; }
+  .tvwrap { max-width: 720px; }
+  .ba { grid-template-columns: 1fr; }
+}
+@media (max-width: 980px) {
+  nav ul { display: none; }
+  .passes, .tapes { grid-template-columns: 1fr; max-width: 480px; }
+}
+@media (max-width: 600px) {
+  nav { gap: 12px; height: 64px; }
+  nav .btn { display: none; }
+  .lang { margin-left: auto; }
+  .tv { padding: 14px 14px 40px; border-radius: 20px; }
+  .tv .plate { left: 20px; bottom: 11px; font-size: 14px; }
+  .tv .led { right: 20px; bottom: 16px; } .tv .knobs { right: 38px; bottom: 11px; } .tv .knobs i { width: 14px; height: 14px; }
+  .screen { border-radius: 14px / 16px; }
+  .deck { margin: 22px 0 0; grid-template-columns: 1fr auto; padding: 12px; gap: 12px; }
+  .transport { grid-column: 1 / -1; justify-content: space-between; }
+  .transport button { flex: 1; }
+  .lcd { justify-self: start; min-width: 0; font-size: 22px; }
+  .tracking input { width: 92px; }
+  .tracking label { display: none; }
+  .hint { margin: 14px 2px 0; }
+  html[data-lang="zh"] h1 { font-size: 34px; }
+  section.block { padding-top: 80px; }
+  .closing { padding: 100px 0 80px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#"><span class="cas" aria-hidden="true"></span>Rewind <small>回带</small></a>
+    <ul>
+      <li><a href="#restore"><span lang="en">Restore</span><span lang="zh">修复</span></a></li>
+      <li><a href="#passes"><span lang="en">How it works</span><span lang="zh">怎么修</span></a></li>
+      <li><a href="#pricing"><span lang="en">Pricing</span><span lang="zh">价格</span></a></li>
+    </ul>
+    <button class="lang" data-lang-toggle aria-label="Switch language"><span class="z">中</span> / <span class="e">EN</span></button>
+    <a class="btn solid" href="#pricing"><span lang="en">Send a tape</span><span lang="zh">寄一盘带子</span></a>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div>
+      <div class="eyebrow"><span lang="en">AI tape restoration</span><span lang="zh">AI 录像带修复</span></div>
+      <h1><span lang="en">Your old tapes, <span class="lit">back in focus.</span></span><span lang="zh">压在箱底的<br>录像带，<br><span class="lit">还能再看清一次。</span></span></h1>
+      <p class="lead">
+        <span lang="en">Rewind reads the signal on worn VHS, Hi8 and Betamax, locks the tracking, puts the colour back inside the edges and fills the dropouts. You get the day back, not a cleaner-looking blur.</span>
+        <span lang="zh">回带读取磨旧的 VHS、Hi8 和 Betamax 信号：先把跟踪对准，再把串出去的颜色收回轮廓，最后补上掉磁的白线。还给你的是那一天，不是一团更干净的模糊。</span>
+      </p>
+      <div class="row">
+        <a class="btn solid" href="#pricing"><span lang="en">Send us a tape</span><span lang="zh">寄一盘带子来</span></a>
+        <a class="btn ghost" href="#restore"><span lang="en">Watch it restore ↓</span><span lang="zh">看它怎么修 ↓</span></a>
+      </div>
+    </div>
+
+    <div class="tvwrap">
+      <div class="tv">
+        <div class="screen" id="heroScreen">
+          <img src="img/melies-poster.jpg" alt="Méliès, A Trip to the Moon (1902), on a worn VHS tape">
+          <canvas></canvas>
+          <div class="osd" aria-hidden="true">
+            <div class="tl" id="osdMode">PLAY ▶</div>
+            <div class="tr">SP</div>
+            <div class="mid fade" id="osdMid" style="opacity:0"></div>
+            <div class="bl fade" id="osdTrack" style="opacity:0">TRACKING</div>
+            <div class="br" id="osdTime">0:00:00</div>
+          </div>
+          <div class="glass"></div>
+        </div>
+        <span class="plate">REWIND · 14"</span>
+        <span class="knobs" aria-hidden="true"><i></i><i></i></span>
+        <span class="led" aria-hidden="true"></span>
+      </div>
+      <div class="deck">
+        <div class="transport" role="group" aria-label="Transport">
+          <button data-mode="rew" aria-label="Rewind" aria-pressed="false">◀◀</button>
+          <button data-mode="play" aria-label="Play" aria-pressed="true">▶</button>
+          <button data-mode="pause" aria-label="Pause" aria-pressed="false">❚❚</button>
+          <button data-mode="ff" aria-label="Fast forward" aria-pressed="false">▶▶</button>
+        </div>
+        <div class="lcd" id="lcd">00:00:00</div>
+        <div class="tracking">
+          <label for="knob">TRACKING</label>
+          <input id="knob" type="range" min="0" max="1000" value="120" aria-label="Tracking">
+          <button class="auto" id="auto" aria-pressed="false">AUTO</button>
+        </div>
+      </div>
+      <p class="hint"><b>☞</b>
+        <span lang="en">Move across the screen to turn the tracking knob. Can't find it? Press AUTO and let Rewind lock on.</span>
+        <span lang="zh">在画面上左右移动，就是在拧跟踪旋钮。找不准的话，按 AUTO，交给回带去对。</span>
+      </p>
+    </div>
+  </section>
+</div>
+
+<div class="stripes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+
+<div class="wrap">
+  <section class="block" id="restore">
+    <div class="kicker">CH 02 · <span lang="en">Before / after</span><span lang="zh">修前修后</span></div>
+    <h2><span lang="en">Drag the line. Left is the tape, right is Rewind.</span><span lang="zh">拖动中间那条线：左边是原带，右边是回带。</span></h2>
+    <p class="sub"><span lang="en">NASA film of the Apollo 11 lift-off, 16 July 1969, dubbed onto a tired cassette first, then run through Rewind.</span><span lang="zh">1969 年 7 月 16 日阿波罗 11 号发射的 NASA 胶片，先翻录到一盘用旧了的带子上，再交给回带修。</span></p>
+    <div class="ba">
+      <div class="split" id="split">
+        <img src="img/apollo-poster.jpg" alt="Apollo 11 lift-off, before and after restoration">
+        <canvas></canvas>
+        <span class="tag l">TAPE · 1969</span><span class="tag r">REWIND</span>
+        <div class="bar" id="bar"></div>
+        <input id="splitRange" type="range" min="0" max="1000" value="500" aria-label="Before and after divider">
+      </div>
+      <div class="ba-notes">
+        <div><span class="num">−92%</span><span><span lang="en">tracking jitter, measured line by line</span><span lang="zh">逐行测出来的跟踪抖动</span></span></div>
+        <div><b>CHROMA</b><span><span lang="en">The orange of the flame stops leaking into the sky.</span><span lang="zh">火焰的橙色不再渗进天空里。</span></span></div>
+        <div><b>DROPOUTS</b><span><span lang="en">White streaks are filled from the frames on either side.</span><span lang="zh">白色的掉磁线，用前后几帧补上。</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="passes">
+    <div class="kicker">CH 03 · <span lang="en">Three passes</span><span lang="zh">修三遍</span></div>
+    <h2><span lang="en">One tape, three passes, in this order.</span><span lang="zh">一盘带子，按这个顺序修三遍。</span></h2>
+    <div class="passes">
+      <article class="pass">
+        <div class="screen mini" data-src="img/melies.mp4" data-start="0" data-ch="CH 03" data-kind="track">
+          <img src="img/melies-poster.jpg" alt=""><canvas></canvas>
+          <div class="osd" aria-hidden="true"><div class="tl osd-ch" style="opacity:0">CH 03</div><div class="br osd-state">TRACK</div></div><div class="glass"></div>
+        </div>
+        <h3><em>01</em><span lang="en">Lock the tracking</span><span lang="zh">对准跟踪</span></h3>
+        <p><span lang="en">Finds where the heads meant to read, line by line, and holds them there.</span><span lang="zh">一行一行找到磁头本该读的位置，然后稳住。</span></p>
+      </article>
+      <article class="pass">
+        <div class="screen mini" data-src="img/apollo.mp4" data-start="2" data-ch="CH 04" data-kind="chroma">
+          <img src="img/apollo-poster.jpg" alt=""><canvas></canvas>
+          <div class="osd" aria-hidden="true"><div class="tl osd-ch" style="opacity:0">CH 04</div><div class="br osd-state">COLOR</div></div><div class="glass"></div>
+        </div>
+        <h3><em>02</em><span lang="en">Put the colour back</span><span lang="zh">把颜色收回来</span></h3>
+        <p><span lang="en">Untangles the colour that bled sideways and puts it back inside the edges.</span><span lang="zh">把横着串出去的颜色收回来，放回轮廓里面。</span></p>
+      </article>
+      <article class="pass">
+        <div class="screen mini" data-src="img/melies.mp4" data-start="16" data-ch="CH 05" data-kind="drop">
+          <img src="img/melies-poster.jpg" alt=""><canvas></canvas>
+          <div class="osd" aria-hidden="true"><div class="tl osd-ch" style="opacity:0">CH 05</div><div class="br osd-state">DROP</div></div><div class="glass"></div>
+        </div>
+        <h3><em>03</em><span lang="en">Fill the dropouts</span><span lang="zh">补上掉磁</span></h3>
+        <p><span lang="en">Where the oxide flaked off the tape, it rebuilds the line from the frames around it.</span><span lang="zh">磁粉剥落的地方，用前后几帧把那一行重新补出来。</span></p>
+      </article>
+    </div>
+  </section>
+
+  <section class="block" id="pricing">
+    <div class="kicker">CH 06 · <span lang="en">Pricing</span><span lang="zh">价格</span></div>
+    <h2><span lang="en">Priced by tape length, like the shop used to.</span><span lang="zh">按带子长度算钱，跟当年的音像店一样。</span></h2>
+    <div class="tapes">
+      <article class="tape">
+        <div class="shell"><div class="label"><div class="stripes"><i></i><i></i><i></i><i></i><i></i></div><b>T-60</b><small>SP · 1 TAPE</small></div><div class="window"><span class="reel"></span><span class="reel"></span></div></div>
+        <h3><span lang="en">One tape</span><span lang="zh">一盘</span></h3>
+        <div class="price">¥0 <small><span lang="en">first tape</span><span lang="zh">第一盘</span></small></div>
+        <ul><li><span lang="en">Up to 60 minutes</span><span lang="zh">最长 60 分钟</span></li><li><span lang="en">1080p download</span><span lang="zh">1080p 下载</span></li><li><span lang="en">Kept for 30 days</span><span lang="zh">保留 30 天</span></li></ul>
+        <a class="btn ghost" href="#"><span lang="en">Try one tape</span><span lang="zh">先修一盘</span></a>
+      </article>
+      <article class="tape">
+        <div class="shell"><div class="label"><div class="stripes"><i></i><i></i><i></i><i></i><i></i></div><b>T-120</b><small>SP · FAMILY BOX</small></div><div class="window"><span class="reel"></span><span class="reel"></span></div></div>
+        <h3><span lang="en">The family box</span><span lang="zh">一家人的那一箱</span></h3>
+        <div class="price">¥39 <small>/ <span lang="en">month</span><span lang="zh">月</span></small></div>
+        <ul><li><span lang="en">10 tapes a month</span><span lang="zh">每月 10 盘</span></li><li><span lang="en">4K upscale</span><span lang="zh">放大到 4K</span></li><li><span lang="en">A shared album for relatives</span><span lang="zh">给亲戚的共享相册</span></li></ul>
+        <a class="btn solid" href="#"><span lang="en">Ship the box</span><span lang="zh">整箱寄来</span></a>
+      </article>
+      <article class="tape">
+        <div class="shell"><div class="label"><div class="stripes"><i></i><i></i><i></i><i></i><i></i></div><b>T-180</b><small>EP · ARCHIVE</small></div><div class="window"><span class="reel"></span><span class="reel"></span></div></div>
+        <h3><span lang="en">The archive</span><span lang="zh">档案馆</span></h3>
+        <div class="price">¥199 <small>/ <span lang="en">month</span><span lang="zh">月</span></small></div>
+        <ul><li><span lang="en">Unlimited tapes</span><span lang="zh">不限盘数</span></li><li><span lang="en">Batch scanning with courier pickup</span><span lang="zh">上门收带，批量转录</span></li><li><span lang="en">API and frame-level metadata</span><span lang="zh">API 和逐帧元数据</span></li></ul>
+        <a class="btn ghost" href="#"><span lang="en">Talk to us</span><span lang="zh">找我们聊</span></a>
+      </article>
+    </div>
+  </section>
+
+  <section class="closing">
+    <div class="kicker"><span class="rec">●</span> REC</div>
+    <h2><span lang="en">Be kind. Rewind.</span><span lang="zh">看完了，<br>记得倒带。</span></h2>
+    <p><span lang="en">Post the box, and we send it back with the tapes inside and a link on top.</span><span lang="zh">把箱子寄过来，我们连带子一起寄回去，最上面放一张看片的链接。</span></p>
+    <a class="btn solid" href="#pricing"><span lang="en">Send a tape</span><span lang="zh">寄一盘带子</span></a>
+    <div class="stripes" style="margin-top:56px" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  </section>
+
+  <footer>
+    <div class="top"><span class="brand" style="font-size:18px"><span class="cas" aria-hidden="true"></span>Rewind <small>回带</small></span><span><span lang="en">A fictional product, built as a design study.</span><span lang="zh">虚构产品，仅作设计练习。</span></span></div>
+    <b>图源</b>：录像带画面取自乔治·梅里爱《月球旅行记》（Le Voyage dans la Lune，1902，公有领域）的三段：月亮逼近、彗星与群星、坠入大海；
+    发射画面取自 NASA《Flight of AS-506 (Apollo 11) from lift-off to 1 min after S-IC stage separation》（VJSC 1425D，1969，美国政府作品，公有领域）；
+    均经 Wikimedia Commons 获取，经剪辑、缩放、降噪与转码，VHS 磁带与显像管效果由页面上的 WebGL 着色器实时生成。
+    字体：VT323、Archivo Black、Space Grotesk、Noto Sans SC（均为 OFL-1.1）。本页为学习用 demo，品牌与文案均为虚构。<br>
+    侵权请联系删除。
+  </footer>
+</div>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ---------- one VHS/CRT shader, many screens ----------
+const VS = `#version 300 es
+out vec2 vUv;
+void main() {
+  vec2 p = vec2(float((gl_VertexID & 1) << 2) - 1., float((gl_VertexID & 2) << 1) - 1.);
+  vUv = vec2(p.x * .5 + .5, .5 - p.y * .5);
+  gl_Position = vec4(p, 0., 1.);
+}`;
+const FS = `#version 300 es
+precision highp float;
+in vec2 vUv; out vec4 o;
+uniform sampler2D uTex;
+uniform vec2 uRes;
+uniform float uTime, uTrack, uDeg, uChroma, uDrop, uSplit, uSweep, uStatic, uCurve, uSearch, uPause, uCast, uReady;
+float h(float n) { return fract(sin(n) * 43758.5453); }
+float h2(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+vec3 yiq(vec3 c) { return mat3(.299, .596, .211, .587, -.274, -.523, .114, -.322, .312) * c; }
+vec3 rgb(vec3 c) { return mat3(1., 1., 1., .956, -.272, -1.106, .621, -.647, 1.703) * c; }
+void main() {
+  vec2 uv = vUv, cc = uv - .5;
+  if (uCurve > 0.) uv = .5 + cc * (1. + uCurve * dot(cc, cc)) * (1. - uCurve * .22);
+  float inside = step(0., uv.x) * step(uv.x, 1.) * step(0., uv.y) * step(uv.y, 1.);
+  // how much "tape" vs "restored": d = 1 is raw tape
+  float d = uDeg;
+  if (uSplit >= 0.) d *= step(uv.x, uSplit);
+  if (uSweep >= 0.) d *= step(uSweep, uv.y);
+  float t = uTime, line = floor(uv.y * 243.), fr = floor(t * 30.);
+  // tracking error: two noise bands rolling up the picture
+  float tr = uTrack * d;
+  float band = (exp(-pow((uv.y - fract(1. - t * .085)) * 13., 2.)) + .7 * exp(-pow((uv.y - fract(1.43 - t * .085)) * 24., 2.))) * tr;
+  // search (FF/REW) and pause bars sit still
+  float bars = uSearch * (exp(-pow((uv.y - .3 - .015 * sin(t * 3.)) * 20., 2.)) + exp(-pow((uv.y - .68) * 20., 2.)));
+  bars += uPause * exp(-pow((uv.y - .86) * 28., 2.));
+  float noisy = clamp(band + bars * d, 0., 1.);
+  float jit = (h(line * 1.7 + fr) - .5) * (.0015 + .035 * noisy + .006 * tr) * d;
+  jit += smoothstep(.955, .99, uv.y) * d * (.012 + .05 * h(line + fr * .37));       // head-switching noise
+  jit += (mod(line + fr, 2.) - .5) * .0008 * d;                                    // interlace shimmer
+  jit += noisy * .04 * (h(line + fr * 1.3) - .3);
+  vec2 su = vec2(uv.x + jit, uv.y);
+  float px = 1. / 384.;
+  vec3 c0 = texture(uTex, su).rgb;
+  float Y = yiq(c0).x;
+  Y = mix(Y, .5 * (Y + yiq(texture(uTex, su - vec2(px, 0.)).rgb).x), d * .6);
+  // chroma is low-bandwidth on tape: smear it and let it lag to the right
+  vec2 iq = vec2(0.);
+  float cw = ((.5 + 3.5 * uChroma) * d + .3) * px;
+  for (int k = 0; k < 6; k++) iq += yiq(texture(uTex, su - vec2(cw * float(k) + (1. + 3. * uChroma) * px * d, 0.)).rgb).yz;
+  iq = iq / 6. * mix(1., 1.3, d) + vec2(.035, .05) * uCast * d;
+  vec3 col = rgb(vec3(Y, iq));
+  // restored: sharpen the clean picture a touch
+  float clean = 1. - d;
+  if (clean > 0.) {
+    vec3 c1 = texture(uTex, uv).rgb;
+    vec3 bl = .25 * (texture(uTex, uv + vec2(px, 0.)).rgb + texture(uTex, uv - vec2(px, 0.)).rgb + texture(uTex, uv + vec2(0., px)).rgb + texture(uTex, uv - vec2(0., px)).rgb);
+    col = mix(col, (c1 + (c1 - bl) * .7) * 1.03, clean);
+  }
+  // dropouts: short white streaks where oxide is missing
+  float dl = step(1. - (.004 + .03 * uDrop) * d, h(line * 3.1 + floor(t * 12.)));
+  float dx = h(line + floor(t * 12.) * 7.), dw = .05 + .25 * h(line * 9.3);
+  col = mix(col, vec3(.93), dl * smoothstep(dx, dx + .015, uv.x) * (1. - smoothstep(dx + dw, dx + dw + .02, uv.x)));
+  float g = h2(gl_FragCoord.xy * .5 + fr * 13.);
+  col += noisy * (g * .6 - .14);
+  col += (g - .5) * ((.04 + .05 * tr) * d + .012);
+  col += max(col - .72, 0.) * .55;                                                  // phosphor bloom
+  col *= mix(1., .82 + .18 * (.5 + .5 * cos(uv.y * 243. * 6.2832)), .45 + .55 * d); // scanlines
+  if (uCurve > 0.) col *= 1. - 1.1 * dot(cc, cc);
+  if (uSweep >= 0. && uSweep < 1.) col += vec3(.55, .9, 1.) * exp(-pow((uv.y - uSweep) * 160., 2.)) * .7;
+  // no signal yet / channel change: snow
+  float sn = h2(floor(gl_FragCoord.xy / 2.) + fract(t * 7.3) * 91.);
+  float snow = max(uStatic, 1. - uReady);
+  col = mix(col, vec3(sn * .7 + .08 * sin(uv.y * 90. + t * 30.)), snow);
+  o = vec4(clamp(col, 0., 1.) * inside, 1.);
+}`;
+
+const screens = [];
+function makeScreen(host, video, params) {
+  const canvas = host.querySelector("canvas");
+  const gl = canvas.getContext("webgl2", { antialias: false, alpha: false, preserveDrawingBuffer: false });
+  if (!gl) { canvas.remove(); return null; }
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(s); return s; };
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const U = {}; for (const n of ["uRes", "uTime", "uTrack", "uDeg", "uChroma", "uDrop", "uSplit", "uSweep", "uStatic", "uCurve", "uSearch", "uPause", "uCast", "uReady"]) U[n] = gl.getUniformLocation(prog, n);
+  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+  for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array(3));
+  const s = { host, canvas, gl, U, tex, video, params, visible: false, ready: 0, dpr: Math.min(devicePixelRatio || 1, params.maxDpr || 2) };
+  const fit = () => { const r = canvas.getBoundingClientRect(); canvas.width = Math.max(2, Math.round(r.width * s.dpr)); canvas.height = Math.max(2, Math.round(r.height * s.dpr)); };
+  fit(); new ResizeObserver(() => { fit(); draw(s, performance.now() / 1000); }).observe(canvas);
+  new IntersectionObserver(([e]) => {
+    s.visible = e.isIntersecting;
+    if (s.visible && !reduce) (s.params.onEnter || (() => video.play().catch(() => {})))(s);
+    else if (!s.visible) video.pause();
+    kick();
+  }, { threshold: .15 }).observe(host);
+  screens.push(s);
+  return s;
+}
+function draw(s, t) {
+  const { gl, U, video } = s, p = s.params.get(t, s);
+  if (video.readyState >= 2) { gl.bindTexture(gl.TEXTURE_2D, s.tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, video); s.ready = Math.min(1, s.ready + (reduce ? 1 : .08)); }
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+  gl.uniform2f(U.uRes, gl.canvas.width, gl.canvas.height);
+  gl.uniform1f(U.uTime, reduce ? 3.7 : t);
+  gl.uniform1f(U.uReady, s.ready);
+  for (const k of ["uTrack", "uDeg", "uChroma", "uDrop", "uSplit", "uSweep", "uStatic", "uCurve", "uSearch", "uPause", "uCast"]) gl.uniform1f(U[k], p[k] ?? ({ uDeg: 1, uSplit: -1, uSweep: -1 }[k] ?? 0));
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+const mkVideo = (src, start = 0) => {
+  const v = document.createElement("video");
+  Object.assign(v, { src, muted: true, loop: true, playsInline: true, preload: "auto" });
+  v.setAttribute("muted", ""); v.setAttribute("playsinline", "");
+  v.addEventListener("loadedmetadata", () => { v.currentTime = start; }, { once: true });
+  if (reduce) v.addEventListener("seeked", () => screens.forEach(s => s.video === v && draw(s, 0)));
+  return v;
+};
+
+// ---------- loop: only runs while something is on screen ----------
+let raf = 0, last = performance.now();
+function frame(now) {
+  raf = 0;
+  const t = now / 1000, dt = Math.min(.1, (now - last) / 1000); last = now;
+  tick(t, dt);
+  let any = false;
+  for (const s of screens) if (s.visible) { draw(s, t); any = true; }
+  if (any && !reduce) raf = requestAnimationFrame(frame);
+}
+function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+
+// ---------- hero: the tracking knob ----------
+const heroHost = document.getElementById("heroScreen"), knobEl = document.getElementById("knob"), autoEl = document.getElementById("auto");
+const osdMode = document.getElementById("osdMode"), osdMid = document.getElementById("osdMid"), osdTrack = document.getElementById("osdTrack"), osdTime = document.getElementById("osdTime"), lcd = document.getElementById("lcd");
+const heroVideo = mkVideo("img/melies.mp4", reduce ? 13.6 : 0);
+const chapters = [[0, "LA LUNE"], [15, "LES ÉTOILES"], [27, "LA MER"]];
+const H = { knob: .12, auto: false, err: .8, kickAmt: 0, mode: "play", lastInput: performance.now() / 1000, showTrack: 0, chapter: -1, midUntil: 0, autoDemoDone: false };
+const sweet = t => .56 + .2 * Math.sin(t * .07) + .07 * Math.sin(t * .23 + 1.3);
+function setKnob(v, fromUser) { H.knob = Math.min(1, Math.max(0, v)); knobEl.value = Math.round(H.knob * 1000); if (fromUser) { H.auto = false; autoEl.setAttribute("aria-pressed", "false"); H.lastInput = performance.now() / 1000; H.showTrack = 2; } kick(); if (reduce) draw(hero, 0); }
+document.getElementById("hero").addEventListener("pointermove", e => {
+  if (e.pointerType !== "mouse") return;
+  const r = heroHost.getBoundingClientRect();
+  setKnob((e.clientX - r.left) / r.width, true);
+});
+heroHost.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") { const r = heroHost.getBoundingClientRect(); setKnob((e.clientX - r.left) / r.width, true); } });
+heroHost.addEventListener("pointermove", e => { if (e.pointerType !== "mouse" && e.pressure > 0) { const r = heroHost.getBoundingClientRect(); setKnob((e.clientX - r.left) / r.width, true); } });
+knobEl.addEventListener("input", () => setKnob(knobEl.value / 1000, true));
+autoEl.addEventListener("click", () => { H.auto = !H.auto; autoEl.setAttribute("aria-pressed", String(H.auto)); H.lastInput = performance.now() / 1000; H.autoDemoDone = true; if (H.auto) flashMid("AUTO TRACKING", 1.6); kick(); if (reduce) { setKnob(sweet(3.7), false); draw(hero, 0); } });
+let lastY = scrollY;
+addEventListener("scroll", () => { H.kickAmt = Math.min(1, H.kickAmt + Math.abs(scrollY - lastY) / 700); lastY = scrollY; }, { passive: true });
+function flashMid(text, secs) { osdMid.textContent = text; osdMid.style.opacity = 1; H.midUntil = performance.now() / 1000 + secs; }
+document.querySelectorAll(".transport button").forEach(b => b.addEventListener("click", () => {
+  H.mode = b.dataset.mode;
+  document.querySelectorAll(".transport button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  osdMode.textContent = { play: "PLAY ▶", pause: "PAUSE ❚❚", ff: "FF ▶▶", rew: "REW ◀◀" }[H.mode];
+  heroVideo.playbackRate = H.mode === "ff" ? 3 : 1;
+  if (H.mode === "play" || H.mode === "ff") heroVideo.play().catch(() => {}); else heroVideo.pause();
+  kick();
+}));
+const fmt = s => { s = Math.max(0, Math.floor(s)); return `${Math.floor(s / 3600)}:${String(Math.floor(s / 60) % 60).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`; };
+
+function tick(t, dt) {
+  // auto-track demo once, if the visitor hasn't touched the knob
+  if (!H.autoDemoDone && t - H.lastInput > 6.5 && hero?.visible) { H.autoDemoDone = true; H.auto = true; autoEl.setAttribute("aria-pressed", "true"); flashMid("AUTO TRACKING", 1.6); }
+  if (H.auto) { const sw = sweet(t); H.knob += (sw - H.knob) * Math.min(1, dt * 2.2); knobEl.value = Math.round(H.knob * 1000); H.showTrack = Math.max(H.showTrack, .6); }
+  const target = Math.min(1, Math.abs(H.knob - sweet(t)) * 2.6);
+  H.err += (target - H.err) * Math.min(1, dt * 6);
+  H.kickAmt *= Math.pow(.15, dt);
+  if (H.mode === "rew" && !heroVideo.seeking) { heroVideo.currentTime = (heroVideo.currentTime - dt * 3 + heroVideo.duration) % (heroVideo.duration || 40); }
+  // OSD
+  const ct = heroVideo.currentTime || 0;
+  osdTime.textContent = fmt(ct + 754);
+  lcd.textContent = fmt(ct + 754).padStart(8, "0");
+  const ch = chapters.reduce((a, c, i) => ct >= c[0] ? i : a, 0);
+  if (ch !== H.chapter) { H.chapter = ch; if (t > 1) flashMid(`CH ${ch + 1} · ${chapters[ch][1]}`, 1.8); }
+  if (t > H.midUntil) osdMid.style.opacity = 0;
+  H.showTrack -= dt;
+  const bars = Math.round((1 - H.err) * 12);
+  osdTrack.textContent = "TRACKING " + "|".repeat(bars) + ".".repeat(12 - bars) + (H.err < .06 ? " LOCK" : "");
+  osdTrack.style.opacity = H.showTrack > 0 || H.err > .35 ? 1 : 0;
+  // before/after idle sweep
+  if (!SP.touched) setSplit(.5 + .28 * Math.sin(t * .55));
+}
+
+const hero = makeScreen(heroHost, heroVideo, {
+  maxDpr: 1.5,
+  onEnter: () => { if (H.mode === "play" || H.mode === "ff") heroVideo.play().catch(() => {}); },
+  get: () => ({ uTrack: Math.min(1, H.err + H.kickAmt * .55), uDeg: 1, uChroma: .45, uDrop: .25, uCast: .3, uCurve: .14,
+    uSearch: H.mode === "ff" || H.mode === "rew" ? 1 : 0, uPause: H.mode === "pause" ? 1 : 0 }),
+});
+
+// ---------- before / after ----------
+const splitHost = document.getElementById("split"), bar = document.getElementById("bar"), splitRange = document.getElementById("splitRange");
+const SP = { v: .5, touched: false };
+function setSplit(v) { SP.v = Math.min(1, Math.max(0, v)); bar.style.left = (SP.v * 100) + "%"; splitRange.value = Math.round(SP.v * 1000); }
+const fromPointer = e => { const r = splitHost.getBoundingClientRect(); SP.touched = true; setSplit((e.clientX - r.left) / r.width); kick(); if (reduce) draw(split, 0); };
+splitHost.addEventListener("pointerdown", e => { splitHost.setPointerCapture(e.pointerId); fromPointer(e); });
+splitHost.addEventListener("pointermove", e => { if (e.buttons || e.pointerType === "mouse") fromPointer(e); });
+splitRange.addEventListener("input", () => { SP.touched = true; setSplit(splitRange.value / 1000); kick(); if (reduce) draw(split, 0); });
+setSplit(.5);
+const split = makeScreen(splitHost, mkVideo("img/apollo.mp4", reduce ? 6 : 0), {
+  get: () => ({ uSplit: SP.v, uTrack: .2, uDeg: 1, uChroma: 1, uDrop: .8, uCast: .8 }),
+});
+
+// ---------- three passes: raw, then a restore sweep, then clean ----------
+document.querySelectorAll(".screen.mini").forEach((host, i) => {
+  const kind = host.dataset.kind, chEl = host.querySelector(".osd-ch"), stEl = host.querySelector(".osd-state");
+  const base = { track: { uTrack: .9, uChroma: .3, uDrop: .1 }, chroma: { uTrack: .15, uChroma: 1, uCast: 1, uDrop: .1 }, drop: { uTrack: .12, uChroma: .35, uDrop: 1 } }[kind];
+  let enterT = -10;
+  makeScreen(host, mkVideo(host.dataset.src, +host.dataset.start), {
+    onEnter: s => { s.video.play().catch(() => {}); enterT = performance.now() / 1000; chEl.style.opacity = 1; setTimeout(() => chEl.style.opacity = 0, 1400); },
+    get: t => {
+      if (reduce) return { ...base, uSweep: .5, uCurve: .1 };
+      const c = ((t + i * 1.7) % 7) / 7;                    // 7 s cycle, staggered per card
+      const sweep = c < .38 ? 0 : c < .66 ? (c - .38) / .28 : 1.01;
+      const wrap = c > .97 ? (c - .97) / .03 : 0;          // soft snow to hide the jump back to raw
+      stEl.textContent = sweep <= 0 ? { track: "TRACK ✕", chroma: "COLOR ✕", drop: "DROP ✕" }[kind] : sweep < 1 ? "REWIND…" : "OK ✓";
+      return { ...base, uSweep: sweep, uCurve: .1, uStatic: Math.max(0, 1 - (t - enterT) / .45) * .85 + wrap * .5 };
+    },
+  });
+});
+
+if (reduce) screens.forEach(s => s.video.addEventListener("loadeddata", () => draw(s, 0), { once: true }));
+kick();
+</script>
+</body>
+</html>
