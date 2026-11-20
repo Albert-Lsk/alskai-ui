@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Speck · the one-bit camera</title>
+<script src="../../shared/lang.js"></script>
+<style>
+@font-face { font-family: "Fusion Pixel"; src: url(fonts/fusion-pixel-12-sub.woff2) format("woff2"); font-display: block; }
+@font-face { font-family: "Geist"; src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-sans@latest/latin-400-normal.woff2) format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+0000-00FF, U+2013, U+2018-2019, U+2022, U+2026, U+20AC, U+2122; }
+@font-face { font-family: "Geist"; src: url(https://cdn.jsdelivr.net/fontsource/fonts/geist-sans@latest/latin-600-normal.woff2) format("woff2"); font-weight: 600; font-display: swap; unicode-range: U+0000-00FF, U+2013, U+2018-2019, U+2022, U+2026, U+20AC, U+2122; }
+
+:root {
+  --px: "Fusion Pixel", ui-monospace, monospace;
+  --sans: "Geist", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", system-ui, sans-serif;
+  /* one "screen pixel" is 2 CSS px; everything snaps to it */
+  --p: 2px;
+}
+* { box-sizing: border-box; margin: 0; }
+body { color: #000; font: 16px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+html {
+  /* desktop pattern: 12.5% black, diagonal */
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='2' height='2'/%3E%3Crect x='4' y='4' width='2' height='2'/%3E%3C/svg%3E");
+  image-rendering: pixelated;
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+a { color: inherit; }
+.px { font-family: var(--px); font-weight: 400; -webkit-font-smoothing: none; letter-spacing: 0; }
+canvas { display: block; image-rendering: pixelated; }
+
+/* ---------- menu bar ---------- */
+.menubar { position: sticky; top: 0; z-index: 20; height: 28px; background: #fff; border-bottom: 2px solid #000; display: flex; align-items: center; gap: 24px; padding: 0 20px; font: 12px/1 var(--px); }
+.menubar .logo { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.menubar .logo svg { width: 16px; height: 16px; }
+.menubar nav { display: flex; gap: 4px; }
+.menubar a { text-decoration: none; padding: 6px 8px; }
+.menubar a:hover, .menubar button:hover { background: #000; color: #fff; }
+.menubar .right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.menubar button { padding: 6px 8px; font: 12px/1 var(--px); }
+
+/* ---------- windows ---------- */
+.win { background: #fff; border: 2px solid #000; box-shadow: 4px 4px 0 #000; position: relative; }
+.bar { height: 24px; border-bottom: 2px solid #000; display: flex; align-items: center; justify-content: center; position: relative; padding: 0 6px; user-select: none;
+  background: repeating-linear-gradient(#000 0 2px, #fff 2px 4px) 0 5px / 100% 12px no-repeat, #fff; background-origin: content-box; background-clip: content-box; }
+.bar .t { background: #fff; padding: 0 10px; font: 12px/1 var(--px); white-space: nowrap; }
+.bar .box { position: absolute; left: 10px; top: 4px; width: 14px; height: 14px; border: 2px solid #000; background: #fff; box-shadow: 0 0 0 2px #fff; }
+.bar .zoom { left: auto; right: 10px; }
+.bar .zoom::after { content: ""; position: absolute; left: 0; top: 0; width: 6px; height: 6px; border-right: 2px solid #000; border-bottom: 2px solid #000; }
+.status { border-top: 2px solid #000; display: flex; justify-content: space-between; padding: 6px 10px; font: 12px/1 var(--px); gap: 12px; }
+.body { padding: 24px; }
+
+.btn { font: 12px/1 var(--px); padding: 9px 18px; border: 2px solid #000; border-radius: 8px; background: #fff; white-space: nowrap; }
+.btn.default { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #000; border-radius: 8px; }
+.btn:active, .btn.on { background: #000; color: #fff; }
+.btn:focus-visible, .seg button:focus-visible, .icon:focus-visible { outline: 2px dotted #000; outline-offset: 3px; }
+
+h1 { font: 48px/1 var(--px); margin: 4px 0 20px; }
+h2 { font: 36px/1.05 var(--px); margin: 0 0 16px; }
+h3 { font: 24px/1 var(--px); margin: 0 0 10px; }
+html[data-lang="zh"] h1 { line-height: 1.1; }
+.lede { font-size: 17px; max-width: 30em; }
+.row { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin-top: 26px; }
+.hint { font: 12px/1.4 var(--px); margin-top: 22px; display: flex; gap: 10px; align-items: center; }
+.hint svg { width: 16px; height: 16px; flex: none; }
+
+.wrap { width: min(1280px, calc(100vw - 40px)); margin: 0 auto; }
+
+/* ---------- hero ---------- */
+.hero { display: grid; grid-template-columns: 400px minmax(0, 1fr) 96px; gap: 40px; align-items: start; padding: 56px 0 96px; }
+.hero .welcome { margin-top: 36px; }
+.photo-body { position: relative; overflow: hidden; touch-action: pan-y; }
+.photo-body canvas { width: 100%; }
+.lens { position: absolute; left: 0; top: 0; z-index: 3; width: max-content; box-shadow: 4px 4px 0 #000; background: transparent; }
+.lens .bar { cursor: grab; touch-action: none; }
+.lens .bar:active { cursor: grabbing; }
+.lens .hole { box-shadow: inset 0 0 0 0 #000; }
+.lens .ctl { background: #fff; border-top: 2px solid #000; padding: 8px; display: grid; gap: 8px; }
+.seg { display: flex; border: 2px solid #000; border-radius: 6px; overflow: hidden; }
+.seg button { flex: 1; font: 12px/1 var(--px); padding: 6px 4px; white-space: nowrap; }
+.seg button + button { border-left: 2px solid #000; }
+.seg button[aria-pressed="true"] { background: #000; color: #fff; }
+.slider { display: flex; align-items: center; gap: 8px; font: 12px/1 var(--px); }
+input[type=range] { -webkit-appearance: none; appearance: none; flex: 1; height: 12px; background: transparent; }
+input[type=range]::-webkit-slider-runnable-track { height: 6px; border: 2px solid #000; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='2' height='2'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3C/svg%3E"); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 16px; margin-top: -7px; background: #fff; border: 2px solid #000; }
+input[type=range]::-moz-range-track { height: 2px; border: 2px solid #000; background: #fff; }
+input[type=range]::-moz-range-thumb { width: 8px; height: 12px; border: 2px solid #000; border-radius: 0; background: #fff; }
+
+.icons { display: grid; gap: 22px; justify-items: center; padding-top: 12px; }
+.icon { display: grid; justify-items: center; gap: 6px; font: 12px/1 var(--px); padding: 4px; }
+.icon svg { width: 32px; height: 32px; }
+.icon span { padding: 2px 4px; background: #fff; }
+.icon[aria-pressed="true"] svg { filter: invert(1); background: #fff; }
+.icon[aria-pressed="true"] span { background: #000; color: #fff; }
+
+/* ---------- darkroom ---------- */
+.darkroom { height: 260vh; position: relative; }
+.darkroom .sticky { position: sticky; top: 28px; height: calc(100vh - 28px); display: grid; grid-template-columns: 400px minmax(0, 560px); gap: 56px; align-items: center; justify-content: center; }
+.stats { display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; margin-top: 22px; font: 12px/1 var(--px); }
+.stats b { font-weight: 400; text-align: right; }
+.meter { height: 12px; border: 2px solid #000; margin-top: 18px; background: #fff; }
+.meter i { display: block; height: 100%; width: 0; background: #000; }
+
+/* ---------- features ---------- */
+.features { padding: 40px 0 96px; }
+.features > .win { max-width: 640px; margin: 0 auto 56px; text-align: center; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; }
+.card .shot canvas { width: 100%; border-bottom: 2px solid #000; }
+.card .body { padding: 18px 18px 20px; }
+.card p { font-size: 15px; }
+.card .seg { margin: 0 18px 18px; }
+
+/* ---------- dialog ---------- */
+.dialog { max-width: 620px; margin: 0 auto 120px; }
+.dialog .body { display: grid; grid-template-columns: 64px 1fr; gap: 22px; padding: 28px; }
+.dialog .icon-big svg { width: 64px; height: 64px; }
+.dialog .row { justify-content: flex-end; grid-column: 1 / -1; margin-top: 8px; }
+.dialog ul { padding-left: 18px; margin-top: 10px; }
+
+/* ---------- read me ---------- */
+.readme { margin: 0 auto 64px; max-width: 980px; }
+.readme .body { font-size: 13px; line-height: 1.8; max-height: 260px; overflow: auto; }
+.readme .body p + p { margin-top: 10px; }
+.readme .body::-webkit-scrollbar { width: 16px; }
+.readme .body::-webkit-scrollbar-track { border-left: 2px solid #000; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='2' height='2'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3C/svg%3E"); }
+.readme .body::-webkit-scrollbar-thumb { background: #fff; border: 2px solid #000; }
+
+@media (max-width: 1100px) {
+  .hero { grid-template-columns: 1fr; gap: 28px; padding-top: 28px; }
+  .hero .welcome { margin-top: 0; }
+  .icons { grid-auto-flow: column; justify-content: start; order: -1; padding-top: 0; }
+  .darkroom .sticky { grid-template-columns: minmax(0, 1fr); gap: 20px; align-content: center; }
+  .cards { grid-template-columns: 1fr; max-width: 520px; margin: 0 auto; }
+}
+@media (max-width: 600px) {
+  .menubar { gap: 6px; padding: 0 10px; }
+  .menubar nav { gap: 0; }
+  .menubar a { padding: 6px 5px; }
+  .menubar .clock { display: none; }
+  h1 { font-size: 36px; }
+  h2 { font-size: 24px; }
+  .body { padding: 18px; }
+  .darkroom .sticky .copy .lede { display: none; }
+  .darkroom .sticky .copy .body { padding: 14px 16px; }
+  .darkroom .sticky .copy h2 { margin-bottom: 6px; }
+  .stats { margin-top: 10px; }
+  .dialog .body { grid-template-columns: 1fr; }
+  .dialog .icon-big { display: none; }
+  .bar .t { padding: 0 6px; }
+  .lens .seg button { padding: 6px 3px; }
+  .lens .slider > span { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="menubar">
+  <span class="logo" aria-label="Speck"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" data-pix="speck"></svg>Speck</span>
+  <nav>
+    <a href="#camera"><span lang="en">Camera</span><span lang="zh">相机</span></a>
+    <a href="#darkroom"><span lang="en">Darkroom</span><span lang="zh">暗房</span></a>
+    <a href="#features"><span lang="en">Features</span><span lang="zh">功能</span></a>
+    <a href="#buy"><span lang="en">Pricing</span><span lang="zh">价格</span></a>
+  </nav>
+  <div class="right">
+    <button data-lang-toggle aria-label="Switch language"><span lang="en">中文</span><span lang="zh">EN</span></button>
+    <span class="clock" aria-hidden="true">12:00</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero" id="camera">
+    <div class="win welcome">
+      <div class="bar"><span class="box"></span><span class="t"><span lang="en">Welcome</span><span lang="zh">欢迎</span></span></div>
+      <div class="body">
+        <h1 class="px"><span lang="en">Two colours are plenty.</span><span lang="zh">黑白两色，<br>够用了。</span></h1>
+        <p class="lede">
+          <span lang="en">Speck is a camera that only shoots in one bit. Every pixel is either ink or paper, so a photo weighs a few kilobytes and looks like it came off a printer in 1984.</span>
+          <span lang="zh">Speck 是一台只拍 1 比特的相机。每个像素不是黑就是白，一张照片只有几 KB，看上去像 1984 年的打印机吐出来的。</span>
+        </p>
+        <div class="row">
+          <button class="btn default"><span lang="en">Download Speck</span><span lang="zh">下载 Speck</span></button>
+          <button class="btn" id="tryLens"><span lang="en">Try the lens</span><span lang="zh">试试镜头</span></button>
+        </div>
+        <div class="hint"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" data-pix="hand"></svg><span><span lang="en">Drag the Lens window across the photo.</span><span lang="zh">把“镜头”窗口拖到照片上看看。</span></span></div>
+      </div>
+      <div class="status"><span><span lang="en">4 photos</span><span lang="zh">4 张照片</span></span><span id="rollSize">0 KB</span></div>
+    </div>
+
+    <div class="win photo">
+      <div class="bar"><span class="box"></span><span class="t" id="photoTitle">tetons.pict</span><span class="box zoom"></span></div>
+      <div class="photo-body" id="photoBody">
+        <canvas id="photo" aria-label="Dithered photograph"></canvas>
+        <div class="lens win" id="lens">
+          <div class="bar" id="lensBar"><span class="box"></span><span class="t" id="lensTitle">Lens</span></div>
+          <div class="hole" id="hole" tabindex="0" aria-label="Lens: use arrow keys to move"></div>
+          <div class="ctl">
+            <div class="seg" id="lensAlgo"></div>
+            <label class="slider"><span lang="en">Threshold</span><span lang="zh">阈值</span><input id="thr" type="range" min="-30" max="30" value="0" aria-label="Threshold"></label>
+          </div>
+        </div>
+      </div>
+      <div class="status"><span id="photoInfo">Atkinson</span><span id="photoSize">0 KB</span></div>
+    </div>
+
+    <div class="icons" id="icons"></div>
+  </section>
+</main>
+
+<section class="darkroom" id="darkroom">
+  <div class="sticky wrap">
+    <div class="win copy">
+      <div class="bar"><span class="box"></span><span class="t"><span lang="en">Darkroom</span><span lang="zh">暗房</span></span></div>
+      <div class="body">
+        <h2><span lang="en">Watch a photo develop, one row at a time.</span><span lang="zh">一行一行，<br>看照片显影。</span></h2>
+        <p class="lede"><span lang="en">Atkinson dithering hands each pixel's leftover grey to its neighbours. Keep scrolling to run it on the Moon.</span><span lang="zh">阿特金森抖动把每个像素多出来的灰，分给旁边的像素。继续往下滚，让它在月面上跑一遍。</span></p>
+        <div class="stats">
+          <span lang="en">Row</span><span lang="zh">行</span><b id="sRow">0 / 0</b>
+          <span lang="en">Bits</span><span lang="zh">比特</span><b id="sBits">0</b>
+          <span lang="en">Size</span><span lang="zh">大小</span><b id="sSize">0 KB</b>
+        </div>
+        <div class="meter"><i id="sMeter"></i></div>
+      </div>
+    </div>
+    <div class="win">
+      <div class="bar"><span class="box"></span><span class="t">AS11-40-5903.pict</span><span class="box zoom"></span></div>
+      <canvas id="dev" aria-label="Photograph developing row by row" style="width:100%"></canvas>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+  <section class="features" id="features">
+    <div class="win">
+      <div class="bar"><span class="box"></span><span class="t"><span lang="en">Get Info</span><span lang="zh">简介</span></span></div>
+      <div class="body">
+        <h2><span lang="en">Less to choose. More to see.</span><span lang="zh">能调的少了，<br>看得见的多了。</span></h2>
+        <p style="margin:0 auto;max-width:30em"><span lang="en">Each card below uses a different dithering method. Switch them and watch how the same photo changes its mood.</span><span lang="zh">下面每张卡片用的抖动方法都不一样。换一换，同一张照片的气质会跟着变。</span></p>
+      </div>
+    </div>
+    <div class="cards">
+      <article class="win card">
+        <div class="bar"><span class="box"></span><span class="t">canyon.pict</span></div>
+        <div class="shot"><canvas data-card="canyon" data-algo="floyd"></canvas></div>
+        <div class="body">
+          <h3><span lang="en">One bit, on purpose</span><span lang="zh">只用 1 比特</span></h3>
+          <p><span lang="en">No grey, no filters to fiddle with. You frame the shot, Speck decides where the ink goes.</span><span lang="zh">没有灰阶，也没有滤镜可调。你负责构图，Speck 决定哪里落墨。</span></p>
+        </div>
+        <div class="seg"></div>
+      </article>
+      <article class="win card">
+        <div class="bar"><span class="box"></span><span class="t">eiffel.pict</span></div>
+        <div class="shot"><canvas data-card="eiffel" data-algo="bayer"></canvas></div>
+        <div class="body">
+          <h3><span lang="en">Kilobytes, not megabytes</span><span lang="zh">几 KB，不是几 MB</span></h3>
+          <p><span lang="en">A whole roll of 36 takes less space than one ordinary photo from your phone.</span><span lang="zh">一整卷 36 张加起来，还没有手机里一张普通照片大。</span></p>
+        </div>
+        <div class="seg"></div>
+      </article>
+      <article class="win card">
+        <div class="bar"><span class="box"></span><span class="t">tetons.pict</span></div>
+        <div class="shot"><canvas data-card="tetons" data-algo="threshold"></canvas></div>
+        <div class="body">
+          <h3><span lang="en">Prints on anything</span><span lang="zh">什么都能打印</span></h3>
+          <p><span lang="en">Receipt printers, fax machines, a rubber stamp. If it can make a black dot, it can print a Speck.</span><span lang="zh">小票机、传真机、橡皮章。只要能印出一个黑点，就能印 Speck 的照片。</span></p>
+        </div>
+        <div class="seg"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="win dialog" id="buy" role="dialog" aria-labelledby="buyTitle">
+    <div class="bar"><span class="t"><span lang="en">Speck Pro</span><span lang="zh">Speck Pro</span></span></div>
+    <div class="body">
+      <div class="icon-big"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" data-pix="alert"></svg></div>
+      <div>
+        <h3 id="buyTitle"><span lang="en">Speck is free. Pro is ¥18, once.</span><span lang="zh">Speck 免费。Pro 一次 18 元。</span></h3>
+        <p><span lang="en">The free camera has everything on this page. Pro adds the small things people keep asking for:</span><span lang="zh">这一页上的功能，免费版全都有。Pro 多了几样大家常问的小东西：</span></p>
+        <ul>
+          <li><span lang="en">RAW one-bit files with the original grey kept aside</span><span lang="zh">另存原始灰度的 1 比特 RAW 文件</span></li>
+          <li><span lang="en">Fax and receipt-printer export</span><span lang="zh">导出给传真机和小票机</span></li>
+          <li><span lang="en">Your own dither patterns, drawn by hand</span><span lang="zh">自己手绘的抖动图案</span></li>
+        </ul>
+      </div>
+      <div class="row">
+        <button class="btn"><span lang="en">Not now</span><span lang="zh">以后再说</span></button>
+        <button class="btn default"><span lang="en">Get Pro</span><span lang="zh">升级 Pro</span></button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="win readme">
+    <div class="bar"><span class="box"></span><span class="t">Read Me</span><span class="box zoom"></span></div>
+    <div class="body">
+      <p><b>图源</b>：首屏为安塞尔·亚当斯《The Tetons and the Snake River》（1942，美国国家档案馆藏，公有领域）；暗房为尼尔·阿姆斯特朗拍摄的巴兹·奥尔德林登月照 AS11-40-5903（1969，NASA，公有领域）；卡片取自安塞尔·亚当斯《Close-In View of Curved Cliff, Grand Canyon National Park》（1933 至 1942 年间，美国国家档案馆藏，公有领域）与 Bain News Service《A. Gustave Eiffel》（年份不详，美国国会图书馆藏，公有领域）。均经 Wikimedia Commons 获取，经裁切、去色，并在浏览器里实时抖动成 1 比特。</p>
+      <p>字体：Fusion Pixel 12px（TakWolf，OFL-1.1，按本页用字裁成子集自托管，许可证见 fonts/OFL.txt）、Geist（Vercel，OFL-1.1）。本页为学习用 demo，品牌与文案均为虚构。</p>
+      <p lang="en">Images: Ansel Adams, The Tetons and the Snake River (1942, US National Archives, public domain); Neil Armstrong, Buzz Aldrin on the Moon, AS11-40-5903 (1969, NASA, public domain); Ansel Adams, Close-In View of Curved Cliff, Grand Canyon (1933 to 1942, US National Archives, public domain); Bain News Service, A. Gustave Eiffel (Library of Congress, public domain). Retrieved via Wikimedia Commons, cropped, desaturated and dithered to one bit live in your browser. Fonts: Fusion Pixel 12px and Geist, both OFL-1.1. A design study; the product and copy are fictional.</p>
+      <p>侵权请联系删除。</p>
+    </div>
+  </footer>
+</main>
+
+<script>
+const P = 2; // CSS px per screen pixel
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const lang = () => document.documentElement.dataset.lang === "zh" ? "zh" : "en";
+
+// ---------- pixel icons ----------
+const PIX = {
+  speck: ["................", "................", "....########....", "...#........#...", "..#..######..#..", "..#.#......#.#..", "..#.#.####.#.#..", "..#.#.####.#.#..", "..#.#.####.#.#..", "..#.#.####.#.#..", "..#.#......#.#..", "..#..######..#..", "...#........#...", "....########....", "................", "................"],
+  photo: ["................", ".##############.", ".#............#.", ".#.........##.#.", ".#.........##.#.", ".#............#.", ".#....#.......#.", ".#...###......#.", ".#..#####..#..#.", ".#.#######.##.#.", ".############.#.", ".#############..", ".#............#.", ".##############.", "................", "................"],
+  hand: ["......##........", ".....#..#.......", ".....#..#.......", ".....#..###.....", ".....#..#..##...", "..##.#..#..#.#..", ".#..##..#..#..#.", ".#...#........#.", "..#...........#.", "...#..........#.", "...#.........#..", "....#........#..", ".....#......#...", "......######....", "................", "................"],
+  alert: ["................", ".......##.......", "......#..#......", "......#..#......", ".....#....#.....", ".....#.##.#.....", "....#..##..#....", "....#..##..#....", "...#...##...#...", "...#...##...#...", "..#..........#..", "..#....##....#..", ".#.....##.....#.", ".#............#.", "################", "................"],
+};
+function pix(svg, name) {
+  const rows = PIX[name]; let d = "";
+  rows.forEach((r, y) => { for (let x = 0; x < 16; x++) if (r[x] === "#") d += `M${x} ${y}h1v1h-1z`; });
+  svg.innerHTML = `<rect width="16" height="16" fill="#fff" opacity="${name === "photo" ? 1 : 0}"/><path d="${d}"/>`;
+}
+document.querySelectorAll("[data-pix]").forEach(s => pix(s, s.dataset.pix));
+
+// ---------- dithering ----------
+const ALGOS = {
+  atkinson: { en: "Atkinson", zh: "阿特金森", short: { en: "ATK", zh: "阿特" } },
+  floyd: { en: "Floyd-Steinberg", zh: "弗洛伊德", short: { en: "F-S", zh: "弗氏" } },
+  bayer: { en: "Bayer 4x4", zh: "拜耳 4x4", short: { en: "BAYER", zh: "拜耳" } },
+  threshold: { en: "Threshold", zh: "阈值", short: { en: "1-BIT", zh: "阈值" } },
+};
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+
+// L: luminance 0..1 (w*h). Returns 1 = paper, 0 = ink.
+function dither(L, w, h, algo, bias = 0) {
+  const out = new Uint8Array(w * h);
+  if (algo === "threshold" || algo === "bayer") {
+    for (let y = 0, i = 0; y < h; y++) for (let x = 0; x < w; x++, i++) {
+      const t = algo === "bayer" ? (BAYER[(y & 3) * 4 + (x & 3)] + .5) / 16 : .5;
+      out[i] = L[i] + bias > t ? 1 : 0;
+    }
+    return out;
+  }
+  const e = new Float32Array(L.length);
+  for (let i = 0; i < L.length; i++) e[i] = L[i] + bias;
+  const add = (x, y, v) => { if (x >= 0 && x < w && y < h) e[y * w + x] += v; };
+  for (let y = 0, i = 0; y < h; y++) for (let x = 0; x < w; x++, i++) {
+    const n = e[i] > .5 ? 1 : 0, err = e[i] - n;
+    out[i] = n;
+    if (algo === "atkinson") {
+      const d = err / 8;
+      add(x + 1, y, d); add(x + 2, y, d); add(x - 1, y + 1, d); add(x, y + 1, d); add(x + 1, y + 1, d); add(x, y + 2, d);
+    } else {
+      add(x + 1, y, err * 7 / 16); add(x - 1, y + 1, err * 3 / 16); add(x, y + 1, err * 5 / 16); add(x + 1, y + 1, err / 16);
+    }
+  }
+  return out;
+}
+
+// Cover-fit an image into w*h luminance, keeping focus point (fx, fy) in frame.
+function luminance(img, w, h, fx = .5, fy = .5, g = 1) {
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const x = c.getContext("2d", { willReadFrequently: true });
+  x.imageSmoothingQuality = "high";
+  const s = Math.max(w / img.width, h / img.height), dw = img.width * s, dh = img.height * s;
+  const dx = Math.min(0, Math.max(w - dw, w / 2 - fx * dw)), dy = Math.min(0, Math.max(h - dh, h / 2 - fy * dh));
+  x.drawImage(img, dx, dy, dw, dh);
+  const d = x.getImageData(0, 0, w, h).data, L = new Float32Array(w * h);
+  for (let i = 0; i < L.length; i++) L[i] = (d[i * 4] / 255) ** g; // g < 1 lifts mid-tones; Atkinson drops 1/4 of the error and crushes shadows
+  return L;
+}
+
+function blit(canvas, bits, w, h) {
+  const ctx = canvas.getContext("2d"), im = ctx.createImageData(w, h), d = im.data;
+  for (let i = 0; i < bits.length; i++) { const v = bits[i] * 255; d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = v; d[i * 4 + 3] = 255; }
+  ctx.putImageData(im, 0, 0);
+}
+const kb = n => (n / 8 / 1024).toFixed(1) + " KB";
+
+const PHOTOS = {
+  tetons: { src: "img/tetons.jpg", fx: .5, fy: .45, g: .62, label: { en: "Tetons", zh: "提顿山" } },
+  aldrin: { src: "img/aldrin.jpg", fx: .5, fy: .35, g: .85, label: { en: "Moon", zh: "月面" } },
+  canyon: { src: "img/canyon.jpg", fx: .45, fy: .4, g: .7, label: { en: "Canyon", zh: "峡谷" } },
+  eiffel: { src: "img/eiffel.jpg", fx: .5, fy: .3, g: .8, label: { en: "Eiffel", zh: "埃菲尔" } },
+};
+const loaded = Promise.all(Object.values(PHOTOS).map(p => new Promise(r => { p.img = new Image(); p.img.onload = r; p.img.src = p.src; })));
+
+function segmented(el, current, onPick) {
+  el.innerHTML = Object.keys(ALGOS).map(k => `<button data-k="${k}" aria-pressed="${k === current}"></button>`).join("");
+  const label = () => el.querySelectorAll("button").forEach(b => b.textContent = ALGOS[b.dataset.k].short[lang()]);
+  label();
+  el.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    onPick(b.dataset.k);
+  });
+  return label;
+}
+const relabel = [];
+
+// ---------- hero photo + lens ----------
+const photo = document.getElementById("photo"), body = document.getElementById("photoBody"), lens = document.getElementById("lens"), hole = document.getElementById("hole");
+const H = { key: "tetons", L: null, base: null, w: 0, h: 0, algo: "bayer", bias: 0, lx: 0, ly: 0, placed: false };
+
+function sizeHero() {
+  const cw = body.clientWidth, w = Math.floor(cw / P), h = Math.floor(w * (innerWidth < 600 ? .95 : .74));
+  photo.width = w; photo.height = h; photo.style.width = w * P + "px"; photo.style.height = h * P + "px";
+  H.w = w; H.h = h;
+  const hw = innerWidth < 600 ? 140 : 250, hh = innerWidth < 600 ? 110 : 170;
+  hole.style.width = hw + "px"; hole.style.height = hh + "px";
+  loadHero(H.key);
+}
+function loadHero(key) {
+  H.key = key; const p = PHOTOS[key];
+  H.L = luminance(p.img, H.w, H.h, p.fx, p.fy, p.g);
+  H.base = dither(H.L, H.w, H.h, "atkinson");
+  if (!H.placed) { H.lx = Math.round(body.clientWidth * .5 / P) * P; H.ly = Math.round(body.clientHeight * .18 / P) * P; H.placed = true; }
+  placeLens(H.lx, H.ly);
+}
+function placeLens(x, y) {
+  const maxX = body.clientWidth - lens.offsetWidth - 6, maxY = body.clientHeight - lens.offsetHeight - 6;
+  H.lx = Math.round(Math.max(0, Math.min(maxX, x)) / P) * P;
+  H.ly = Math.round(Math.max(0, Math.min(maxY, y)) / P) * P;
+  lens.style.transform = `translate(${H.lx}px, ${H.ly}px)`;
+  renderHero();
+}
+function renderHero() {
+  const { w, h } = H, bits = H.base.slice();
+  const cr = photo.getBoundingClientRect(), hr = hole.getBoundingClientRect();
+  const rx = Math.round((hr.left - cr.left) / P), ry = Math.round((hr.top - cr.top) / P);
+  const rw = Math.round(hr.width / P), rh = Math.round(hr.height / P);
+  const x0 = Math.max(0, rx), y0 = Math.max(0, ry), x1 = Math.min(w, rx + rw), y1 = Math.min(h, ry + rh);
+  if (x1 > x0 && y1 > y0) {
+    const sw = x1 - x0, sh = y1 - y0, sub = new Float32Array(sw * sh);
+    for (let y = 0; y < sh; y++) sub.set(H.L.subarray((y0 + y) * w + x0, (y0 + y) * w + x1), y * sw);
+    const sb = dither(sub, sw, sh, H.algo, H.bias);
+    for (let y = 0; y < sh; y++) bits.set(sb.subarray(y * sw, y * sw + sw), (y0 + y) * w + x0);
+  }
+  blit(photo, bits, w, h);
+  const l = lang();
+  document.getElementById("photoTitle").textContent = `${H.key}.pict`;
+  document.getElementById("photoInfo").textContent = (l === "zh" ? "底片：" : "Base: ") + ALGOS.atkinson[l];
+  document.getElementById("photoSize").textContent = kb(w * h);
+  document.getElementById("lensTitle").textContent = (l === "zh" ? "镜头 · " : "Lens · ") + ALGOS[H.algo][l];
+}
+
+// drag
+let drag = null;
+const lensBar = document.getElementById("lensBar");
+lensBar.addEventListener("pointerdown", e => { drag = { x: e.clientX - H.lx, y: e.clientY - H.ly }; lensBar.setPointerCapture(e.pointerId); });
+lensBar.addEventListener("pointermove", e => { if (drag) placeLens(e.clientX - drag.x, e.clientY - drag.y); });
+lensBar.addEventListener("pointerup", () => drag = null);
+hole.addEventListener("keydown", e => {
+  const s = e.shiftKey ? 40 : 8, m = { ArrowLeft: [-s, 0], ArrowRight: [s, 0], ArrowUp: [0, -s], ArrowDown: [0, s] }[e.key];
+  if (m) { e.preventDefault(); placeLens(H.lx + m[0], H.ly + m[1]); }
+});
+relabel.push(segmented(document.getElementById("lensAlgo"), H.algo, k => { H.algo = k; renderHero(); }));
+document.getElementById("thr").addEventListener("input", e => { H.bias = -e.target.value / 100; renderHero(); });
+document.getElementById("tryLens").addEventListener("click", () => {
+  document.getElementById("camera").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+  hole.focus({ preventScroll: true });
+  if (reduce) return;
+  const from = H.lx, to = Math.max(0, body.clientWidth * .18), t0 = performance.now();
+  const step = t => { const k = Math.min(1, (t - t0) / 900), e = 1 - (1 - k) ** 3; placeLens(from + (to - from) * e, H.ly); if (k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+});
+
+// desktop icons swap the photo
+const icons = document.getElementById("icons");
+icons.innerHTML = Object.keys(PHOTOS).map(k => `<button class="icon" data-k="${k}" aria-pressed="${k === H.key}"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" data-pix="photo"></svg><span></span></button>`).join("");
+icons.querySelectorAll("svg").forEach(s => pix(s, "photo"));
+const iconLabels = () => icons.querySelectorAll(".icon").forEach(b => b.querySelector("span").textContent = PHOTOS[b.dataset.k].label[lang()]);
+iconLabels(); relabel.push(iconLabels);
+icons.addEventListener("click", e => {
+  const b = e.target.closest(".icon"); if (!b) return;
+  icons.querySelectorAll(".icon").forEach(x => x.setAttribute("aria-pressed", x === b));
+  loadHero(b.dataset.k);
+});
+
+// ---------- darkroom: Atkinson, revealed row by row with scroll ----------
+const dev = document.getElementById("dev"), dark = document.querySelector(".darkroom");
+const D = { bits: null, w: 0, h: 0, shown: -1 };
+function sizeDev() {
+  const cw = dev.parentElement.clientWidth - 4;
+  const maxH = (innerHeight - 28) * (innerWidth < 1100 ? .5 : .78) - 30;
+  const w = Math.floor(Math.min(cw, maxH / 1.05) / P), h = Math.floor(w * 1.05);
+  dev.width = w; dev.height = h; dev.style.width = w * P + "px"; dev.style.height = h * P + "px";
+  D.w = w; D.h = h;
+  D.bits = dither(luminance(PHOTOS.aldrin.img, w, h, .5, .35, PHOTOS.aldrin.g), w, h, "atkinson");
+  D.shown = -1; renderDev();
+}
+function renderDev() {
+  const total = dark.offsetHeight - innerHeight;
+  const p = reduce ? 1 : Math.min(1, Math.max(0, (scrollY - dark.offsetTop) / (total * .85)));
+  const rows = Math.round(p * D.h);
+  if (rows === D.shown) return;
+  D.shown = rows;
+  const { w, h } = D, bits = new Uint8Array(w * h);
+  bits.set(D.bits.subarray(0, rows * w));
+  for (let y = rows; y < h; y++) for (let x = 0; x < w; x++) bits[y * w + x] = (x % 4 === 0 && y % 4 === 0) ? 0 : 1; // undeveloped: desktop pattern
+  if (rows < h) for (let x = 0; x < w; x++) bits[rows * w + x] = 0; // scan head
+  blit(dev, bits, w, h);
+  document.getElementById("sRow").textContent = `${rows} / ${h}`;
+  document.getElementById("sBits").textContent = (rows * w).toLocaleString("en-US");
+  document.getElementById("sSize").textContent = kb(rows * w);
+  document.getElementById("sMeter").style.width = (p * 100).toFixed(1) + "%";
+}
+addEventListener("scroll", () => D.bits && renderDev(), { passive: true });
+
+// ---------- feature cards ----------
+const cards = [...document.querySelectorAll("[data-card]")].map(c => {
+  const card = { c, key: c.dataset.card, algo: c.dataset.algo };
+  card.render = () => {
+    const w = Math.floor(c.parentElement.clientWidth / P), h = Math.floor(w * .78);
+    c.width = w; c.height = h; c.style.width = w * P + "px"; c.style.height = h * P + "px";
+    const p = PHOTOS[card.key];
+    blit(c, dither(luminance(p.img, w, h, p.fx, p.fy, p.g), w, h, card.algo), w, h);
+    c.closest(".card").querySelector(".bar .t").textContent = `${card.key}.pict · ${ALGOS[card.algo][lang()]} · ${kb(w * h)}`;
+  };
+  relabel.push(segmented(c.closest(".card").querySelector(".seg"), card.algo, k => { card.algo = k; card.render(); }));
+  return card;
+});
+
+// ---------- clock + language ----------
+const clock = document.querySelector(".clock");
+const tick = () => { const d = new Date(); clock.textContent = `${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`; };
+tick(); setInterval(tick, 20000);
+document.querySelector("[data-lang-toggle]").addEventListener("click", () => setTimeout(() => {
+  relabel.forEach(f => f()); renderHero(); cards.forEach(c => c.render());
+}, 0));
+
+loaded.then(() => {
+  const all = () => {
+    sizeHero(); sizeDev(); cards.forEach(c => c.render());
+    let total = 0; for (const k in PHOTOS) total += H.w * H.h;
+    document.getElementById("rollSize").textContent = kb(total);
+  };
+  document.fonts.ready.then(all);
+  let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(all, 120); });
+});
+</script>
+</body>
+</html>
