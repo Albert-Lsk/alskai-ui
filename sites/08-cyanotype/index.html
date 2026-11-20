@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pressed · a reference library printed by the sun</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/im-fell-english@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/im-fell-english@5/400-italic.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@5/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono@5/index.css">
+<script src="../../shared/lang.js"></script>
+<style>
+:root {
+  --paper: #f2eee3;
+  --ink: #12244d;
+  --ink-2: #3c4a6b;
+  --ink-3: #6f7890;
+  --blue: #173c80;
+  --blue-deep: #0e2759;
+  --raw: #d5d085;      /* ferric ammonium citrate: the yellow-green sensitiser */
+  --bronze: #6f7666;   /* exposed but not yet rinsed */
+  --white: #f5f3ea;
+  --display: "IM Fell English", "Noto Serif SC", Georgia, serif;
+  --serif: "Spectral", "Noto Serif SC", Georgia, serif;
+  --zh: "Noto Serif SC", "Songti SC", serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --wrap: min(1240px, calc(100vw - 48px));
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--paper); }
+body {
+  color: var(--ink); font: 18px/1.7 var(--serif); -webkit-font-smoothing: antialiased;
+  background: url(img/paper.png) 0 0 / 384px, var(--paper); background-blend-mode: soft-light;
+}
+html[data-lang="zh"] body { font-family: var(--zh); font-size: 17px; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.wrap { width: var(--wrap); margin: 0 auto; }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+
+/* label slips, like the ones Atkins printed into each plate */
+.slip { display: inline-block; background: var(--white); color: var(--ink); font: italic 400 15px/1.2 var(--display); padding: 4px 12px 5px; box-shadow: 0 1px 0 rgba(0,0,0,.08); transform: rotate(-1deg); }
+
+/* ---------- nav ---------- */
+nav { display: flex; align-items: center; gap: 34px; height: 84px; }
+.brand { display: flex; align-items: center; gap: 10px; font: 400 26px var(--display); }
+.brand i { width: 30px; height: 30px; background: var(--blue); border-radius: 2px; display: grid; place-items: center; -webkit-mask: url(img/coat.png) center / 100% 100%; mask: url(img/coat.png) center / 100% 100%; }
+.brand i::after { content: ""; width: 18px; height: 18px; background: var(--white); -webkit-mask: url(img/single.png) center / contain no-repeat; mask: url(img/single.png) center / contain no-repeat; }
+nav ul { list-style: none; display: flex; gap: 30px; padding: 0; margin-left: auto; font-size: 16px; color: var(--ink-2); }
+nav li a:hover { color: var(--ink); }
+.lang { font: 13px var(--mono); border: 1px solid #c9c4b3; padding: 6px 12px; letter-spacing: .06em; }
+.btn { background: var(--blue); color: var(--white); padding: 12px 22px; font-size: 16px; transition: background-color .2s, transform .15s; white-space: nowrap; }
+.btn:hover { background: var(--blue-deep); }
+.btn:active { transform: scale(.97); }
+.btn.line { background: none; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.btn.line:hover { background: rgba(23,60,128,.06); }
+
+/* ---------- hero ---------- */
+.hero { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; min-height: calc(100vh - 84px); padding: 10px 0 60px; }
+.hero h1 { font: 400 clamp(50px, 5.4vw, 84px)/1 var(--display); letter-spacing: -.01em; margin: 22px 0 26px; }
+.hero h1 em { color: var(--blue); }
+[lang="zh"] em { font-style: normal; }
+html[data-lang="zh"] .hero h1 { font: 600 clamp(42px, 4.4vw, 64px)/1.25 var(--zh); letter-spacing: .02em; }
+.hero p.lead { color: var(--ink-2); max-width: 30em; }
+.hero .row { display: flex; gap: 14px; margin-top: 34px; flex-wrap: wrap; }
+.hero .note { margin-top: 40px; color: var(--ink-3); display: flex; gap: 12px; align-items: center; font-size: 15px; }
+.hero .note .sun { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(#fff6c8, #f2c35a 60%, transparent 62%); box-shadow: 0 0 14px #f6d77c; flex: none; }
+
+.frame { position: relative; justify-self: center; width: min(100%, 520px); }
+.frame .glass { position: relative; aspect-ratio: 1000 / 1250; background: var(--paper); box-shadow: 0 1px 0 rgba(0,0,0,.05), 0 40px 70px -40px rgba(20,30,60,.45); transform: rotate(1.2deg); }
+.frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: none; }
+/* contact-printing glass: faint glare that slides over */
+.frame .glass::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.18) 42%, transparent 52%); }
+.frame .clip { position: absolute; top: -10px; width: 46px; height: 22px; background: linear-gradient(#b9a26a, #8a7445); border-radius: 3px 3px 6px 6px; box-shadow: 0 3px 6px rgba(0,0,0,.25); z-index: 2; }
+.frame .clip.l { left: 18%; } .frame .clip.r { right: 18%; }
+.cursor-sun { position: absolute; width: 150px; height: 150px; margin: -75px 0 0 -75px; border-radius: 50%; pointer-events: none; background: radial-gradient(rgba(255,244,190,.55), rgba(255,220,120,.18) 40%, transparent 70%); mix-blend-mode: screen; opacity: 0; transition: opacity .3s; z-index: 3; }
+.readout { display: flex; justify-content: space-between; align-items: center; margin-top: 22px; color: var(--ink-3); }
+.readout b { color: var(--ink); font-weight: 400; }
+.meter { flex: 1; height: 3px; background: #d9d3c1; margin: 0 16px; position: relative; }
+.meter i { position: absolute; inset: 0; background: var(--blue); transform-origin: left; transform: scaleX(0); }
+.readout button { color: var(--ink-2); border-bottom: 1px solid currentColor; padding: 0; }
+.washed { position: absolute; left: 50%; bottom: 7%; translate: -50% 0; z-index: 2; opacity: 0; transition: opacity .8s .6s; }
+.washed.on { opacity: 1; }
+.frame .caption { position: absolute; left: 50%; bottom: 8%; translate: -50% 0; z-index: 2; }
+
+/* ---------- rinse ---------- */
+.rinse { height: 360vh; position: relative; }
+.rinse .stick { position: sticky; top: 0; height: 100vh; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; width: var(--wrap); margin: 0 auto; }
+.rinse h2, .sec-h { font: 400 clamp(40px, 4.2vw, 62px)/1.04 var(--display); }
+html[data-lang="zh"] .rinse h2, html[data-lang="zh"] .sec-h { font: 600 clamp(34px, 3.4vw, 48px)/1.3 var(--zh); }
+.steps { list-style: none; padding: 0; margin-top: 34px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 44px 1fr; gap: 4px 12px; padding: 16px 0; border-top: 1px solid #d6d0bd; color: var(--ink-3); transition: color .4s; }
+.steps li::before { counter-increment: s; content: "0" counter(s); font: 12px var(--mono); padding-top: 6px; grid-row: span 2; }
+.steps li b { font: 400 24px/1.2 var(--display); color: inherit; }
+html[data-lang="zh"] .steps li b { font: 600 19px/1.4 var(--zh); }
+.steps li span { font-size: 15.5px; line-height: 1.6; }
+.steps li.on { color: var(--ink); }
+.steps li.on::before { color: var(--blue); }
+.plate { position: relative; aspect-ratio: 756 / 1100; height: min(78vh, 760px); justify-self: center; -webkit-mask: url(img/coat.png) center / 100% 100%; mask: url(img/coat.png) center / 100% 100%; }
+.layer { position: absolute; inset: 0; background: var(--g); }
+.layer::after { content: ""; position: absolute; inset: 6% 7%; background: var(--p); -webkit-mask: url(img/ferns.png) center / contain no-repeat; mask: url(img/ferns.png) center / contain no-repeat; }
+.layer.before { --g: var(--bronze); --p: var(--raw); }
+.layer.after { --g: var(--blue); --p: var(--white); }
+.waterline { position: absolute; inset: 0; background: rgba(214,230,255,.42); filter: blur(2px); pointer-events: none; }
+.plate-tag { position: absolute; bottom: -42px; left: 0; right: 0; text-align: center; color: var(--ink-3); }
+
+/* ---------- archive ---------- */
+.sec-head { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: end; padding: 120px 0 52px; }
+.sec-head p { color: var(--ink-2); }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; }
+.card .print { position: relative; aspect-ratio: 4 / 5; -webkit-mask: url(img/coat.png) center / 100% 100%; mask: url(img/coat.png) center / 100% 100%; --mx: 50%; --my: 40%; }
+.card .layer { --g: var(--raw); --p: var(--raw); transition: background-color 2.6s cubic-bezier(.3,.6,.2,1); }
+.card .layer::after { transition: background-color 2.6s cubic-bezier(.3,.6,.2,1); -webkit-mask-image: var(--src); mask-image: var(--src); inset: 8%; }
+.card.dev .layer { --g: var(--blue); --p: var(--white); }
+.card .print::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at var(--mx) var(--my), rgba(255,240,180,.35), transparent 45%); opacity: 0; transition: opacity .3s; }
+.card:hover .print::after { opacity: 1; }
+.card .slip { margin: -18px 0 0 22px; position: relative; }
+.card h3 { font: 400 26px/1.2 var(--display); margin: 18px 0 6px; }
+html[data-lang="zh"] .card h3 { font: 600 20px/1.4 var(--zh); }
+.card p { color: var(--ink-2); font-size: 16px; line-height: 1.6; }
+
+/* ---------- pricing ---------- */
+.plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.plan { padding: 34px 30px 38px; }
+.plan + .plan { border-left: 1px solid #cfc9b6; }
+.plan .sunline { display: flex; gap: 6px; margin-bottom: 22px; }
+.plan .sunline i { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--ink); }
+.plan .sunline i.f { background: var(--blue); border-color: var(--blue); }
+.plan h3 { font: 400 30px/1.1 var(--display); }
+html[data-lang="zh"] .plan h3 { font: 600 22px/1.4 var(--zh); }
+.plan .price { font: 400 46px/1 var(--display); margin: 18px 0 4px; }
+.plan .price small { font: 13px var(--mono); color: var(--ink-3); margin-left: 6px; }
+.plan ul { padding: 0; list-style: none; margin: 20px 0 28px; color: var(--ink-2); font-size: 15.5px; }
+.plan li { padding: 6px 0; border-top: 1px dotted #c6c0ac; }
+.plan.feature { background: var(--blue); color: var(--white); }
+.plan.feature ul { color: #d6def0; }
+.plan.feature li { border-color: rgba(255,255,255,.25); }
+.plan.feature .sunline i { border-color: var(--white); }
+.plan.feature .sunline i.f { background: #f2c35a; border-color: #f2c35a; }
+.plan.feature .price small { color: #b8c3de; }
+.plan.feature .btn { background: var(--white); color: var(--blue); }
+
+/* ---------- closing ---------- */
+.closing { position: relative; margin: 140px 0 0; padding: 120px 0 110px; text-align: center; color: var(--white); }
+.closing .ground { position: absolute; inset: 0; background: var(--blue); -webkit-mask: url(img/coat.png) center / 100% 100%; mask: url(img/coat.png) center / 100% 100%; }
+.closing .ground::after { content: ""; position: absolute; right: 4%; top: 6%; width: 34%; height: 88%; background: rgba(245,243,234,.16); -webkit-mask: url(img/dictyota.png) center / contain no-repeat; mask: url(img/dictyota.png) center / contain no-repeat; }
+.closing > * { position: relative; }
+.closing h2 { font: 400 clamp(48px, 6vw, 92px)/1 var(--display); }
+html[data-lang="zh"] .closing h2 { font: 600 clamp(38px, 4.6vw, 64px)/1.3 var(--zh); }
+.closing p { margin: 18px auto 34px; max-width: 30em; color: #d7def0; }
+.closing .btn { background: var(--white); color: var(--blue); }
+
+footer { padding: 56px 0 64px; font-size: 13.5px; line-height: 1.85; color: var(--ink-3); }
+footer b { color: var(--ink-2); font-weight: 600; }
+footer .top { display: flex; justify-content: space-between; align-items: center; color: var(--ink-2); margin-bottom: 16px; }
+
+@media (max-width: 900px) {
+  nav ul, nav .btn { display: none; }
+  nav .lang { margin-left: auto; }
+  .hero, .rinse .stick, .sec-head { grid-template-columns: 1fr; gap: 28px; }
+  .hero { padding-top: 0; }
+  .frame { width: min(100%, 420px); }
+  .rinse { height: 300vh; }
+  .rinse .stick { align-content: center; gap: 18px; }
+  .rinse .steps { margin-top: 10px; }
+  .steps li { padding: 8px 0; }
+  .steps li:not(.on) > span { display: none; }
+  html[data-lang="zh"] .hero h1 { font-size: 36px; }
+  .hero h1 em { white-space: nowrap; }
+  .rinse h2 { font-size: 32px; }
+  html[data-lang="zh"] .rinse h2 { font-size: 26px; }
+  .plate { height: 46vh; grid-row: 1; }
+  .plate-tag { display: none; }
+  .cards, .plans { grid-template-columns: 1fr; }
+  .plan + .plan { border-left: 0; border-top: 1px solid #cfc9b6; }
+  .sec-head { padding-top: 90px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#"><i></i>Pressed</a>
+    <ul>
+      <li><a href="#rinse"><span lang="en">How it works</span><span lang="zh">怎么用</span></a></li>
+      <li><a href="#archive"><span lang="en">Archive</span><span lang="zh">图库</span></a></li>
+      <li><a href="#plans"><span lang="en">Plans</span><span lang="zh">价格</span></a></li>
+    </ul>
+    <button class="lang" data-lang-toggle aria-label="Switch language"><span lang="en">中文</span><span lang="zh">EN</span></button>
+    <button class="btn"><span lang="en">Start pressing</span><span lang="zh">开始收藏</span></button>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <span class="slip"><span lang="en">A reference library</span><span lang="zh">一个安静的灵感库</span></span>
+      <h1><span lang="en">Keep what you see, the way the <em>sun</em> keeps a leaf.</span><span lang="zh">看到好东西，<br>就让它<em>留下影子</em>。</span></h1>
+      <p class="lead">
+        <span lang="en">Pressed is a quiet place for references. Clip a web page, a screenshot or a photo, and it is flattened into a clean, labelled print you can still find in ten years.</span>
+        <span lang="zh">Pressed 是一个放参考资料的地方。网页、截图、照片，随手存进来，它会压平、去掉杂物、贴好标签，十年后也找得到。</span>
+      </p>
+      <div class="row">
+        <button class="btn"><span lang="en">Press your first print</span><span lang="zh">存下第一张</span></button>
+        <a class="btn line" href="#rinse"><span lang="en">See the process</span><span lang="zh">看看怎么做的</span></a>
+      </div>
+      <div class="note"><i class="sun"></i><span><span lang="en">Your cursor is the sun. Hold it over the paper and the print develops.</span><span lang="zh">鼠标就是太阳。在纸上停一会儿，图就晒出来了。</span></span></div>
+    </div>
+
+    <div class="frame">
+      <span class="clip l"></span><span class="clip r"></span>
+      <div class="glass">
+        <canvas id="sheet" aria-label="Anna Atkins, Cystoseira granulata, cyanotype being exposed"></canvas>
+        <div class="cursor-sun"></div>
+        <span class="slip washed"><span lang="en">Rinsed. Print kept.</span><span lang="zh">洗好了，这张留下。</span></span>
+      </div>
+      <div class="readout mono">
+        <span>UV <b id="pct">0%</b></span>
+        <span class="meter"><i></i></span>
+        <button id="reset"><span lang="en">Re-coat</span><span lang="zh">重新涂布</span></button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="rinse" id="rinse">
+  <div class="stick">
+    <div>
+      <div class="mono" style="color:var(--ink-3)"><span lang="en">The process</span><span lang="zh">流程</span></div>
+      <h2 style="margin-top:12px"><span lang="en">Coat, expose, rinse, keep.</span><span lang="zh">涂布，曝光，水洗，<br>然后留着。</span></h2>
+      <ol class="steps">
+        <li><b><span lang="en">Coat · Collect</span><span lang="zh">涂布 · 收集</span></b><span><span lang="en">One shortcut saves anything: a page, a frame of video, a photo from your phone.</span><span lang="zh">一个快捷键，什么都能存：网页、视频里的一帧、手机里的照片。</span></span></li>
+        <li><b><span lang="en">Expose · Press</span><span lang="zh">曝光 · 压平</span></b><span><span lang="en">Each clip is flattened into a still print, so a page that changes tomorrow stays as you saw it.</span><span lang="zh">每一条都压成一张静止的图。网页明天改了，你存下的还是那天看到的样子。</span></span></li>
+        <li><b><span lang="en">Rinse · Clean</span><span lang="zh">水洗 · 去杂</span></b><span><span lang="en">Ads, cookie banners and tracking links wash away. Only the thing you wanted stays white.</span><span lang="zh">广告、弹窗、跟踪链接全部洗掉，只留下你想要的那部分。</span></span></li>
+        <li><b><span lang="en">Oxidise · Keep</span><span lang="zh">氧化 · 沉淀</span></b><span><span lang="en">A cyanotype keeps darkening for a day after the wash. Your archive does too: the more you use it, the richer the labels get.</span><span lang="zh">蓝晒洗完以后，还会再变深一整天。图库也一样，用得越多，标签越准。</span></span></li>
+      </ol>
+    </div>
+    <div class="plate" id="plate">
+      <div class="layer before"></div>
+      <div class="layer after"></div>
+      <div class="waterline"></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section id="archive">
+    <div class="sec-head">
+      <h2 class="sec-h"><span lang="en">An archive that reads like a herbarium</span><span lang="zh">像标本册一样的图库</span></h2>
+      <p><span lang="en">Anna Atkins pressed every specimen flat, printed it and wrote its name on a slip. Pressed does the same for the things you save: one print, one label, nothing else on the page.</span><span lang="zh">安娜·阿特金斯把每一株海藻压平、晒成图，再贴一张写着名字的小纸条。Pressed 对你存下的东西也这么做：一张图，一个标签，别的都不要。</span></p>
+    </div>
+    <div class="cards">
+      <article class="card"><div class="print" style="--src:url(img/dictyota.png)"><div class="layer"></div></div>
+        <span class="slip">Dictyota dichotoma</span>
+        <h3><span lang="en">Labels you would write yourself</span><span lang="zh">标签像你自己写的</span></h3>
+        <p><span lang="en">It names things the way you do, so “that blue onboarding” finds the right print.</span><span lang="zh">它按你的说法起名字，搜“那个蓝色的引导页”就能找到。</span></p></article>
+      <article class="card"><div class="print" style="--src:url(img/single.png)"><div class="layer"></div></div>
+        <span class="slip">Dictyota, single frond</span>
+        <h3><span lang="en">One thing per print</span><span lang="zh">一张图只放一样东西</span></h3>
+        <p><span lang="en">Crops itself to the part you meant, the button, the chart, the face.</span><span lang="zh">自动裁到你真正想存的部分：一个按钮，一张图表，一张脸。</span></p></article>
+      <article class="card"><div class="print" style="--src:url(img/granulata.png)"><div class="layer"></div></div>
+        <span class="slip">Cystoseira granulata</span>
+        <h3><span lang="en">Prints that do not fade</span><span lang="zh">不会褪色的图</span></h3>
+        <p><span lang="en">Plain files on your own disk. If we vanish, your archive stays where it is.</span><span lang="zh">都是存在你硬盘里的普通文件。哪天我们不在了，图库还在原地。</span></p></article>
+    </div>
+  </section>
+
+  <section id="plans">
+    <div class="sec-head">
+      <h2 class="sec-h"><span lang="en">Choose your exposure</span><span lang="zh">选一个曝光时长</span></h2>
+      <p><span lang="en">Priced like daylight: a little is free, a whole day costs a coffee a month.</span><span lang="zh">按日照算钱：一点点免费，晒满一整天也就一个月一杯咖啡。</span></p>
+    </div>
+    <div class="plans">
+      <div class="plan"><div class="sunline"><i class="f"></i><i></i><i></i></div>
+        <h3><span lang="en">Overcast</span><span lang="zh">阴天</span></h3>
+        <div class="price">$0<small><span lang="en">forever</span><span lang="zh">一直免费</span></small></div>
+        <ul><li><span lang="en">300 prints</span><span lang="zh">300 张图</span></li><li><span lang="en">Labels and search</span><span lang="zh">自动标签和搜索</span></li><li><span lang="en">One device</span><span lang="zh">一台设备</span></li></ul>
+        <button class="btn line"><span lang="en">Start free</span><span lang="zh">免费开始</span></button></div>
+      <div class="plan feature"><div class="sunline"><i class="f"></i><i class="f"></i><i></i></div>
+        <h3><span lang="en">Midday</span><span lang="zh">正午</span></h3>
+        <div class="price">$6<small><span lang="en">per month</span><span lang="zh">每月</span></small></div>
+        <ul><li><span lang="en">Unlimited prints</span><span lang="zh">不限张数</span></li><li><span lang="en">Rinse: strip ads and trackers</span><span lang="zh">水洗：去广告和跟踪</span></li><li><span lang="en">Sync across devices</span><span lang="zh">多设备同步</span></li></ul>
+        <button class="btn"><span lang="en">Choose Midday</span><span lang="zh">选正午</span></button></div>
+      <div class="plan"><div class="sunline"><i class="f"></i><i class="f"></i><i class="f"></i></div>
+        <h3><span lang="en">Full sun</span><span lang="zh">烈日</span></h3>
+        <div class="price">$14<small><span lang="en">per seat / month</span><span lang="zh">每人每月</span></small></div>
+        <ul><li><span lang="en">Shared team herbarium</span><span lang="zh">团队共享标本册</span></li><li><span lang="en">Comments on any print</span><span lang="zh">每张图都能评论</span></li><li><span lang="en">Export to plain folders</span><span lang="zh">导出成普通文件夹</span></li></ul>
+        <button class="btn line"><span lang="en">Talk to us</span><span lang="zh">联系我们</span></button></div>
+    </div>
+  </section>
+
+  <section class="closing">
+    <div class="ground"></div>
+    <div class="mono" style="color:#b9c5e2"><span lang="en">Since 1843, more or less</span><span lang="zh">大约始于 1843 年</span></div>
+    <h2 style="margin-top:14px"><span lang="en">Let the sun do the filing.</span><span lang="zh">整理这件事，交给太阳。</span></h2>
+    <p><span lang="en">Free for your first 300 prints. No card, no camera, just daylight.</span><span lang="zh">前 300 张免费。不用绑卡，不用相机，有光就行。</span></p>
+    <button class="btn"><span lang="en">Start pressing</span><span lang="zh">开始收藏</span></button>
+  </section>
+
+  <footer>
+    <div class="top"><span class="brand" style="font-size:20px">Pressed</span><span><span lang="en">A fictional product, built as a design study.</span><span lang="zh">虚构产品，仅作设计练习。</span></span></div>
+    <b>图源</b>：首屏与卡片取自 Anna Atkins《Cystoseira granulata》（出自《Photographs of British Algae: Cyanotype Impressions》，1843–1853，公有领域）；流程长图为 Anna Atkins《Foreign Ferns》（1845–1855，经 Google Arts &amp; Culture，公有领域）；卡片与结尾取自 Anna Atkins《Dictyota dichotoma in the young state, &amp; in fruit》（约 1843–1853，荷兰国立博物馆藏 RP-F-2016-133-144，CC0）与 Anna Atkins《Dictyota dichotoma》（约 1853，大都会艺术博物馆藏，CC0）；均经 Wikimedia Commons 获取，经裁切、去色并提取为植物剪影遮罩，颜色由网页重新着色。刷涂边缘与纸纹为程序生成。
+    字体：IM Fell English、Spectral、Noto Serif SC、IBM Plex Mono（均为 OFL-1.1）。本页为学习用 demo，品牌与文案均为虚构。<br>
+    侵权请联系删除。
+  </footer>
+</div>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const css = getComputedStyle(document.documentElement);
+const C = k => css.getPropertyValue(k).trim();
+const load = src => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = src; });
+const mk = (w, h) => { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; };
+
+// ---------- hero: a sun print you expose with the cursor ----------
+// Exposure lives in a small accumulation canvas (alpha = dose). Each frame: dose → masked by the
+// brushed emulsion → minus the plant's shadow → tinted Prussian blue, over the raw yellow coat.
+(async () => {
+  const sheet = document.getElementById("sheet"), ctx = sheet.getContext("2d");
+  const wash = document.querySelector(".washed"), sunEl = document.querySelector(".cursor-sun"), pct = document.getElementById("pct"), meter = document.querySelector(".meter i");
+  const [coatImg, plantImg] = await Promise.all([load("img/coat.png"), load("img/granulata.png")]);
+  const DS = 4; // dose buffer is 1/4 resolution; a blur on upscale hides bilinear creases
+  let W, H, dpr, coat, base, white, blueTex, plant, blue, dose, dctx, carry = 0, last = 0, running = false, visible = true, washed = 0;
+  const sun = { x: -1e4, y: -1e4, on: false, auto: !reduce, t0: 0 };
+
+  function build() {
+    const r = sheet.getBoundingClientRect(); dpr = Math.min(devicePixelRatio || 1, 2);
+    const old = dose;
+    W = Math.round(r.width * dpr); H = Math.round(r.height * dpr); sheet.width = W; sheet.height = H;
+    coat = mk(W, H); coat.getContext("2d").drawImage(coatImg, 0, 0, W, H);
+    const tint = (c, colour, blots) => { // colour fill with a mottled, hand-coated unevenness
+      const g = c.getContext("2d"); g.fillStyle = colour; g.fillRect(0, 0, W, H);
+      for (let i = 0; i < 40; i++) {
+        const x = Math.random() * W, y = Math.random() * H, rr = (.08 + Math.random() * .22) * W;
+        const gr = g.createRadialGradient(x, y, 0, x, y, rr); gr.addColorStop(0, blots); gr.addColorStop(1, "rgba(0,0,0,0)");
+        g.fillStyle = gr; g.fillRect(0, 0, W, H);
+      }
+      return c;
+    };
+    base = tint(mk(W, H), C("--raw"), "rgba(160,150,70,.10)");
+    { const g = base.getContext("2d"); g.globalCompositeOperation = "destination-in"; g.drawImage(coat, 0, 0); }
+    white = tint(mk(W, H), C("--white"), "rgba(200,205,215,.12)");
+    { const g = white.getContext("2d"); g.globalCompositeOperation = "destination-in"; g.drawImage(coat, 0, 0); }
+    blueTex = tint(mk(W, H), C("--blue"), "rgba(8,24,70,.22)");
+    plant = mk(W, H);
+    { const g = plant.getContext("2d"), pad = .13, s = Math.min(W * (1 - pad * 2) / plantImg.width, H * (1 - pad * 1.7) / plantImg.height);
+      g.filter = `blur(${.7 * dpr}px)`; // a little light creeps under the specimen's edges
+      g.drawImage(plantImg, (W - plantImg.width * s) / 2, (H - plantImg.height * s) / 2, plantImg.width * s, plantImg.height * s); }
+    blue = mk(W, H);
+    dose = mk(Math.ceil(W / DS), Math.ceil(H / DS)); dctx = dose.getContext("2d");
+    if (old) dctx.drawImage(old, 0, 0, dose.width, dose.height);
+    if (reduce) { dctx.fillStyle = "#fff"; dctx.fillRect(0, 0, dose.width, dose.height); washed = 1; wash.classList.add("on"); }
+    render();
+  }
+
+  function render() {
+    const b = blue.getContext("2d");
+    b.globalCompositeOperation = "copy"; b.imageSmoothingEnabled = true; b.imageSmoothingQuality = "high"; b.filter = `blur(${2 * dpr}px)`; b.drawImage(dose, 0, 0, W, H); b.filter = "none";
+    b.globalCompositeOperation = "destination-in"; b.drawImage(coat, 0, 0);
+    b.globalCompositeOperation = "destination-out"; b.globalAlpha = .93; b.drawImage(plant, 0, 0); b.globalAlpha = 1;
+    b.globalCompositeOperation = "source-in"; b.drawImage(blueTex, 0, 0);
+    ctx.clearRect(0, 0, W, H); ctx.drawImage(base, 0, 0);
+    if (washed) { ctx.globalAlpha = washed; ctx.drawImage(white, 0, 0); ctx.globalAlpha = 1; }
+    ctx.filter = washed ? `saturate(${1 + washed * .3}) brightness(${1 - washed * .12})` : "none";
+    ctx.drawImage(blue, 0, 0); ctx.filter = "none";
+  }
+
+  function addLight(x, y, radius, strength) {
+    dctx.globalCompositeOperation = "lighter";
+    const g = dctx.createRadialGradient(x, y, 0, x, y, radius);
+    g.addColorStop(0, `rgba(255,255,255,${strength})`); g.addColorStop(1, "rgba(255,255,255,0)");
+    dctx.fillStyle = g; dctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+  }
+
+  let measureAt = 0, level = 0;
+  function measure() {
+    const d = dctx.getImageData(0, 0, dose.width, dose.height).data; let s = 0, n = 0;
+    for (let i = 3; i < d.length; i += 16) { s += d[i]; n++; }
+    level = s / n / 255;
+    pct.textContent = Math.round(level * 100) + "%"; meter.style.transform = `scaleX(${level})`;
+  }
+
+  function frame(t) {
+    const dt = Math.min(.05, (t - (last || t)) / 1000); last = t;
+    // ambient daylight: the whole sheet slowly develops even if nobody touches it (~40 s)
+    carry += dt * .025;
+    if (carry >= 1 / 255) { const n = Math.floor(carry * 255); dctx.globalCompositeOperation = "lighter"; dctx.fillStyle = `rgba(255,255,255,${n / 255})`; dctx.fillRect(0, 0, dose.width, dose.height); carry -= n / 255; }
+    // a sun that wanders on its own until the visitor takes over
+    if (sun.auto) {
+      const k = (t - sun.t0) / 1000;
+      if (k > 5.5) sun.auto = false;
+      const rect = sheet.getBoundingClientRect();
+      sun.x = rect.width * (.5 + .32 * Math.sin(k * 1.1)); sun.y = rect.height * (.25 + .5 * k / 5.5);
+      sun.on = true; placeSun();
+    }
+    if (sun.on) addLight(sun.x * dpr / DS, sun.y * dpr / DS, 130 * dpr / DS, .055);
+    render();
+    if (t > measureAt) { measure(); measureAt = t + 200; }
+    if (level >= .97 && washed < 1) { washed = Math.min(1, washed + dt / 2.2); wash.classList.add("on"); }
+    if (visible && washed < 1) requestAnimationFrame(frame); else { running = false; render(); }
+  }
+  const kick = () => { if (!running && visible && !reduce) { running = true; last = 0; requestAnimationFrame(frame); } };
+
+  function placeSun() { sunEl.style.left = sun.x + "px"; sunEl.style.top = sun.y + "px"; sunEl.style.opacity = sun.on ? 1 : 0; }
+  const toLocal = e => { const r = sheet.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  sheet.addEventListener("pointermove", e => { sun.auto = false; [sun.x, sun.y] = toLocal(e); sun.on = true; placeSun(); kick(); });
+  sheet.addEventListener("pointerdown", e => { sun.auto = false; [sun.x, sun.y] = toLocal(e); sun.on = true; placeSun(); kick(); });
+  sheet.addEventListener("pointerleave", () => { sun.on = false; placeSun(); });
+  sheet.addEventListener("pointerup", e => { if (e.pointerType !== "mouse") { sun.on = false; placeSun(); } });
+  document.getElementById("reset").addEventListener("click", () => {
+    dctx.globalCompositeOperation = "copy"; dctx.fillStyle = "rgba(0,0,0,0)"; dctx.fillRect(0, 0, dose.width, dose.height);
+    if (reduce) { dctx.globalCompositeOperation = "source-over"; dctx.fillStyle = "#fff"; dctx.fillRect(0, 0, dose.width, dose.height); }
+    level = 0; washed = 0; wash.classList.remove("on"); measure(); render(); sun.auto = !reduce; sun.t0 = performance.now(); kick();
+  });
+
+  new ResizeObserver(build).observe(sheet);
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) kick(); }).observe(sheet);
+  build(); measure(); sun.t0 = performance.now(); kick();
+})();
+
+// ---------- rinse: water washes down the plate, yellow sensitiser out, Prussian blue in ----------
+{
+  const sec = document.getElementById("rinse"), after = document.querySelector(".layer.after"), line = document.querySelector(".waterline"),
+        steps = [...document.querySelectorAll(".steps li")];
+  let raf = 0;
+  function wave(p, t, band) {
+    const pts = [];
+    for (let i = 0; i <= 40; i++) {
+      const x = i / 40 * 100;
+      const y = p * 112 - 6 + Math.sin(i * .32 + t * 1.4) * 1.3 + Math.sin(i * .85 - t * 1.9) * .5;
+      pts.push(`${x}% ${y + band}%`);
+    }
+    return pts;
+  }
+  function draw(t) {
+    raf = 0;
+    const total = sec.offsetHeight - innerHeight, p = Math.min(1, Math.max(0, (scrollY - sec.offsetTop) / total));
+    const rinse = Math.min(1, Math.max(0, (p - .3) / .5)); // steps 1-2 dry, 3 washes, 4 deepens
+    const top = wave(rinse, t / 1000, 0);
+    after.style.clipPath = `polygon(0% -10%, 100% -10%, ${top.reverse().join(",")})`;
+    const band = wave(rinse, t / 1000, 0), band2 = wave(rinse, t / 1000, -2.5);
+    line.style.clipPath = `polygon(${band2.join(",")}, ${band.reverse().join(",")})`;
+    line.style.opacity = rinse > 0 && rinse < 1 ? 1 : 0;
+    const ox = Math.max(0, (p - .82) / .18); // oxidation: the blue keeps deepening after the wash
+    after.style.filter = `saturate(${1 + ox * .35}) brightness(${1 - ox * .16})`;
+    const step = p < .15 ? 0 : p < .3 ? 1 : p < .82 ? 2 : 3;
+    steps.forEach((li, i) => li.classList.toggle("on", i === step));
+    if (!reduce && rinse > 0 && rinse < 1 && isIn) raf = requestAnimationFrame(draw); // keep the water moving
+  }
+  let isIn = false;
+  new IntersectionObserver(([e]) => { isIn = e.isIntersecting; if (isIn) draw(performance.now()); }).observe(sec);
+  addEventListener("scroll", () => { if (!raf) raf = requestAnimationFrame(draw); }, { passive: true });
+  addEventListener("resize", () => draw(performance.now()));
+  draw(0);
+}
+
+// ---------- archive: prints develop as they come into view, the sun follows your cursor ----------
+{
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    const i = [...document.querySelectorAll(".card")].indexOf(e.target);
+    setTimeout(() => e.target.classList.add("dev"), reduce ? 0 : i * 350);
+    io.unobserve(e.target);
+  }), { threshold: .4 });
+  document.querySelectorAll(".card").forEach(c => {
+    io.observe(c);
+    const pr = c.querySelector(".print");
+    pr.addEventListener("pointermove", e => { const r = pr.getBoundingClientRect(); pr.style.setProperty("--mx", (e.clientX - r.left) + "px"); pr.style.setProperty("--my", (e.clientY - r.top) + "px"); });
+  });
+}
+</script>
+</body>
+</html>
