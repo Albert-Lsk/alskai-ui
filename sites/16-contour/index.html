@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saddle 鞍部 · route planning on live contour maps</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/fraunces@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/fraunces@5/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/fraunces@5/400-italic.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans-condensed@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans-condensed@5/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/900.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5/500.css">
+<script src="../../shared/lang.js"></script>
+<style>
+:root {
+  --paper: #f3efe4;
+  --paper-2: #ebe5d5;
+  --ink: #1f2420;
+  --ink-2: #4b4f47;
+  --ink-3: #7c7d72;
+  --brown: #9a5a2e;
+  --brown-2: #b98055;
+  --red: #c8352b;
+  --blue: #2f6fa8;
+  --green: #4f6f3a;
+  --night: #1c2620;
+  --display: "Fraunces", Georgia, serif;
+  --sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+  --cond: "IBM Plex Sans Condensed", "Noto Sans SC", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --wrap: min(1240px, calc(100vw - 48px));
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--paper); }
+body { color: var(--ink); font: 16px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+html[data-lang="zh"] body { font-family: "Noto Sans SC", "Inter", system-ui, sans-serif; }
+html[data-lang="zh"] h1, html[data-lang="zh"] h2 { font-family: "Noto Serif SC", serif; font-weight: 900; letter-spacing: .01em; }
+[lang="zh"] em, [lang="zh"] i { font-style: normal; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.wrap { width: var(--wrap); margin: 0 auto; }
+.mono { font-family: var(--mono); }
+.eyebrow { font: 500 12px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--brown); }
+html[data-lang="zh"] .eyebrow { letter-spacing: .08em; }
+
+/* ---------- nav ---------- */
+nav { position: absolute; z-index: 20; top: 0; left: 0; right: 0; height: 64px; display: flex; align-items: center; gap: 32px; padding: 0 max(24px, calc((100vw - 1240px) / 2));
+  background: rgba(243,239,228,.9); border-bottom: 1px solid rgba(31,36,32,.18); backdrop-filter: blur(6px); }
+.brand { display: flex; align-items: center; gap: 10px; font: 600 20px var(--display); letter-spacing: -.01em; }
+.brand small { font: 400 14px "Noto Sans SC", sans-serif; color: var(--ink-3); }
+nav ul { list-style: none; display: flex; gap: 28px; padding: 0; margin-left: auto; font-size: 14px; color: var(--ink-2); }
+nav li a:hover { color: var(--ink); }
+.lang { font: 13px var(--mono); border: 1px solid rgba(31,36,32,.3); padding: 5px 10px; border-radius: 3px; white-space: nowrap; }
+.lang b { font-weight: 400; opacity: .4; }
+html[data-lang="zh"] .lang .z, html[data-lang="en"] .lang .e { opacity: 1; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 3px; font-size: 14.5px; font-weight: 500; white-space: nowrap; transition: transform .15s ease, background-color .2s; }
+.btn:active { transform: scale(.97); }
+.btn.solid { background: var(--ink); color: var(--paper); }
+.btn.solid:hover { background: #2f362f; }
+.btn.line { border: 1px solid rgba(31,36,32,.45); }
+.btn.line:hover { background: rgba(31,36,32,.05); }
+
+/* ---------- hero map ---------- */
+.hero { position: relative; height: max(720px, min(100vh, 980px)); overflow: hidden; background: var(--paper-2); }
+.mapwrap { position: absolute; left: 0; right: 0; top: 0; height: 100%; touch-action: pan-y; }
+.mapwrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.mapwrap.sculpt { touch-action: none; cursor: crosshair; }
+@media (hover: hover) { .mapwrap { cursor: crosshair; } }
+.collar { position: absolute; inset: 78px 14px 14px; border: 1px solid rgba(31,36,32,.55); pointer-events: none; z-index: 2; }
+.collar::after { content: ""; position: absolute; inset: 3px; border: 1px solid rgba(31,36,32,.2); }
+.pin { position: absolute; z-index: 6; width: 34px; height: 44px; margin: -42px 0 0 -17px; touch-action: none; cursor: grab; filter: drop-shadow(0 3px 4px rgba(0,0,0,.25)); }
+.pin:active { cursor: grabbing; }
+.pin svg { width: 100%; height: 100%; display: block; }
+.pin b { position: absolute; top: 7px; left: 0; right: 0; text-align: center; font: 600 13px var(--mono); color: #fff; pointer-events: none; }
+.marker { position: absolute; z-index: 5; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 3px #fff, 0 0 0 4px rgba(0,0,0,.2); opacity: 0; transition: opacity .2s; pointer-events: none; }
+.readout { position: absolute; z-index: 7; pointer-events: none; font: 11px/1.45 var(--mono); background: rgba(243,239,228,.94); border: 1px solid rgba(31,36,32,.35); padding: 4px 8px; white-space: nowrap; opacity: 0; transition: opacity .15s; }
+.readout b { font-weight: 400; color: var(--brown); }
+
+.titleblock { position: absolute; z-index: 8; left: max(36px, calc((100vw - 1240px) / 2)); top: 112px; width: 448px; background: var(--paper); border: 1px solid var(--ink); box-shadow: 0 0 0 4px var(--paper), 0 0 0 5px rgba(31,36,32,.45), 0 24px 50px -24px rgba(40,30,10,.4); padding: 26px 28px 22px; }
+.titleblock h1 { font: 600 clamp(40px, 3.6vw, 54px)/1.02 var(--display); letter-spacing: -.02em; margin: 14px 0 14px; }
+.titleblock h1 em { font-style: italic; font-weight: 400; color: var(--brown); }
+html[data-lang="zh"] .titleblock h1 { font-size: clamp(36px, 3.1vw, 46px); line-height: 1.22; }
+html[data-lang="zh"] .titleblock h1 em { color: var(--brown); }
+.titleblock p { color: var(--ink-2); font-size: 15.5px; }
+.titleblock .row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 20px; padding-top: 16px; border-top: 1px dashed rgba(31,36,32,.3); }
+.seg { display: inline-flex; border: 1px solid rgba(31,36,32,.45); border-radius: 3px; overflow: hidden; }
+.seg button { padding: 6px 11px; font: 12.5px var(--mono); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.chip { padding: 6px 10px; font: 12.5px var(--mono); border: 1px solid rgba(31,36,32,.3); border-radius: 3px; }
+.chip:hover { background: rgba(31,36,32,.06); }
+.hint { font-size: 12.5px; color: var(--ink-3); margin-top: 10px; line-height: 1.5; }
+
+.legendbox { position: absolute; z-index: 8; left: max(36px, calc((100vw - 1240px) / 2)); bottom: 34px; display: flex; align-items: flex-end; gap: 18px; }
+.layers { display: flex; gap: 6px; flex-wrap: wrap; background: rgba(243,239,228,.92); border: 1px solid rgba(31,36,32,.4); padding: 6px; }
+.layers button { font: 11.5px var(--mono); padding: 4px 8px; border-radius: 2px; color: var(--ink-3); }
+.layers button[aria-pressed="true"] { color: var(--ink); background: rgba(31,36,32,.08); }
+.layers button[aria-pressed="true"]::before { content: "■ "; color: var(--brown); }
+.layers button[aria-pressed="false"]::before { content: "□ "; }
+.compass { width: 62px; height: 62px; }
+.scale { font: 10.5px var(--mono); color: var(--ink-2); }
+.scale .bar { display: flex; height: 6px; border: 1px solid var(--ink); margin-bottom: 4px; }
+.scale .bar i { flex: 1; } .scale .bar i:nth-child(odd) { background: var(--ink); }
+.scale .ticks { display: flex; justify-content: space-between; }
+
+.profile { position: absolute; z-index: 8; right: max(36px, calc((100vw - 1240px) / 2)); bottom: 34px; width: 540px; background: rgba(243,239,228,.96); border: 1px solid var(--ink); box-shadow: 0 0 0 4px rgba(243,239,228,.96), 0 0 0 5px rgba(31,36,32,.4), 0 24px 50px -24px rgba(40,30,10,.4); padding: 14px 16px 10px; }
+.profile header { display: flex; justify-content: space-between; align-items: baseline; }
+.profile h3 { font: 600 15px var(--sans); }
+.profile header span { font: 11px var(--mono); color: var(--ink-3); }
+.stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 10px 0 6px; }
+.stats div { font: 10.5px var(--mono); color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+html[data-lang="zh"] .stats div { text-transform: none; letter-spacing: 0; font-family: "Noto Sans SC", sans-serif; font-size: 11.5px; }
+.stats b { display: block; font: 500 17px var(--mono); color: var(--ink); letter-spacing: -.02em; text-transform: none; margin-top: 1px; }
+.profile canvas { width: 100%; height: 118px; display: block; cursor: crosshair; }
+.profile .note { font-size: 11px; color: var(--ink-3); margin-top: 4px; }
+
+/* ---------- sections ---------- */
+section.block { padding: 110px 0 20px; }
+.head { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: end; margin-bottom: 44px; }
+.head h2 { font: 600 clamp(34px, 3.6vw, 52px)/1.06 var(--display); letter-spacing: -.02em; margin-top: 12px; }
+html[data-lang="zh"] .head h2 { font-size: clamp(32px, 3.2vw, 46px); line-height: 1.25; }
+.head p { color: var(--ink-2); font-size: 17px; max-width: 30em; justify-self: end; }
+
+.forms { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.form { background: #f8f5ec; border: 1px solid rgba(31,36,32,.25); padding: 12px 12px 18px; transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s; }
+.form:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -28px rgba(40,30,10,.5); }
+.form canvas { width: 100%; aspect-ratio: 4 / 3; display: block; }
+.form .xs { width: 100%; height: 44px; display: block; margin-top: 6px; }
+.form .xs-l { display: flex; justify-content: space-between; font: 10px var(--mono); color: var(--ink-3); margin-top: 2px; text-transform: uppercase; }
+.form h3 { font: 600 19px var(--display); margin: 14px 2px 4px; display: flex; gap: 8px; align-items: baseline; }
+html[data-lang="zh"] .form h3 { font: 700 17px "Noto Sans SC", sans-serif; }
+.form h3 small { font: 11px var(--mono); color: var(--brown); font-weight: 400; }
+.form p { font-size: 14.5px; color: var(--ink-2); margin: 0 2px; line-height: 1.55; }
+
+.legend { border: 1px solid var(--ink); box-shadow: 0 0 0 4px var(--paper), 0 0 0 5px rgba(31,36,32,.45); background: #f8f5ec; padding: 26px 32px 30px; }
+.legend .t { display: flex; justify-content: space-between; font: 500 12px var(--mono); letter-spacing: .14em; color: var(--ink-2); border-bottom: 1px solid rgba(31,36,32,.3); padding-bottom: 12px; margin-bottom: 8px; }
+.legend ul { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 56px; }
+.legend li { display: grid; grid-template-columns: 70px 1fr; gap: 18px; align-items: center; padding: 18px 0; border-bottom: 1px dotted rgba(31,36,32,.3); }
+.legend li svg { width: 70px; height: 44px; }
+.legend li b { display: block; font: 600 17px var(--sans); margin-bottom: 2px; }
+.legend li span { color: var(--ink-2); font-size: 14.5px; line-height: 1.55; display: block; }
+
+.sheets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.sheet { border: 1px solid rgba(31,36,32,.35); background: #f8f5ec; display: flex; flex-direction: column; }
+.sheet.feat { border-color: var(--ink); box-shadow: 0 0 0 3px #f8f5ec, 0 0 0 4px var(--ink); }
+.sheet canvas { width: 100%; aspect-ratio: 16 / 9; display: block; border-bottom: 1px solid rgba(31,36,32,.25); }
+.sheet .in { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.sheet .sc { font: 500 13px var(--mono); color: var(--brown); }
+.sheet h3 { font: 600 24px var(--display); }
+html[data-lang="zh"] .sheet h3 { font: 700 21px "Noto Sans SC", sans-serif; }
+.sheet .price { font: 500 30px var(--mono); letter-spacing: -.03em; }
+.sheet .price small { font-size: 13px; color: var(--ink-3); letter-spacing: 0; }
+.sheet p { color: var(--ink-2); font-size: 14.5px; flex: 1; }
+.sheet .btn { align-self: flex-start; margin-top: 6px; }
+
+.closing { position: relative; margin-top: 110px; height: 460px; background: var(--night); color: #efe6d2; overflow: hidden; }
+.closing canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.closing .in { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 18px; }
+.closing h2 { font: 600 clamp(44px, 5.4vw, 80px)/1 var(--display); letter-spacing: -.02em; text-shadow: 0 0 30px var(--night), 0 0 12px var(--night); }
+html[data-lang="zh"] .closing h2 { font-size: clamp(38px, 4.6vw, 64px); line-height: 1.2; }
+.closing .btn.solid { background: #efe6d2; color: var(--night); }
+.closing small { font: 11px var(--mono); letter-spacing: .12em; color: #a9b29f; text-transform: uppercase; }
+
+footer { padding: 40px 0 56px; font-size: 13px; line-height: 1.85; color: var(--ink-3); }
+footer .top { display: flex; justify-content: space-between; align-items: center; color: var(--ink-2); margin-bottom: 14px; }
+footer b { color: var(--ink-2); font-weight: 500; }
+
+/* ---------- small screens ---------- */
+@media (max-width: 1100px) {
+  .profile { width: 440px; }
+  .stats b { font-size: 15px; }
+  .forms { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 860px) {
+  nav { gap: 12px; padding: 0 18px; }
+  nav ul, nav .btn { display: none; }
+  .lang { margin-left: auto; }
+  .hero { height: auto; overflow: visible; padding-top: 64px; background: var(--paper); }
+  .titleblock { position: relative; left: auto; top: auto; width: auto; margin: 22px 18px 0; padding: 22px 20px 18px; }
+  .mapstage { position: relative; height: 520px; margin: 24px 0 0; overflow: hidden; background: var(--paper-2); }
+  .collar { inset: 10px; }
+  .legendbox { left: 18px; bottom: 18px; gap: 10px; }
+  .compass { width: 48px; height: 48px; }
+  .layers { max-width: 220px; }
+  .profile { position: relative; right: auto; bottom: auto; width: auto; margin: 18px 18px 0; }
+  .stats { grid-template-columns: repeat(3, 1fr); row-gap: 10px; }
+  .head { grid-template-columns: 1fr; gap: 16px; }
+  .head p { justify-self: start; }
+  section.block { padding-top: 80px; }
+  .forms, .sheets { grid-template-columns: 1fr; }
+  .legend { padding: 20px 18px; }
+  .legend ul { grid-template-columns: 1fr; }
+  .legend li { grid-template-columns: 56px 1fr; gap: 14px; }
+  .legend li svg { width: 56px; }
+  .closing { height: 400px; margin-top: 80px; }
+}
+@media (min-width: 861px) { .mapstage { position: absolute; inset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero" id="terrain">
+  <nav>
+    <a class="brand" href="#">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#9a5a2e" stroke-width="1.4" aria-hidden="true"><path d="M2 20c4-1 6-9 11-9s7 8 11 9"/><path d="M5 20c3-1 5-6 8-6s5 5 8 6" opacity=".7"/><path d="M8.5 20c2 0 3-3 4.5-3s2.5 3 4.5 3" opacity=".5"/><circle cx="13" cy="11" r="1.6" fill="#c8352b" stroke="none"/></svg>
+      Saddle <small>鞍部</small>
+    </a>
+    <ul>
+      <li><a href="#terrain"><span lang="en">Terrain</span><span lang="zh">地形</span></a></li>
+      <li><a href="#reading"><span lang="en">Reading</span><span lang="zh">读图</span></a></li>
+      <li><a href="#legend"><span lang="en">Legend</span><span lang="zh">图例</span></a></li>
+      <li><a href="#sheets"><span lang="en">Sheets</span><span lang="zh">图幅</span></a></li>
+    </ul>
+    <button class="lang" data-lang-toggle aria-label="Switch language"><b class="z">中</b> / <b class="e">EN</b></button>
+    <a class="btn solid" href="#sheets"><span lang="en">Plan a route</span><span lang="zh">规划一条路线</span></a>
+  </nav>
+
+  <div class="titleblock">
+    <div class="eyebrow"><span lang="en">Sheet 07 · Saddle quadrangle · 1:25 000</span><span lang="zh">第 07 幅 · 鞍部图幅 · 1:25 000</span></div>
+    <h1><span lang="en">Every ridge has a <em>saddle</em>.</span><span lang="zh">每一道山脊，<br>都有一处<em>鞍部</em>。</span></h1>
+    <p><span lang="en">Saddle draws mountains the way surveyors did, one line for every 20 metres of height. Drag your route across and see how hard the day will be before you leave the car.</span><span lang="zh">鞍部用测绘员的办法画山：每升高 20 米，就画一条线。把路线拖过去，还没下车，就知道这一天会有多累。</span></p>
+    <div class="row">
+      <a class="btn solid" href="#sheets"><span lang="en">Plan a route</span><span lang="zh">规划一条路线</span></a>
+      <a class="btn line" href="#reading"><span lang="en">How to read the lines ↓</span><span lang="zh">先学会读等高线 ↓</span></a>
+    </div>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Brush">
+        <button data-mode="raise" aria-pressed="true">▲ <span lang="en">Raise</span><span lang="zh">堆高</span></button>
+        <button data-mode="dig" aria-pressed="false">▼ <span lang="en">Dig</span><span lang="zh">挖低</span></button>
+      </div>
+      <button class="chip" id="reset"><span lang="en">Reset terrain</span><span lang="zh">复原地形</span></button>
+      <button class="chip" id="sculptToggle" hidden><span lang="en">Sculpt: off</span><span lang="zh">塑形：关</span></button>
+    </div>
+    <div class="hint" id="hint"><span lang="en">Press and drag on the map to raise ground, hold Alt to dig. Move pins A and B to change the route.</span><span lang="zh">在地图上按住拖动，地面会隆起，按住 Alt 就往下挖。拖动 A、B 两个图钉，路线跟着变。</span></div>
+  </div>
+
+  <div class="mapstage">
+    <div class="mapwrap" id="mapwrap">
+      <canvas id="map"></canvas>
+      <canvas id="route"></canvas>
+      <div class="pin" data-pin="a"><svg viewBox="0 0 34 44"><path d="M17 43C17 43 3 26 3 16a14 14 0 0 1 28 0c0 10-14 27-14 27z" fill="#c8352b" stroke="#fff" stroke-width="2"/></svg><b>A</b></div>
+      <div class="pin" data-pin="b"><svg viewBox="0 0 34 44"><path d="M17 43C17 43 3 26 3 16a14 14 0 0 1 28 0c0 10-14 27-14 27z" fill="#1f2420" stroke="#fff" stroke-width="2"/></svg><b>B</b></div>
+      <div class="marker" id="marker"></div>
+      <div class="readout" id="readout"></div>
+    </div>
+    <div class="collar"></div>
+    <div class="legendbox">
+      <svg class="compass" viewBox="-32 -32 64 64" aria-hidden="true">
+        <circle r="26" fill="rgba(243,239,228,.9)" stroke="#1f2420" stroke-width=".8"/>
+        <circle r="21" fill="none" stroke="#1f2420" stroke-width=".4" stroke-dasharray="1 2.2"/>
+        <path d="M0-24 4 0 0 24-4 0z" fill="#f3efe4" stroke="#1f2420" stroke-width=".7"/>
+        <path d="M0-24 4 0H-4z" fill="#1f2420"/>
+        <path d="M-24 0 0-3 24 0 0 3z" fill="none" stroke="#1f2420" stroke-width=".5"/>
+        <text y="-27.5" text-anchor="middle" font-family="JetBrains Mono" font-size="7" fill="#1f2420">N</text>
+      </svg>
+      <div>
+        <div class="layers" role="group" aria-label="Layers">
+          <button data-layer="shade" aria-pressed="true"><span lang="en">Hillshade</span><span lang="zh">晕渲</span></button>
+          <button data-layer="woods" aria-pressed="true"><span lang="en">Woods</span><span lang="zh">林地</span></button>
+          <button data-layer="grid" aria-pressed="true"><span lang="en">Grid</span><span lang="zh">方里网</span></button>
+          <button data-layer="labels" aria-pressed="true"><span lang="en">Labels</span><span lang="zh">注记</span></button>
+        </div>
+        <div class="scale" style="margin-top:10px;width:160px" id="scale">
+          <div class="bar"><i></i><i></i><i></i><i></i></div>
+          <div class="ticks"><span>0</span><span>500</span><span>1 km</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <aside class="profile" id="profile">
+    <header><h3><span lang="en">Profile A → B</span><span lang="zh">A → B 剖面</span></h3><span><span lang="en">contour interval 20 m</span><span lang="zh">等高距 20 米</span></span></header>
+    <div class="stats">
+      <div><span lang="en">Distance</span><span lang="zh">距离</span><b id="sDist">–</b></div>
+      <div><span lang="en">Ascent</span><span lang="zh">累计爬升</span><b id="sUp">–</b></div>
+      <div><span lang="en">Descent</span><span lang="zh">累计下降</span><b id="sDown">–</b></div>
+      <div><span lang="en">Steepest</span><span lang="zh">最大坡度</span><b id="sGrade">–</b></div>
+      <div><span lang="en">Time</span><span lang="zh">预计用时</span><b id="sTime">–</b></div>
+    </div>
+    <canvas id="chart"></canvas>
+    <div class="note"><span lang="en">Time by Naismith's rule: 5 km an hour, plus an hour for every 600 m climbed.</span><span lang="zh">用时按奈史密斯法则估算：每小时走 5 公里，每爬 600 米多算 1 小时。</span></div>
+  </aside>
+</header>
+
+<main class="wrap">
+  <section class="block" id="reading">
+    <div class="head">
+      <div>
+        <div class="eyebrow"><span lang="en">02 · Reading the lines</span><span lang="zh">02 · 读图</span></div>
+        <h2><span lang="en">Learn four shapes and you can read any mountain.</span><span lang="zh">认得这四种形状，<br>就读得懂任何一座山。</span></h2>
+      </div>
+      <p><span lang="en">A contour joins every point at the same height. How close the lines sit and which way they bend tell you the rest. Under each map is the slice you would walk.</span><span lang="zh">等高线就是把一样高的点连起来。线挨得多近、往哪边弯，山的样子就全在里面了。每张图下面，是沿中线走一遍的横剖面。</span></p>
+    </div>
+    <div class="forms">
+      <article class="form"><canvas data-form="summit"></canvas><canvas class="xs" data-xs="summit"></canvas><div class="xs-l"><span>W</span><span><span lang="en">cross-section</span><span lang="zh">横剖面</span></span><span>E</span></div>
+        <h3><span lang="en">Summit</span><span lang="zh">山顶</span><small>▲</small></h3>
+        <p><span lang="en">Closed rings that shrink inward. The smallest ring is the top.</span><span lang="zh">一圈套一圈，越往里越小，最小那圈就是山顶。</span></p></article>
+      <article class="form"><canvas data-form="saddle"></canvas><canvas class="xs" data-xs="saddle"></canvas><div class="xs-l"><span>W</span><span><span lang="en">cross-section</span><span lang="zh">横剖面</span></span><span>E</span></div>
+        <h3><span lang="en">Saddle</span><span lang="zh">鞍部</span><small>)(</small></h3>
+        <p><span lang="en">Two sets of rings back to back. The low point between them is where you cross.</span><span lang="zh">两组圈背靠背，中间那个最低的地方，就是翻山的路口。</span></p></article>
+      <article class="form"><canvas data-form="valley"></canvas><canvas class="xs" data-xs="valley"></canvas><div class="xs-l"><span>W</span><span><span lang="en">cross-section</span><span lang="zh">横剖面</span></span><span>E</span></div>
+        <h3><span lang="en">Valley</span><span lang="zh">山谷</span><small>V</small></h3>
+        <p><span lang="en">Lines bend into a V that points uphill. Water runs down the middle.</span><span lang="zh">线弯成 V 字，尖头指向上游，水从中间流下来。</span></p></article>
+      <article class="form"><canvas data-form="cliff"></canvas><canvas class="xs" data-xs="cliff"></canvas><div class="xs-l"><span>W</span><span><span lang="en">cross-section</span><span lang="zh">横剖面</span></span><span>E</span></div>
+        <h3><span lang="en">Cliff</span><span lang="zh">陡崖</span><small>≡</small></h3>
+        <p><span lang="en">Lines crowd together until they nearly touch. Plan a way around.</span><span lang="zh">线挤在一起，几乎要碰上，这里最好绕开走。</span></p></article>
+    </div>
+  </section>
+
+  <section class="block" id="legend">
+    <div class="head">
+      <div>
+        <div class="eyebrow"><span lang="en">03 · Legend</span><span lang="zh">03 · 图例</span></div>
+        <h2><span lang="en">What's on the sheet.</span><span lang="zh">图上都有什么。</span></h2>
+      </div>
+      <p><span lang="en">Every feature in the app is drawn the way a map would draw it, so you already know how to read it.</span><span lang="zh">每个功能都照地图的画法画出来，你一看就懂。</span></p>
+    </div>
+    <div class="legend">
+      <div class="t"><span><span lang="en">LEGEND</span><span lang="zh">图例</span></span><span>SADDLE · v7</span></div>
+      <ul>
+        <li><svg viewBox="0 0 70 44" fill="none" stroke="#1f2420" stroke-width="1.2"><path d="M6 14V6h8M56 6h8v8M64 30v8h-8M14 38H6v-8"/><path d="M20 30c6-2 8-12 15-12s9 10 15 12" stroke="#9a5a2e"/><path d="M26 30c4-1 6-7 9-7s5 6 9 7" stroke="#b98055" stroke-width=".8"/></svg>
+          <div><b><span lang="en">Offline sheets</span><span lang="zh">离线图幅</span></b><span><span lang="en">Download a sheet at home. Out there it works with no signal at all.</span><span lang="zh">在家把图幅下好，进山以后一格信号都没有也能用。</span></span></div></li>
+        <li><svg viewBox="0 0 70 44" fill="none"><path d="M4 36h62" stroke="#1f2420" stroke-width=".8"/><path d="M4 34l10-8 8 3 12-17 9 9 8-6 15 19z" fill="rgba(154,90,46,.2)" stroke="#9a5a2e" stroke-width="1.3" stroke-linejoin="round"/><circle cx="34" cy="12" r="2.4" fill="#c8352b"/></svg>
+          <div><b><span lang="en">Live profile</span><span lang="zh">实时剖面</span></b><span><span lang="en">Drag the route and the cross-section redraws as you go.</span><span lang="zh">拖动路线，剖面图跟着重画。</span></span></div></li>
+        <li><svg viewBox="0 0 70 44" fill="none" stroke="#1f2420" stroke-width="1.2"><path d="M4 32h62"/><path d="M23 32a12 12 0 0 1 24 0" fill="rgba(200,53,43,.12)" stroke="#c8352b"/><path d="M35 10v5M20 15l3 4M50 15l-3 4M14 24l4 2M56 24l-4 2" stroke="#c8352b"/><path d="M10 38h50" stroke-dasharray="2 3" stroke-width=".8"/></svg>
+          <div><b><span lang="en">Back before dark</span><span lang="zh">天黑前回得来</span></b><span><span lang="en">Your pace, the climb and tonight's sunset, folded into one number.</span><span lang="zh">把你的速度、爬升和今天的日落时间，算成一个数字。</span></span></div></li>
+        <li><svg viewBox="0 0 70 44" fill="none" stroke="#9a5a2e" stroke-width="1.1"><path d="M8 6c10 6 14 12 27 12S52 12 62 6"/><path d="M8 38c10-6 14-12 27-12s17 6 27 12"/><path d="M16 4c6 5 10 9 19 9s13-4 19-9" stroke-width=".7"/><path d="M16 40c6-5 10-9 19-9s13 4 19 9" stroke-width=".7"/><path d="M4 22h62" stroke="#c8352b" stroke-dasharray="3 2.5"/><circle cx="35" cy="22" r="2.6" fill="#c8352b" stroke="none"/></svg>
+          <div><b><span lang="en">Saddle finder</span><span lang="zh">找鞍部</span></b><span><span lang="en">Finds the lowest way over a ridge between two valleys.</span><span lang="zh">在两条山谷之间，找出翻过山脊最低的那个口子。</span></span></div></li>
+        <li><svg viewBox="0 0 70 44" fill="none"><ellipse cx="30" cy="22" rx="17" ry="11" fill="#bcd6e8" stroke="#2f6fa8" stroke-width="1.2"/><path d="M47 22c6 1 9 5 17 6" stroke="#2f6fa8" stroke-width="1.1"/><circle cx="58" cy="10" r="2.6" fill="none" stroke="#2f6fa8" stroke-width="1.2"/></svg>
+          <div><b><span lang="en">Water</span><span lang="zh">水源</span></b><span><span lang="en">Springs, tarns and streams along the route, and how far apart they are.</span><span lang="zh">沿路的泉眼、小湖和溪流，还有它们之间隔多远。</span></span></div></li>
+        <li><svg viewBox="0 0 70 44" fill="none"><path d="M6 34c10-2 12-20 24-20s14 16 34 8" stroke="#fff" stroke-width="5" stroke-linecap="round"/><path d="M6 34c10-2 12-20 24-20s14 16 34 8" stroke="#c8352b" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/><circle cx="6" cy="34" r="3" fill="#c8352b"/><circle cx="64" cy="22" r="3" fill="#1f2420"/></svg>
+          <div><b><span lang="en">Party track</span><span lang="zh">同行轨迹</span></b><span><span lang="en">Share the line with your group. It syncs as soon as anyone finds signal.</span><span lang="zh">把路线发给同行的人，谁先有信号，谁就把大家同步上。</span></span></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block" id="sheets">
+    <div class="head">
+      <div>
+        <div class="eyebrow"><span lang="en">04 · Sheets</span><span lang="zh">04 · 图幅</span></div>
+        <h2><span lang="en">Pick your scale.</span><span lang="zh">选一个比例尺。</span></h2>
+      </div>
+      <p><span lang="en">The closer the contours, the more of the mountain you see. Same hillside, three intervals.</span><span lang="zh">等高线越密，看到的山就越细。下面是同一面山坡，三种等高距。</span></p>
+    </div>
+    <div class="sheets">
+      <article class="sheet"><canvas data-sheet="100"></canvas><div class="in">
+        <div class="sc">1:100 000 · <span lang="en">100 m interval</span><span lang="zh">等高距 100 米</span></div>
+        <h3><span lang="en">Overview</span><span lang="zh">总览</span></h3>
+        <div class="price"><span lang="en">Free</span><span lang="zh">免费</span></div>
+        <p><span lang="en">Whole ranges at a glance. Plan the trip from the sofa.</span><span lang="zh">一眼看完整条山脉，在沙发上就能把行程排好。</span></p>
+        <a class="btn line" href="#"><span lang="en">Open the map</span><span lang="zh">打开地图</span></a></div></article>
+      <article class="sheet feat"><canvas data-sheet="20"></canvas><div class="in">
+        <div class="sc">1:25 000 · <span lang="en">20 m interval</span><span lang="zh">等高距 20 米</span></div>
+        <h3><span lang="en">Hiker</span><span lang="zh">徒步</span></h3>
+        <div class="price"><span lang="en">$4</span><span lang="zh">¥28</span><small> / <span lang="en">month</span><span lang="zh">月</span></small></div>
+        <p><span lang="en">Offline sheets, live profiles and the time it will really take.</span><span lang="zh">离线图幅、实时剖面，还有一个靠谱的用时。</span></p>
+        <a class="btn solid" href="#"><span lang="en">Start hiking</span><span lang="zh">开始徒步</span></a></div></article>
+      <article class="sheet"><canvas data-sheet="10"></canvas><div class="in">
+        <div class="sc">1:10 000 · <span lang="en">10 m interval</span><span lang="zh">等高距 10 米</span></div>
+        <h3><span lang="en">Guide</span><span lang="zh">向导</span></h3>
+        <div class="price"><span lang="en">$12</span><span lang="zh">¥85</span><small> / <span lang="en">month</span><span lang="zh">月</span></small></div>
+        <p><span lang="en">Party tracks and the saddle finder, for people who take others up.</span><span lang="zh">同行轨迹和找鞍部都有，给带别人上山的人用。</span></p>
+        <a class="btn line" href="#"><span lang="en">Lead a group</span><span lang="zh">带一支队伍</span></a></div></article>
+    </div>
+  </section>
+</main>
+
+<section class="closing" id="closing">
+  <canvas id="night"></canvas>
+  <div class="in">
+    <small><span lang="en">Sheet 07 of 12 · surveyed in code</span><span lang="zh">第 07 幅，共 12 幅 · 用代码测绘</span></small>
+    <h2><span lang="en">Go find your saddle.</span><span lang="zh">去找你的那处鞍部。</span></h2>
+    <a class="btn solid" href="#terrain"><span lang="en">Plan a route</span><span lang="zh">规划一条路线</span></a>
+  </div>
+</section>
+
+<footer class="wrap">
+  <div class="top"><span class="brand" style="font-size:17px">Saddle <small>鞍部</small></span><span><span lang="en">A fictional product, built as a design study.</span><span lang="zh">虚构产品，仅作设计练习。</span></span></div>
+  <p lang="en">No images are used on this page. The terrain, contours, hillshade, woods and lakes are generated live from procedural noise and do not depict any real place; the palette follows Swiss and USGS topographic map tradition. Fonts: Fraunces, Inter, IBM Plex Sans Condensed, JetBrains Mono, Noto Serif SC, Noto Sans SC (all OFL-1.1).</p>
+  <p><b>图源</b>：本页不使用任何图片。地形、等高线、晕渲、林地与湖泊全部由程序噪声实时生成，不对应任何真实地点；配色参考瑞士与美国地质调查局（USGS）地形图的传统用色。
+  字体：Fraunces、Inter、IBM Plex Sans Condensed、JetBrains Mono、Noto Serif SC、Noto Sans SC（均为 OFL-1.1）。本页为学习用 demo，品牌与文案均为虚构。<br>
+  侵权请联系删除。</p>
+</footer>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isZh = () => document.documentElement.dataset.lang === "zh";
+
+/* ---------- seeded Perlin noise ---------- */
+function makeNoise(seed) {
+  let s = seed >>> 0;
+  const rnd = () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
+  const perm = [...Array(256).keys()];
+  for (let i = 255; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [perm[i], perm[j]] = [perm[j], perm[i]]; }
+  const p = new Uint8Array(512), gx = new Float32Array(256), gy = new Float32Array(256);
+  for (let i = 0; i < 512; i++) p[i] = perm[i & 255];
+  for (let i = 0; i < 256; i++) { const a = rnd() * Math.PI * 2; gx[i] = Math.cos(a); gy[i] = Math.sin(a); }
+  return (x, y) => {
+    let X = Math.floor(x), Y = Math.floor(y);
+    const xf = x - X, yf = y - Y; X &= 255; Y &= 255;
+    const aa = p[p[X] + Y], ab = p[p[X] + Y + 1], ba = p[p[X + 1] + Y], bb = p[p[X + 1] + Y + 1];
+    const u = xf * xf * xf * (xf * (xf * 6 - 15) + 10), v = yf * yf * yf * (yf * (yf * 6 - 15) + 10);
+    const g1 = gx[aa] * xf + gy[aa] * yf, g2 = gx[ba] * (xf - 1) + gy[ba] * yf;
+    const g3 = gx[ab] * xf + gy[ab] * (yf - 1), g4 = gx[bb] * (xf - 1) + gy[bb] * (yf - 1);
+    const x1 = g1 + u * (g2 - g1), x2 = g3 + u * (g4 - g3);
+    return x1 + v * (x2 - x1);
+  };
+}
+const N1 = makeNoise(7), N2 = makeNoise(91), N3 = makeNoise(23);
+// Mountain terrain in metres; (x, y) in terrain units (~3 big features per hero width).
+function terrain(x, y) {
+  let f = 0, a = 1, fr = 1, sum = 0;
+  for (let o = 0; o < 4; o++) { f += a * N1(x * fr, y * fr); sum += a; a *= .4; fr *= 2.1; }
+  f /= sum;
+  const r = 1 - Math.abs(N2(x * .8 + 17.3, y * .8 - 9.1)) * 1.5, r2 = 1 - Math.abs(N2(x * 1.9 + 3, y * 1.9 + 11)) * 1.5;
+  return 1100 + f * 1500 + (r * r - .5) * 800 + (r2 - .6) * 160;
+}
+const woodsAt = (x, y) => N3(x * 2.4 + 40, y * 2.4 + 40) + .35 * N3(x * 7 + 3, y * 7 - 5);
+
+/* ---------- colour helpers ---------- */
+const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+const TINT = [[400, hex("#dfe6c9")], [800, hex("#e9ebd3")], [1300, hex("#f2eedd")], [1900, hex("#f4efe3")], [2400, hex("#ebe7e2")], [3200, hex("#e4e2e1")]];
+function tint(h, out) {
+  if (h <= TINT[0][0]) { out[0] = TINT[0][1][0]; out[1] = TINT[0][1][1]; out[2] = TINT[0][1][2]; return; }
+  for (let k = 1; k < TINT.length; k++) if (h <= TINT[k][0] || k === TINT.length - 1) {
+    const [h0, c0] = TINT[k - 1], [h1, c1] = TINT[k], t = Math.min(1, (h - h0) / (h1 - h0));
+    out[0] = c0[0] + (c1[0] - c0[0]) * t; out[1] = c0[1] + (c1[1] - c0[1]) * t; out[2] = c0[2] + (c1[2] - c0[2]) * t; return;
+  }
+}
+const WOODS = hex("#c9dcae"), WATER = hex("#bcd6e8"), SHADOW = hex("#7d7790");
+
+/* ---------- the map engine ---------- */
+// One engine draws every map on the page: hero, the four landform cards, the pricing sheets.
+class Topo {
+  constructor(canvas, o) {
+    this.c = canvas; this.ctx = canvas.getContext("2d");
+    this.o = Object.assign({ cell: 4, metresPerCell: 25, interval: 20, indexEvery: 5, water: null, shade: true, woods: false, grid: false, labels: false, peaks: false,
+      line: "rgba(154,90,46,.62)", index: "rgba(140,78,38,.95)", lw: .6, ilw: 1.25, paper: null, exag: 2.2 }, o);
+    this.layers = { shade: this.o.shade, woods: this.o.woods, grid: this.o.grid, labels: this.o.labels };
+    this.off = document.createElement("canvas"); this.offCtx = this.off.getContext("2d");
+  }
+  resize() {
+    const r = this.c.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2), cell = this.o.cell;
+    this.w = r.width; this.h = r.height; this.dpr = dpr;
+    this.c.width = Math.round(r.width * dpr); this.c.height = Math.round(r.height * dpr);
+    this.cols = Math.ceil(r.width / cell) + 1; this.rows = Math.ceil(r.height / cell) + 1;
+    const W = this.cols + 1, H = this.rows + 1, n = W * H;
+    this.base = new Float32Array(n); this.H = new Float32Array(n);
+    if (!this.D || this.D.length !== n) this.D = new Float32Array(n);
+    this.wood = new Float32Array(n);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const i = y * W + x, [tx, ty] = this.o.toWorld(x, y, this);
+      this.base[i] = this.o.height(tx, ty);
+      this.wood[i] = this.o.woods ? woodsAt(tx, ty) : -1;
+    }
+    this.off.width = W; this.off.height = H;
+    this.img = this.offCtx.createImageData(W, H);
+  }
+  at(px, py) { // bilinear height at canvas CSS pixel
+    const W = this.cols + 1, gx = Math.max(0, Math.min(this.cols - .001, px / this.o.cell)), gy = Math.max(0, Math.min(this.rows - .001, py / this.o.cell));
+    const x = Math.floor(gx), y = Math.floor(gy), fx = gx - x, fy = gy - y, i = y * W + x, H = this.H;
+    return (H[i] * (1 - fx) + H[i + 1] * fx) * (1 - fy) + (H[i + W] * (1 - fx) + H[i + W + 1] * fx) * fy;
+  }
+  draw() {
+    const { ctx, o, dpr } = this, W = this.cols + 1, Hh = this.rows + 1, cell = o.cell, H = this.H, D = this.D, base = this.base;
+    for (let i = 0; i < H.length; i++) H[i] = base[i] + D[i];
+    // 1. base image: hypsometric tint, woods, water, Swiss-style hillshade from the north-west
+    const px = this.img.data, col = [0, 0, 0], span = 2 * o.metresPerCell, L = [-.58, -.58, .57];
+    for (let y = 0; y < Hh; y++) for (let x = 0; x < W; x++) {
+      const i = y * W + x, h = H[i], k = i * 4;
+      if (o.paper) { col[0] = o.paper[0]; col[1] = o.paper[1]; col[2] = o.paper[2]; } else tint(h, col);
+      if (this.layers.woods && this.wood[i] > .06 && h > 560 && h < 1850) { const t = Math.min(1, (this.wood[i] - .06) * 6) * .75; col[0] += (WOODS[0] - col[0]) * t; col[1] += (WOODS[1] - col[1]) * t; col[2] += (WOODS[2] - col[2]) * t; }
+      const wet = o.water !== null && h < o.water;
+      if (wet) { col[0] = WATER[0]; col[1] = WATER[1]; col[2] = WATER[2]; }
+      if (this.layers.shade && !wet) {
+        const dx = (H[i + (x < W - 1 ? 1 : 0)] - H[i - (x > 0 ? 1 : 0)]) / span * o.exag, dy = (H[i + (y < Hh - 1 ? W : 0)] - H[i - (y > 0 ? W : 0)]) / span * o.exag;
+        const inv = 1 / Math.sqrt(dx * dx + dy * dy + 1), l = (-dx * L[0] - dy * L[1] + L[2]) * inv; // lambert, 0.57 on flat ground
+        const lit = Math.min(1.03, .66 + .66 * l), sh = Math.max(0, .6 - l) * .42;
+        col[0] = (col[0] + (SHADOW[0] - col[0]) * sh) * lit; col[1] = (col[1] + (SHADOW[1] - col[1]) * sh) * lit; col[2] = (col[2] + (SHADOW[2] - col[2]) * sh) * lit;
+      }
+      px[k] = col[0]; px[k + 1] = col[1]; px[k + 2] = col[2]; px[k + 3] = 255;
+    }
+    this.offCtx.putImageData(this.img, 0, 0);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
+    const drawBase = () => ctx.drawImage(this.off, 0, 0, W, Hh, -cell / 2, -cell / 2, W * cell, Hh * cell);
+    drawBase();
+    // 2. contours by marching squares; index lines thicker, shoreline blue
+    const normal = new Path2D(), index = new Path2D(), shore = new Path2D(), iv = o.interval, idx = iv * o.indexEvery;
+    const cands = this.layers.labels ? new Map() : null, tile = 150;
+    // allocation-free marching squares: shared cell state, edge points written into P
+    let X0, Y0, A, B, C, Dd, LV, PATH, LAB;
+    const P = [0, 0, 0, 0];
+    const ept = (e, k) => {
+      switch (e) {
+        case 0: P[k] = X0 + (LV - A) / (B - A); P[k + 1] = Y0; break;
+        case 1: P[k] = X0 + 1; P[k + 1] = Y0 + (LV - B) / (C - B); break;
+        case 2: P[k] = X0 + (LV - Dd) / (C - Dd); P[k + 1] = Y0 + 1; break;
+        default: P[k] = X0; P[k + 1] = Y0 + (LV - A) / (Dd - A);
+      }
+    };
+    const add = (e1, e2) => {
+      ept(e1, 0); ept(e2, 2);
+      PATH.moveTo(P[0] * cell, P[1] * cell); PATH.lineTo(P[2] * cell, P[3] * cell);
+      if (LAB) { const mx = (P[0] + P[2]) / 2 * cell, my = (P[1] + P[3]) / 2 * cell, key = (mx / tile | 0) * 4096 + (my / tile | 0); if (!cands.has(key)) cands.set(key, [mx, my, LAB]); }
+    };
+    const trace = (x, y, a, b, c, d, Lv, path, label) => {
+      const cs = (a > Lv) << 3 | (b > Lv) << 2 | (c > Lv) << 1 | (d > Lv);
+      if (cs === 0 || cs === 15) return;
+      X0 = x; Y0 = y; A = a; B = b; C = c; Dd = d; LV = Lv; PATH = path; LAB = label;
+      const center = (a + b + c + d) / 4 > Lv;
+      switch (cs) {
+        case 1: case 14: add(3, 2); break;
+        case 2: case 13: add(2, 1); break;
+        case 3: case 12: add(3, 1); break;
+        case 4: case 11: add(0, 1); break;
+        case 6: case 9: add(0, 2); break;
+        case 7: case 8: add(0, 3); break;
+        case 5: if (center) { add(0, 3); add(1, 2); } else { add(0, 1); add(3, 2); } break;
+        case 10: if (center) { add(0, 1); add(3, 2); } else { add(0, 3); add(1, 2); } break;
+      }
+    };
+    for (let y = 0; y < Hh - 1; y++) for (let x = 0; x < W - 1; x++) {
+      const i = y * W + x;
+      const a = H[i], b = H[i + 1], c = H[i + W + 1], d = H[i + W];
+      const lo = Math.min(a, b, c, d), hi = Math.max(a, b, c, d);
+      if (o.water !== null && lo < o.water && hi > o.water) trace(x, y, a, b, c, d, o.water, shore, 0);
+      for (let Lv = Math.ceil(lo / iv) * iv; Lv < hi; Lv += iv) {
+        if (o.water !== null && Lv < o.water) continue;
+        const isIndex = Lv % idx === 0;
+        trace(x, y, a, b, c, d, Lv + 1e-3, isIndex ? index : normal, isIndex && cands ? Lv : 0);
+      }
+    }
+    ctx.lineJoin = "round"; ctx.lineCap = "round";
+    ctx.strokeStyle = o.line; ctx.lineWidth = o.lw; ctx.stroke(normal);
+    ctx.strokeStyle = o.index; ctx.lineWidth = o.ilw; ctx.stroke(index);
+    if (o.water !== null) { ctx.strokeStyle = "#2f6fa8"; ctx.lineWidth = 1.2; ctx.stroke(shore); }
+    // 3. labels on index contours: break the line, text reads uphill
+    if (cands) {
+      ctx.font = "500 10.5px 'IBM Plex Sans Condensed', sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      const avoid = o.avoid ? o.avoid() : [], hidden = (x, y) => avoid.some(r => x > r[0] && x < r[2] && y > r[1] && y < r[3]);
+      this.avoidRects = avoid;
+      for (const [mx, my, Lv] of cands.values()) {
+        if (mx < 24 || my < 90 || mx > this.w - 24 || my > this.h - 24 || hidden(mx, my)) continue;
+        const e = 4 * cell, gx = this.at(mx + e, my) - this.at(mx - e, my), gy = this.at(mx, my + e) - this.at(mx, my - e), g = Math.hypot(gx, gy);
+        if (g < 8) continue;
+        let th = Math.atan2(gx / g, -gy / g);
+        if (th > 1.75) th -= Math.PI; else if (th < -1.75) th += Math.PI;
+        const text = Lv.toLocaleString("en").replace(",", " "), tw = ctx.measureText(text).width + 6;
+        ctx.save(); ctx.translate(mx, my); ctx.rotate(th);
+        ctx.beginPath(); ctx.rect(-tw / 2, -6, tw, 12); ctx.clip();
+        ctx.rotate(-th); ctx.translate(-mx, -my);
+        const rr = tw / 2 + 8, sx = Math.max(0, Math.floor((mx - rr) / cell)), sy = Math.max(0, Math.floor((my - rr) / cell)), sw = Math.ceil(2 * rr / cell) + 2, sh = sw;
+        ctx.drawImage(this.off, sx, sy, sw, sh, sx * cell - cell / 2, sy * cell - cell / 2, sw * cell, sh * cell);
+        ctx.translate(mx, my); ctx.rotate(th);
+        ctx.fillStyle = o.index; ctx.fillText(text, 0, .5);
+        ctx.restore();
+      }
+    }
+    // 4. kilometre grid with edge numbers
+    if (this.layers.grid) {
+      const step = 1000 / o.metresPerCell * cell; ctx.strokeStyle = "rgba(31,60,120,.28)"; ctx.lineWidth = .7; ctx.beginPath();
+      const ox = (this.o.gridOrigin || 0) % step;
+      for (let x = step - ox; x < this.w; x += step) { ctx.moveTo(x, 0); ctx.lineTo(x, this.h); }
+      for (let y = step; y < this.h; y += step) { ctx.moveTo(0, y); ctx.lineTo(this.w, y); }
+      ctx.stroke();
+      ctx.fillStyle = "rgba(31,36,32,.7)"; ctx.font = "10px 'JetBrains Mono', monospace"; ctx.textAlign = "left"; ctx.textBaseline = "top";
+      const av = this.avoidRects || [], free = (x, y) => !av.some(r => x > r[0] && x < r[2] && y > r[1] && y < r[3]);
+      let n = 47; for (let x = step - ox; x < this.w - 30; x += step, n++) if (free(x + 8, this.h - 24)) ctx.fillText(String(n), x + 3, this.h - 30);
+      n = 31; ctx.textBaseline = "bottom"; for (let y = this.h - step; y > 100; y -= step, n++) if (free(24, y - 8)) ctx.fillText(String(n), 20, y - 2);
+    }
+    // 5. spot heights on the highest summits, named when the sheet is big enough
+    this.peaks = [];
+    if (o.peaks) {
+      const blk = 36, rad = 18;
+      for (let by = 0; by < Hh; by += blk) for (let bx = 0; bx < W; bx += blk) {
+        let best = -1e9, bi = -1;
+        for (let y = by; y < Math.min(Hh, by + blk); y++) for (let x = bx; x < Math.min(W, bx + blk); x++) { const i = y * W + x; if (H[i] > best) { best = H[i]; bi = i; } }
+        const x0 = bi % W, y0 = bi / W | 0; let ok = best > 1300 && x0 > 12 && y0 > 30 && x0 < W - 26 && y0 < Hh - 12;
+        for (let y = Math.max(0, y0 - rad); ok && y <= Math.min(Hh - 1, y0 + rad); y++) for (let x = Math.max(0, x0 - rad); x <= Math.min(W - 1, x0 + rad); x++) if (H[y * W + x] > best) { ok = false; break; }
+        if (ok) this.peaks.push([x0 * cell, y0 * cell, best]);
+      }
+      const av = this.avoidRects || (o.avoid ? o.avoid() : []);
+      this.peaks = this.peaks.filter(([x, y]) => !av.some(r => x > r[0] - 40 && x < r[2] + 40 && y > r[1] - 20 && y < r[3] + 10));
+      this.peaks.sort((p, q) => q[2] - p[2]);
+      const names = isZh() ? ["望云峰", "灰马岭", "灯笼尖", "冷顶", "冬青岗", "鹰嘴"] : ["Aurel Peak", "Grey Mare", "The Lantern", "Cold Knob", "Hollin Fell", "Kestrel"];
+      this.peaks.slice(0, 7).forEach(([x, y, h], k) => {
+        ctx.fillStyle = "#1f2420"; ctx.beginPath(); ctx.moveTo(x, y - 4.5); ctx.lineTo(x + 4.5, y + 3.5); ctx.lineTo(x - 4.5, y + 3.5); ctx.closePath(); ctx.fill();
+        ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.lineWidth = 3; ctx.strokeStyle = "rgba(243,239,228,.85)"; ctx.lineJoin = "round";
+        ctx.font = "10.5px 'JetBrains Mono', monospace"; ctx.strokeText(Math.round(h).toLocaleString("en").replace(",", " "), x + 8, y + 1); ctx.fillText(Math.round(h).toLocaleString("en").replace(",", " "), x + 8, y + 1);
+        if (k < 4 && this.layers.labels) {
+          ctx.font = isZh() ? "500 13px 'Noto Sans SC', sans-serif" : "italic 13px 'Fraunces', serif"; ctx.textAlign = "center";
+          ctx.strokeText(names[k], x, y - 15); ctx.fillText(names[k], x, y - 15);
+        }
+      });
+    }
+  }
+}
+
+/* ---------- hero ---------- */
+const wrap = document.getElementById("mapwrap"), mapC = document.getElementById("map"), routeC = document.getElementById("route"), rctx = routeC.getContext("2d");
+const SCALE = 1 / 120; // terrain units per cell
+const hero = new Topo(mapC, { cell: 4, metresPerCell: 25, interval: 20, water: 520, woods: true, grid: true, labels: true, peaks: true,
+  height: terrain, exag: 1.3, toWorld: (x, y) => [x * SCALE + 3.1, y * SCALE + 1.4],
+  avoid: () => [...document.querySelectorAll(".titleblock, .profile, .legendbox")].map(el => { const a = el.getBoundingClientRect(), b = wrap.getBoundingClientRect(); return [a.left - b.left - 10, a.top - b.top - 10, a.right - b.left + 10, a.bottom - b.top + 10]; }) });
+const pins = { a: [.44, .62], b: [.86, .3] };
+const pinEls = { a: document.querySelector('[data-pin="a"]'), b: document.querySelector('[data-pin="b"]') };
+let mode = "raise", profileData = null, hoverT = -1;
+
+function layoutPins() {
+  for (const k of ["a", "b"]) { pinEls[k].style.left = pins[k][0] * hero.w + "px"; pinEls[k].style.top = pins[k][1] * hero.h + "px"; }
+}
+function computeProfile() {
+  const ax = pins.a[0] * hero.w, ay = pins.a[1] * hero.h, bx = pins.b[0] * hero.w, by = pins.b[1] * hero.h;
+  const n = 180, pts = [], lenPx = Math.hypot(bx - ax, by - ay), lenM = lenPx / hero.o.cell * hero.o.metresPerCell;
+  for (let i = 0; i <= n; i++) { const t = i / n; pts.push(hero.at(ax + (bx - ax) * t, ay + (by - ay) * t)); }
+  let up = 0, down = 0, steep = 0; const step = lenM / n, win = Math.max(1, Math.round(100 / Math.max(step, 1)));
+  for (let i = 1; i <= n; i++) { const d = pts[i] - pts[i - 1]; if (d > 0) up += d; else down -= d; }
+  for (let i = win; i <= n; i += 1) steep = Math.max(steep, Math.abs(pts[i] - pts[i - win]) / (win * step));
+  profileData = { pts, lenM, up, down, steep, ax, ay, bx, by };
+  const hrs = lenM / 5000 + up / 600, hh = Math.floor(hrs), mm = Math.round((hrs - hh) * 60 / 5) * 5;
+  const zh = isZh();
+  document.getElementById("sDist").textContent = (lenM / 1000).toFixed(1) + (zh ? " 公里" : " km");
+  document.getElementById("sUp").textContent = Math.round(up) + (zh ? " 米" : " m");
+  document.getElementById("sDown").textContent = Math.round(down) + (zh ? " 米" : " m");
+  document.getElementById("sGrade").textContent = Math.round(steep * 100) + "%";
+  document.getElementById("sTime").textContent = zh ? `${hh} 时 ${mm} 分` : `${hh}h ${String(mm).padStart(2, "0")}m`;
+}
+const chart = document.getElementById("chart"), cctx = chart.getContext("2d");
+function drawChart() {
+  if (!profileData) return;
+  const r = chart.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+  if (chart.width !== Math.round(r.width * dpr)) { chart.width = Math.round(r.width * dpr); chart.height = Math.round(r.height * dpr); }
+  const w = r.width, h = r.height, { pts, lenM } = profileData, padL = 38, padB = 16, padT = 8;
+  cctx.setTransform(dpr, 0, 0, dpr, 0, 0); cctx.clearRect(0, 0, w, h);
+  let lo = Math.min(...pts), hi = Math.max(...pts); lo = Math.floor((lo - 40) / 100) * 100; hi = Math.ceil((hi + 40) / 100) * 100;
+  const X = i => padL + (w - padL - 4) * i / (pts.length - 1), Y = v => padT + (h - padT - padB) * (1 - (v - lo) / (hi - lo));
+  cctx.font = "10px 'JetBrains Mono', monospace"; cctx.fillStyle = "#7c7d72"; cctx.textAlign = "right"; cctx.textBaseline = "middle";
+  const stepM = (hi - lo) > 800 ? 400 : (hi - lo) > 400 ? 200 : 100;
+  cctx.strokeStyle = "rgba(31,36,32,.12)"; cctx.lineWidth = 1;
+  for (let v = lo; v <= hi; v += stepM) { const y = Math.round(Y(v)) + .5; cctx.beginPath(); cctx.moveTo(padL, y); cctx.lineTo(w - 4, y); cctx.stroke(); cctx.fillText(v, padL - 6, y); }
+  cctx.textAlign = "center"; cctx.textBaseline = "top";
+  const km = lenM / 1000, kstep = km > 6 ? 2 : 1;
+  for (let k = 0; k <= km; k += kstep) cctx.fillText(k + (k === 0 ? "" : " km"), X(k / km * (pts.length - 1)), h - padB + 3);
+  const g = cctx.createLinearGradient(0, padT, 0, h - padB); g.addColorStop(0, "rgba(154,90,46,.42)"); g.addColorStop(1, "rgba(154,90,46,.04)");
+  cctx.beginPath(); cctx.moveTo(X(0), Y(lo)); pts.forEach((v, i) => cctx.lineTo(X(i), Y(v))); cctx.lineTo(X(pts.length - 1), Y(lo)); cctx.closePath(); cctx.fillStyle = g; cctx.fill();
+  cctx.beginPath(); pts.forEach((v, i) => i ? cctx.lineTo(X(i), Y(v)) : cctx.moveTo(X(i), Y(v))); cctx.strokeStyle = "#9a5a2e"; cctx.lineWidth = 1.6; cctx.stroke();
+  // high point
+  let mi = 0; pts.forEach((v, i) => { if (v > pts[mi]) mi = i; });
+  cctx.fillStyle = "#1f2420"; cctx.beginPath(); cctx.moveTo(X(mi), Y(pts[mi]) - 7); cctx.lineTo(X(mi) + 4, Y(pts[mi]) - 1); cctx.lineTo(X(mi) - 4, Y(pts[mi]) - 1); cctx.fill();
+  cctx.textBaseline = "bottom"; cctx.fillText(Math.round(pts[mi]) + " m", Math.min(w - 26, Math.max(padL + 20, X(mi))), Math.max(10, Y(pts[mi]) - 8));
+  for (const [k, i] of [["A", 0], ["B", pts.length - 1]]) { cctx.fillStyle = k === "A" ? "#c8352b" : "#1f2420"; cctx.beginPath(); cctx.arc(X(i), Y(pts[i]), 3.5, 0, 6.3); cctx.fill(); }
+  if (hoverT >= 0) {
+    const i = Math.round(hoverT * (pts.length - 1)), x = X(i);
+    cctx.strokeStyle = "rgba(200,53,43,.8)"; cctx.beginPath(); cctx.moveTo(x, padT); cctx.lineTo(x, h - padB); cctx.stroke();
+    cctx.fillStyle = "#c8352b"; cctx.beginPath(); cctx.arc(x, Y(pts[i]), 4, 0, 6.3); cctx.fill();
+    cctx.fillStyle = "#1f2420"; cctx.textAlign = x > w - 90 ? "right" : "left"; cctx.textBaseline = "top";
+    cctx.fillText(`${(hoverT * km).toFixed(2)} km · ${Math.round(pts[i])} m`, x + (x > w - 90 ? -6 : 6), padT);
+  }
+}
+function drawRoute() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  rctx.setTransform(dpr, 0, 0, dpr, 0, 0); rctx.clearRect(0, 0, hero.w, hero.h);
+  if (!profileData) return;
+  const { ax, ay, bx, by } = profileData;
+  rctx.lineCap = "round";
+  rctx.strokeStyle = "rgba(255,255,255,.9)"; rctx.lineWidth = 6; rctx.beginPath(); rctx.moveTo(ax, ay); rctx.lineTo(bx, by); rctx.stroke();
+  rctx.strokeStyle = "#c8352b"; rctx.lineWidth = 2.2; rctx.setLineDash([7, 5]); rctx.beginPath(); rctx.moveTo(ax, ay); rctx.lineTo(bx, by); rctx.stroke(); rctx.setLineDash([]);
+  // kilometre ticks along the route
+  const km = profileData.lenM / 1000;
+  for (let k = 1; k < km; k++) { const t = k / km, x = ax + (bx - ax) * t, y = ay + (by - ay) * t; rctx.fillStyle = "#fff"; rctx.beginPath(); rctx.arc(x, y, 3.2, 0, 6.3); rctx.fill(); rctx.fillStyle = "#c8352b"; rctx.beginPath(); rctx.arc(x, y, 1.8, 0, 6.3); rctx.fill(); }
+}
+function sizeHero() {
+  hero.resize();
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  routeC.width = Math.round(hero.w * dpr); routeC.height = Math.round(hero.h * dpr);
+  document.querySelector("#scale").style.width = (1000 / hero.o.metresPerCell * hero.o.cell) + "px";
+  redrawAll();
+}
+function redrawAll() { hero.draw(); layoutPins(); computeProfile(); drawRoute(); drawChart(); }
+
+// sculpting
+let brush = null, raf = 0;
+const coarse = matchMedia("(pointer: coarse)").matches;
+let sculptOn = !coarse;
+function stamp() {
+  raf = 0; if (!brush) return;
+  const { x, y, sign } = brush, W = hero.cols + 1, cell = hero.o.cell, R = 64 / cell, r2 = R * R, gx = x / cell, gy = y / cell, amt = 7 * sign;
+  for (let j = Math.max(0, Math.floor(gy - R * 1.6)); j <= Math.min(hero.rows, Math.ceil(gy + R * 1.6)); j++)
+    for (let i = Math.max(0, Math.floor(gx - R * 1.6)); i <= Math.min(hero.cols, Math.ceil(gx + R * 1.6)); i++) {
+      const d2 = (i - gx) ** 2 + (j - gy) ** 2; if (d2 > r2 * 2.6) continue;
+      const k = j * W + i; hero.D[k] = Math.max(-900, Math.min(900, hero.D[k] + amt * Math.exp(-d2 / r2 * 1.3)));
+    }
+  redrawAll(); showReadout(x, y);
+  raf = requestAnimationFrame(stamp);
+}
+const local = e => { const r = wrap.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+wrap.addEventListener("pointerdown", e => {
+  if (e.target.closest(".pin") || !sculptOn || e.button > 2) return;
+  const [x, y] = local(e);
+  brush = { x, y, sign: (mode === "dig" || e.altKey || e.button === 2) ? -1 : 1 };
+  wrap.setPointerCapture(e.pointerId); e.preventDefault();
+  if (!raf) raf = requestAnimationFrame(stamp);
+});
+wrap.addEventListener("contextmenu", e => e.preventDefault());
+addEventListener("pointerup", () => { brush = null; });
+const readout = document.getElementById("readout");
+function showReadout(x, y) {
+  if (coarse) return;
+  const h = hero.at(x, y), e = 4710 + Math.round(x / hero.o.cell * hero.o.metresPerCell / 10), n = 3290 - Math.round(y / hero.o.cell * hero.o.metresPerCell / 10);
+  const wet = h < hero.o.water;
+  readout.innerHTML = `E ${e} · N ${n}<br><b>${wet ? (isZh() ? "湖面 " : "lake ") + hero.o.water : Math.round(h)} m</b>`;
+  readout.style.left = (x + 16) + "px"; readout.style.top = (y + 14) + "px"; readout.style.opacity = 1;
+}
+wrap.addEventListener("pointermove", e => { const [x, y] = local(e); if (brush) { brush.x = x; brush.y = y; } else if (e.pointerType === "mouse") showReadout(x, y); });
+wrap.addEventListener("pointerleave", () => { readout.style.opacity = 0; });
+
+// pins
+for (const k of ["a", "b"]) {
+  const el = pinEls[k];
+  el.addEventListener("pointerdown", e => { el.setPointerCapture(e.pointerId); el.dragging = true; e.stopPropagation(); e.preventDefault(); });
+  el.addEventListener("pointermove", e => {
+    if (!el.dragging) return;
+    const [x, y] = local(e);
+    pins[k] = [Math.max(.03, Math.min(.97, x / hero.w)), Math.max(.12, Math.min(.97, (y + 20) / hero.h))];
+    layoutPins(); computeProfile(); drawRoute(); drawChart();
+  });
+  el.addEventListener("pointerup", () => { el.dragging = false; });
+}
+// profile hover ↔ map marker
+const marker = document.getElementById("marker");
+chart.addEventListener("pointermove", e => {
+  const r = chart.getBoundingClientRect(); hoverT = Math.max(0, Math.min(1, (e.clientX - r.left - 38) / (r.width - 42)));
+  const { ax, ay, bx, by } = profileData; marker.style.left = ax + (bx - ax) * hoverT + "px"; marker.style.top = ay + (by - ay) * hoverT + "px"; marker.style.opacity = 1;
+  drawChart();
+});
+chart.addEventListener("pointerleave", () => { hoverT = -1; marker.style.opacity = 0; drawChart(); });
+
+// tools
+document.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => {
+  mode = b.dataset.mode; document.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  if (coarse && !sculptOn) toggleSculpt(true);
+}));
+document.getElementById("reset").addEventListener("click", () => { hero.D.fill(0); redrawAll(); });
+document.querySelectorAll("[data-layer]").forEach(b => b.addEventListener("click", () => {
+  const on = b.getAttribute("aria-pressed") !== "true"; b.setAttribute("aria-pressed", on); hero.layers[b.dataset.layer] = on; redrawAll();
+}));
+const sculptBtn = document.getElementById("sculptToggle");
+function toggleSculpt(on) {
+  sculptOn = on; wrap.classList.toggle("sculpt", on);
+  sculptBtn.innerHTML = on ? '<span lang="en">Sculpt: on</span><span lang="zh">塑形：开</span>' : '<span lang="en">Sculpt: off</span><span lang="zh">塑形：关</span>';
+}
+if (coarse) {
+  sculptBtn.hidden = false; sculptBtn.addEventListener("click", () => toggleSculpt(!sculptOn));
+  document.getElementById("hint").innerHTML = '<span lang="en">Turn sculpt on, then drag on the map to raise or dig. Drag pins A and B to change the route.</span><span lang="zh">先打开塑形，再在地图上拖动，就能堆高或挖低。拖动 A、B 两个图钉，路线跟着变。</span>';
+}
+
+/* ---------- landform cards: analytic terrains ---------- */
+const g2 = (x, y, cx, cy, s) => Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / (2 * s * s));
+const FORMS = {
+  summit: (x, y) => 300 + 900 * g2(x, y, .52, .5, .2) + 120 * g2(x, y, .3, .72, .12) + 18 * N1(x * 5, y * 5),
+  saddle: (x, y) => 300 + 760 * g2(x, y, .22, .5, .17) + 820 * g2(x, y, .8, .48, .17) + 160 * g2(x, y, .5, .5, .3) + 14 * N1(x * 5 + 9, y * 5),
+  valley: (x, y) => 260 + 900 * (1 - y) * .8 + 720 * Math.pow(Math.abs(x - .5 - .06 * Math.sin(y * 7)), .9) + 14 * N1(x * 6, y * 6),
+  cliff: (x, y) => 300 + 620 / (1 + Math.exp(-(x - .5 + .08 * Math.sin(y * 5)) * 38)) + 260 * x + 160 * (1 - y) + 12 * N1(x * 6, y * 6),
+};
+const forms = [];
+document.querySelectorAll("[data-form]").forEach(c => {
+  const fn = FORMS[c.dataset.form];
+  const t = new Topo(c, { cell: 3, metresPerCell: 8, interval: 40, indexEvery: 5, height: fn, paper: hex("#f6f2e6"), exag: .28,
+    toWorld: (x, y, self) => [x * 3 / self.w, y * 3 / self.h], line: "rgba(154,90,46,.7)", ilw: 1.35 });
+  const xs = document.querySelector(`[data-xs="${c.dataset.form}"]`);
+  forms.push({ t, xs, fn });
+});
+function drawForms() {
+  for (const { t, xs, fn } of forms) {
+    t.resize(); t.draw();
+    // mid-line marker on the map, cross-section below
+    const ctx = t.ctx; ctx.strokeStyle = "rgba(200,53,43,.85)"; ctx.setLineDash([4, 3]); ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(6, t.h / 2); ctx.lineTo(t.w - 6, t.h / 2); ctx.stroke(); ctx.setLineDash([]);
+    const r = xs.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2); xs.width = r.width * dpr; xs.height = r.height * dpr;
+    const x2 = xs.getContext("2d"); x2.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const vals = []; for (let i = 0; i <= 80; i++) vals.push(fn(i / 80, .5));
+    const lo = Math.min(...vals) - 40, hi = Math.max(...vals) + 20, X = i => i / 80 * r.width, Y = v => r.height - (v - lo) / (hi - lo) * (r.height - 4);
+    x2.beginPath(); x2.moveTo(0, r.height); vals.forEach((v, i) => x2.lineTo(X(i), Y(v))); x2.lineTo(r.width, r.height); x2.closePath();
+    x2.fillStyle = "rgba(154,90,46,.18)"; x2.fill();
+    x2.beginPath(); vals.forEach((v, i) => i ? x2.lineTo(X(i), Y(v)) : x2.moveTo(X(i), Y(v))); x2.strokeStyle = "#9a5a2e"; x2.lineWidth = 1.4; x2.stroke();
+  }
+}
+
+/* ---------- pricing sheets: same hillside, three intervals ---------- */
+const sheets = [...document.querySelectorAll("[data-sheet]")].map(c => {
+  const iv = +c.dataset.sheet;
+  return new Topo(c, { cell: 3, metresPerCell: 18, interval: iv, indexEvery: 5, water: 520, woods: true, height: terrain,
+    toWorld: (x, y) => [x / 190 + 4.05, y / 190 + 2.2], lw: iv >= 100 ? .9 : iv >= 20 ? .6 : .45, ilw: iv >= 100 ? 1.4 : 1.15, exag: .9 });
+});
+const drawSheets = () => sheets.forEach(s => { s.resize(); s.draw(); });
+
+/* ---------- closing: contours drifting under the night sky ---------- */
+const night = document.getElementById("night"), nctx = night.getContext("2d");
+let nightOn = false, nightT = 0, nightRaf = 0;
+function drawNight() {
+  const r = night.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2), cell = 7;
+  if (night.width !== Math.round(r.width * dpr)) { night.width = Math.round(r.width * dpr); night.height = Math.round(r.height * dpr); }
+  const W = Math.ceil(r.width / cell) + 2, Hh = Math.ceil(r.height / cell) + 2, H = new Float32Array(W * Hh), off = nightT + scrollY * .0004;
+  for (let y = 0; y < Hh; y++) for (let x = 0; x < W; x++) H[y * W + x] = terrain(x / 70 + 9, y / 70 + off);
+  nctx.setTransform(dpr, 0, 0, dpr, 0, 0); nctx.clearRect(0, 0, r.width, r.height);
+  const pa = new Path2D(), pb = new Path2D(), iv = 40;
+  for (let y = 0; y < Hh - 1; y++) for (let x = 0; x < W - 1; x++) {
+    const i = y * W + x, a = H[i], b = H[i + 1], c = H[i + W + 1], d = H[i + W], lo = Math.min(a, b, c, d), hi = Math.max(a, b, c, d);
+    for (let L = Math.ceil(lo / iv) * iv; L < hi; L += iv) {
+      const Lv = L + 1e-3, cs = (a > Lv) << 3 | (b > Lv) << 2 | (c > Lv) << 1 | (d > Lv), P = L % 200 === 0 ? pb : pa;
+      const E = [() => [x + (Lv - a) / (b - a), y], () => [x + 1, y + (Lv - b) / (c - b)], () => [x + (Lv - d) / (c - d), y + 1], () => [x, y + (Lv - a) / (d - a)]];
+      const add = (e1, e2) => { const p = E[e1](), q = E[e2](); P.moveTo(p[0] * cell, p[1] * cell); P.lineTo(q[0] * cell, q[1] * cell); };
+      const mid = (a + b + c + d) / 4 > Lv;
+      switch (cs) { case 1: case 14: add(3, 2); break; case 2: case 13: add(2, 1); break; case 3: case 12: add(3, 1); break; case 4: case 11: add(0, 1); break;
+        case 6: case 9: add(0, 2); break; case 7: case 8: add(0, 3); break; case 5: mid ? (add(0, 3), add(1, 2)) : (add(0, 1), add(3, 2)); break; case 10: mid ? (add(0, 1), add(3, 2)) : (add(0, 3), add(1, 2)); break; }
+    }
+  }
+  nctx.lineJoin = "round"; nctx.strokeStyle = "rgba(233,220,195,.16)"; nctx.lineWidth = .8; nctx.stroke(pa);
+  nctx.strokeStyle = "rgba(233,220,195,.34)"; nctx.lineWidth = 1.3; nctx.stroke(pb);
+}
+function nightLoop() { nightRaf = 0; if (!nightOn) return; nightT += .0016; drawNight(); nightRaf = requestAnimationFrame(nightLoop); }
+new IntersectionObserver(([e]) => { nightOn = e.isIntersecting && !reduce; if (e.isIntersecting) { drawNight(); if (nightOn && !nightRaf) nightRaf = requestAnimationFrame(nightLoop); } }).observe(night);
+
+/* ---------- boot: lazy-draw below-the-fold maps, redraw on resize and language change ---------- */
+let formsDone = false, sheetsDone = false;
+new IntersectionObserver(([e], ob) => { if (e.isIntersecting) { formsDone = true; drawForms(); ob.disconnect(); } }, { rootMargin: "400px" }).observe(document.querySelector(".forms"));
+new IntersectionObserver(([e], ob) => { if (e.isIntersecting) { sheetsDone = true; drawSheets(); ob.disconnect(); } }, { rootMargin: "400px" }).observe(document.querySelector(".sheets"));
+let rz = 0, lastW = innerWidth;
+addEventListener("resize", () => {
+  if (innerWidth === lastW && coarse) return; // ignore mobile URL-bar height jitter
+  lastW = innerWidth; clearTimeout(rz);
+  rz = setTimeout(() => { hero.D = null; sizeHero(); if (formsDone) drawForms(); if (sheetsDone) drawSheets(); drawNight(); }, 150);
+});
+document.querySelector("[data-lang-toggle]").addEventListener("click", () => setTimeout(redrawAll, 0));
+document.fonts.ready.then(() => { sizeHero(); });
+sizeHero();
+</script>
+</body>
+</html>

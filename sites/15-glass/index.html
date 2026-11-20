@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vitrail 花窗 · Colours that hold up to the light</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/marcellus@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/uncial-antiqua@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/alegreya@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/alegreya@5/400-italic.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/900.css">
+<script src="../../shared/lang.js"></script>
+<style>
+:root {
+  --stone: #141318;
+  --stone-2: #1c1b21;
+  --line: rgba(239, 230, 210, .14);
+  --text: #efe6d2;
+  --muted: #b8ad99;
+  --c0: #1b3f9e; --c1: #a3162b; --c2: #1f7a4a; --c3: #d99a1e; --c4: #c9d6e8;
+  --display: "Marcellus", "Noto Serif SC", serif;
+  --display-zh: "Noto Serif SC", serif;
+  --uncial: "Uncial Antiqua", "Marcellus", serif;
+  --body: "Alegreya", "Noto Serif SC", Georgia, serif;
+  --wrap: min(1240px, calc(100vw - 48px));
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--stone); color: var(--text); }
+body { font: 18px/1.65 var(--body); -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  background:
+    linear-gradient(rgba(0,0,0,.28) 1px, transparent 1px) 0 0 / 100% 96px,
+    var(--stone); }
+html[data-lang="zh"] body { font-size: 17px; line-height: 1.8; }
+[lang="zh"] em, [lang="zh"] i { font-style: normal; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.wrap { width: var(--wrap); margin: 0 auto; }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; letter-spacing: .01em; }
+html[data-lang="zh"] h1, html[data-lang="zh"] h2, html[data-lang="zh"] h3 { font-family: var(--display-zh); font-weight: 900; letter-spacing: .02em; }
+.eyebrow { font: 13px/1.4 var(--display); letter-spacing: .28em; text-transform: uppercase; color: var(--c3); }
+html[data-lang="zh"] .eyebrow { letter-spacing: .3em; font-family: var(--display-zh); }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 24px; border-radius: 2px; font: 16px var(--display); letter-spacing: .04em; white-space: nowrap; transition: transform .15s ease, background-color .25s ease, border-color .25s; }
+html[data-lang="zh"] .btn { font-family: var(--display-zh); font-size: 15px; }
+.btn:active { transform: scale(.97); }
+.btn.solid { background: var(--c3); color: #17120a; }
+.btn.solid:hover { background: color-mix(in srgb, var(--c3) 85%, white); }
+.btn.line { border: 1px solid rgba(239,230,210,.4); }
+.btn.line:hover { border-color: var(--text); }
+
+/* ---------- hero ---------- */
+.hero { position: relative; height: 100vh; min-height: 640px; overflow: hidden; isolation: isolate; }
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; }
+nav { position: relative; display: flex; align-items: center; gap: 34px; height: 84px; }
+.brand { display: flex; align-items: center; gap: 12px; font: 25px var(--display); letter-spacing: .14em; text-transform: uppercase; }
+.brand small { font: 15px var(--display-zh); color: var(--muted); letter-spacing: .2em; }
+.brand svg { width: 30px; height: 30px; }
+nav ul { list-style: none; display: flex; gap: 30px; padding: 0; margin-left: auto; font: 15px var(--display); letter-spacing: .06em; color: var(--muted); }
+html[data-lang="zh"] nav ul { font-family: var(--display-zh); }
+nav li a:hover { color: var(--text); }
+.lang { font: 13px var(--display); letter-spacing: .1em; border: 1px solid var(--line); padding: 6px 12px; border-radius: 2px; white-space: nowrap; }
+.lang b { font-weight: 400; opacity: .45; }
+html[data-lang="zh"] .lang .z, html[data-lang="en"] .lang .e { opacity: 1; }
+.hero-copy { position: relative; margin-top: clamp(40px, 11vh, 120px); max-width: 600px; text-shadow: 0 2px 18px rgba(8,7,12,.9), 0 0 2px rgba(8,7,12,.8); }
+.hero h1 { font-size: clamp(46px, 5.4vw, 80px); line-height: 1.04; margin: 22px 0 24px; }
+html[data-lang="zh"] .hero h1 { font-size: clamp(44px, 5vw, 74px); line-height: 1.2; }
+.hero h1 .glow { color: color-mix(in srgb, var(--c3) 70%, white); }
+.hero p { color: #eee4cf; max-width: 30em; }
+.hero-copy::before { content: ""; position: absolute; inset: -40px -60px; z-index: -1; background: radial-gradient(closest-side, rgba(10,9,14,.45), rgba(10,9,14,0)); pointer-events: none; }
+.hero .row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 34px; text-shadow: none; }
+.sun-hint { display: flex; gap: 12px; align-items: center; margin-top: 30px; font: 14px var(--body); color: var(--muted); }
+.sun-hint i { width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(#fff8dc, var(--c3)); box-shadow: 0 0 16px var(--c3); flex: none; }
+.sunread { position: absolute; left: 0; right: 0; bottom: 22px; }
+.sunread .wrap { display: flex; justify-content: space-between; font: 12px var(--display); letter-spacing: .2em; color: var(--muted); text-transform: uppercase; }
+html[data-lang="zh"] .sunread .wrap { font-family: var(--display-zh); letter-spacing: .15em; }
+
+/* ---------- section heads ---------- */
+.sec { padding: 120px 0; }
+.sec h2 { font-size: clamp(36px, 4vw, 58px); line-height: 1.1; margin: 16px 0 18px; }
+html[data-lang="zh"] .sec h2 { line-height: 1.3; }
+.sec .lead { color: var(--muted); max-width: 34em; }
+
+/* ---------- rose: assembled by scroll ---------- */
+.rose-sec { height: 330vh; position: relative; }
+.rose-sticky { position: sticky; top: 0; height: 100vh; display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; gap: 40px; width: var(--wrap); margin: 0 auto; }
+.rose-sticky h2 { font-size: clamp(32px, 3.4vw, 50px); line-height: 1.15; margin: 14px 0 16px; }
+html[data-lang="zh"] .rose-sticky h2 { line-height: 1.3; }
+.rose-sticky canvas { width: min(80vh, 46vw); aspect-ratio: 1; justify-self: center; display: block; }
+.steps { list-style: none; padding: 0; margin-top: 34px; counter-reset: s; }
+.steps li { position: relative; padding: 14px 0 14px 64px; border-top: 1px solid var(--line); color: var(--muted); opacity: .5; transition: opacity .4s ease, color .4s ease; }
+.steps li:last-child { border-bottom: 1px solid var(--line); }
+.steps li::before { counter-increment: s; content: counter(s, upper-roman); position: absolute; left: 0; top: 12px; font: 24px var(--uncial); color: var(--c3); width: 48px; text-align: center; }
+.steps li b { display: block; font: 21px var(--display); color: var(--text); font-weight: 400; }
+html[data-lang="zh"] .steps li b { font: 900 18px var(--display-zh); letter-spacing: .06em; }
+.steps li span { font-size: 16px; }
+.steps li.on { opacity: 1; }
+
+/* ---------- palette lab ---------- */
+.lab { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.presets { display: flex; flex-wrap: wrap; gap: 10px; margin: 30px 0 26px; }
+.presets button { border: 1px solid var(--line); padding: 8px 14px; border-radius: 2px; font: 15px var(--display); letter-spacing: .04em; display: inline-flex; gap: 10px; align-items: center; transition: border-color .2s, background-color .2s; }
+html[data-lang="zh"] .presets button { font-family: var(--display-zh); }
+.presets button i { display: inline-flex; }
+.presets button i s { width: 9px; height: 18px; display: block; }
+.presets button[aria-pressed="true"] { border-color: var(--c3); background: rgba(239,230,210,.06); }
+.swatches { display: grid; gap: 8px; }
+.sw { display: grid; grid-template-columns: 110px 1fr auto; align-items: center; gap: 18px; padding: 8px; border: 1px solid var(--line); background: rgba(0,0,0,.18); }
+.sw .chip { height: 46px; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; border-radius: 1px; }
+.sw .chip s:first-child { background: var(--c); }
+.sw .chip s:last-child { background: radial-gradient(120% 90% at 30% 25%, color-mix(in srgb, var(--c) 45%, white), var(--c) 55%, color-mix(in srgb, var(--c) 70%, black)); box-shadow: inset 0 0 14px rgba(255,255,255,.25); }
+.sw .nm { font: 17px var(--display); }
+html[data-lang="zh"] .sw .nm { font: 900 15px var(--display-zh); letter-spacing: .05em; }
+.sw .hx { display: block; font: 12px ui-monospace, Menlo, monospace; color: var(--muted); letter-spacing: .06em; }
+.sw .ct { font: 12px ui-monospace, Menlo, monospace; text-align: right; color: var(--muted); padding-right: 6px; }
+.sw .ct b { display: inline-block; margin-left: 6px; padding: 2px 6px; border-radius: 2px; background: rgba(239,230,210,.1); color: var(--text); font-weight: 400; }
+.sw .ct b.fail { background: rgba(163,22,43,.35); }
+.legend { display: flex; gap: 22px; font-size: 13px; color: var(--muted); margin-top: 12px; }
+.copy { margin-top: 22px; }
+.triplet { position: relative; }
+.triplet canvas { width: 100%; aspect-ratio: 1.1; display: block; }
+.triplet figcaption { text-align: center; font-size: 14px; color: var(--muted); margin-top: 6px; }
+
+/* ---------- feature arches ---------- */
+.arches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 56px; }
+.arch-card .win { aspect-ratio: 1 / 1.22; position: relative; overflow: hidden;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 150' preserveAspectRatio='none'%3E%3Cpath d='M0 150V90A100 100 0 0 1 50 3.4A100 100 0 0 1 100 90V150Z'/%3E%3C/svg%3E") 0 0 / 100% 100%;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 150' preserveAspectRatio='none'%3E%3Cpath d='M0 150V90A100 100 0 0 1 50 3.4A100 100 0 0 1 100 90V150Z'/%3E%3C/svg%3E") 0 0 / 100% 100%;
+  background:
+    radial-gradient(60% 45% at 50% 30%, color-mix(in srgb, var(--c3) 55%, transparent), transparent 70%),
+    radial-gradient(70% 60% at 20% 90%, color-mix(in srgb, var(--c1) 70%, transparent), transparent 70%),
+    radial-gradient(80% 60% at 85% 75%, color-mix(in srgb, var(--c0) 90%, transparent), transparent 70%),
+    #0d0c12;
+  transition: filter .5s ease; }
+.arch-card:hover .win { filter: brightness(1.18) saturate(1.1); }
+/* lead cames over the light, like a plain glazed lancet */
+.arch-card .win::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .75;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 150' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='%2308070c' stroke-width='1.1' vector-effect='non-scaling-stroke'%3E%3Cpath d='M50 3V150M0 62H100M0 104H100M0 130H100M20 62L32 20M80 62L68 20M50 34L22 50M50 34L78 50M14 104L28 62M86 104L72 62M50 82L0 90M50 82L100 88M28 130L16 104M72 130L84 104M50 116L28 104M50 116L72 104'/%3E%3Cpath stroke-width='2.4' d='M0 150V90A100 100 0 0 1 50 3.4A100 100 0 0 1 100 90V150'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 100% 100%; }
+.arch-card .win > div { z-index: 1; }
+.arch-card .win > div { position: absolute; left: 12%; right: 12%; bottom: 12%; }
+.arch-card h3 { font-size: 26px; margin: 22px 0 6px; }
+html[data-lang="zh"] .arch-card h3 { font-size: 21px; }
+.arch-card p { color: var(--muted); font-size: 16.5px; }
+.demo-contrast { display: grid; gap: 8px; }
+.demo-contrast div { padding: 12px 14px; font: 20px var(--display); display: flex; justify-content: space-between; align-items: center; border-radius: 2px; }
+html[data-lang="zh"] .demo-contrast div { font: 900 17px var(--display-zh); }
+.demo-contrast small { font: 11px ui-monospace, Menlo, monospace; opacity: .9; }
+.demo-split { height: 150px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font: 11px ui-monospace, Menlo, monospace; letter-spacing: .1em; text-transform: uppercase; }
+.demo-split div { display: flex; align-items: flex-end; padding: 10px; }
+.demo-split div:first-child { background: var(--c0); color: rgba(255,255,255,.75); }
+.demo-split div:last-child { background: radial-gradient(100% 80% at 40% 20%, color-mix(in srgb, var(--c0) 30%, white), var(--c0) 60%); color: #fff; box-shadow: 0 0 40px color-mix(in srgb, var(--c0) 60%, transparent); }
+.demo-code { font: 12.5px/1.7 ui-monospace, Menlo, monospace; background: rgba(8,7,12,.82); padding: 14px 16px; border: 1px solid var(--line); color: var(--muted); white-space: pre; overflow: hidden; }
+.demo-code b { font-weight: 400; color: var(--text); }
+.demo-code s { display: inline-block; width: 9px; height: 9px; margin-right: 6px; vertical-align: -1px; }
+
+/* ---------- pricing ---------- */
+.prices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 56px; }
+.price { border: 1px solid var(--line); padding: 34px 30px 30px; position: relative; background: rgba(0,0,0,.15); }
+.price.mid { border-color: color-mix(in srgb, var(--c3) 60%, transparent); }
+.price .arch-ico { width: 34px; height: 52px; margin-bottom: 18px; }
+.price h3 { font-size: 28px; }
+html[data-lang="zh"] .price h3 { font-size: 22px; }
+.price .amt { font: 44px var(--display); margin: 10px 0 4px; }
+.price .amt small { font-size: 15px; color: var(--muted); }
+.price ul { list-style: none; padding: 0; margin: 18px 0 26px; color: var(--muted); font-size: 16px; }
+.price li { padding: 7px 0; border-top: 1px solid var(--line); }
+
+/* ---------- closing ---------- */
+.closing { text-align: center; padding: 140px 0 120px; position: relative; overflow: hidden; }
+.closing::before { content: ""; position: absolute; inset: 0; z-index: -1;
+  background: conic-gradient(from 200deg at 50% -10%, transparent 0 10deg, color-mix(in srgb, var(--c0) 50%, transparent) 14deg 20deg, transparent 24deg 30deg, color-mix(in srgb, var(--c1) 45%, transparent) 33deg 38deg, transparent 42deg 50deg, color-mix(in srgb, var(--c3) 45%, transparent) 54deg 58deg, transparent 62deg);
+  filter: blur(18px); opacity: .7; }
+.closing h2 { font-size: clamp(52px, 8vw, 120px); line-height: 1; }
+.closing p { color: var(--muted); margin: 20px 0 36px; }
+
+footer { border-top: 1px solid var(--line); padding: 40px 0 56px; font-size: 13.5px; line-height: 1.9; color: var(--muted); }
+footer b { color: var(--text); font-weight: 400; }
+footer .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; color: var(--text); gap: 20px; }
+
+/* no WebGL2: painted fallback */
+html.nogl .hero canvas, html.nogl .rose-sticky canvas, html.nogl .triplet canvas { background: radial-gradient(40% 60% at 75% 40%, var(--c0), transparent 70%), radial-gradient(30% 40% at 25% 70%, color-mix(in srgb, var(--c1) 50%, transparent), transparent 70%), #111; }
+html.nogl .rose-sticky canvas { border-radius: 50%; background: conic-gradient(var(--c0), var(--c1), var(--c3), var(--c2), var(--c0)); }
+
+@media (max-width: 900px) {
+  nav ul, nav .btn { display: none; }
+  nav { gap: 14px; }
+  .lang { margin-left: auto; }
+  .hero { min-height: 720px; }
+  .hero-copy { position: absolute; left: 24px; right: 24px; bottom: 76px; margin: 0; }
+  .hero h1 { margin: 14px 0 16px; }
+  .sun-hint { display: none; }
+  .rose-sticky { grid-template-columns: 1fr; align-content: center; gap: 14px; }
+  .rose-sticky canvas { width: min(86vw, 52vh); order: -1; }
+  .rose-sticky h2 { font-size: 28px; margin: 8px 0 0; }
+  .rose-sticky .lead { display: none; }
+  .steps { margin-top: 10px; }
+  .steps li { padding: 8px 0 8px 48px; }
+  .steps li::before { font-size: 18px; top: 8px; width: 36px; }
+  .steps li > span { display: none; }
+  .steps li.on > span { display: block; font-size: 14.5px; line-height: 1.5; }
+  .steps li b { font-size: 17px; }
+  .lab, .arches, .prices { grid-template-columns: 1fr; gap: 28px; }
+  .arch-card .win { width: min(300px, 80vw); margin: 0 auto; }
+  .triplet { order: -1; }
+  .sec { padding: 60px 0; }
+  .sw { grid-template-columns: 76px 1fr auto; gap: 12px; }
+  .closing { padding: 100px 0 90px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <canvas id="hero" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <nav>
+      <a class="brand" href="#">
+        <svg viewBox="0 0 30 30" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="15" cy="9" r="5.5"/><circle cx="15" cy="21" r="5.5"/><circle cx="9" cy="15" r="5.5"/><circle cx="21" cy="15" r="5.5"/></g><circle cx="15" cy="15" r="3" fill="var(--c3)"/></svg>
+        Vitrail <small lang="zh">花窗</small>
+      </a>
+      <ul>
+        <li><a href="#build"><span lang="en">How it's built</span><span lang="zh">怎么装</span></a></li>
+        <li><a href="#lab"><span lang="en">Palette lab</span><span lang="zh">配色台</span></a></li>
+        <li><a href="#pricing"><span lang="en">Pricing</span><span lang="zh">价格</span></a></li>
+      </ul>
+      <button class="lang" data-lang-toggle aria-label="Switch language"><b class="z">中</b> / <b class="e">EN</b></button>
+      <a class="btn solid" href="#lab"><span lang="en">Open the lab</span><span lang="zh">打开配色台</span></a>
+    </nav>
+    <div class="hero-copy">
+      <div class="eyebrow"><span lang="en">A palette tool, tested in daylight</span><span lang="zh">在阳光下测试的配色工具</span></div>
+      <h1><span lang="en">Colours that <span class="glow">hold up</span> to the light.</span><span lang="zh">配色，<br>要放到<span class="glow">光里</span>看。</span></h1>
+      <p><span lang="en">Vitrail fires your palette into a window of glass, then lets the sun in behind it. A colour that goes muddy, two colours that fight, a blue that swallows your text: you see it before your users do.</span><span lang="zh">Vitrail 把你的配色烧进一扇花窗，再让太阳从后面照进来。哪个颜色发闷，哪两个颜色打架，哪种蓝把字吃掉了，你会比用户先看见。</span></p>
+      <div class="row">
+        <a class="btn solid" href="#lab"><span lang="en">Hold up a palette</span><span lang="zh">举起一套配色</span></a>
+        <a class="btn line" href="#build"><span lang="en">How a window is made</span><span lang="zh">一扇窗怎么做</span></a>
+      </div>
+      <div class="sun-hint"><i></i><span lang="en">Move your cursor: the sun moves with it, and the light lands where you point.</span><span lang="zh">移动鼠标，太阳跟着走，光会落在你指的地方。</span></div>
+    </div>
+  </div>
+  <div class="sunread"><div class="wrap"><span><span lang="en">Sun</span><span lang="zh">太阳高度</span> <b id="alt">42</b>°</span><span id="clock">15:40</span></div></div>
+</header>
+
+<section class="rose-sec" id="build">
+  <div class="rose-sticky">
+    <div>
+      <div class="eyebrow"><span lang="en">Four passes, one window</span><span lang="zh">四道工序，一扇窗</span></div>
+      <h2><span lang="en">Every window is built in the same order.</span><span lang="zh">花窗向来按这个顺序装。</span></h2>
+      <p class="lead"><span lang="en">Keep scrolling and the rose goes up the way glaziers have done it for eight hundred years. Vitrail builds your palette the same way.</span><span lang="zh">继续往下滚，这扇玫瑰窗会按八百年来玻璃匠的做法一步步装起来。Vitrail 搭配色，也是这个顺序。</span></p>
+      <ol class="steps">
+        <li><b><span lang="en">Stone tracery</span><span lang="zh">先砌石框</span></b><span><span lang="en">The frame comes first. In Vitrail that's your grid and spacing.</span><span lang="zh">框架最先定，在 Vitrail 里就是你的栅格和间距。</span></span></li>
+        <li><b><span lang="en">Lead cames</span><span lang="zh">再走铅条</span></b><span><span lang="en">Lead divides one colour from the next: your borders and dividers.</span><span lang="zh">铅条把颜色和颜色隔开，对应边框和分割线。</span></span></li>
+        <li><b><span lang="en">Glass</span><span lang="zh">镶上玻璃</span></b><span><span lang="en">Each pane takes a colour from your palette, in proportion.</span><span lang="zh">每块玻璃从色板里取一个颜色，多少按比例来。</span></span></li>
+        <li><b><span lang="en">Light</span><span lang="zh">最后放光</span></b><span><span lang="en">Then the sun. A palette only counts once light has gone through it.</span><span lang="zh">最后是阳光。光透过去了，这套配色才算数。</span></span></li>
+      </ol>
+    </div>
+    <canvas id="rose" aria-label="A rose window assembling as you scroll"></canvas>
+  </div>
+</section>
+
+<section class="sec" id="lab">
+  <div class="wrap lab">
+    <div>
+      <div class="eyebrow"><span lang="en">Palette lab</span><span lang="zh">配色台</span></div>
+      <h2><span lang="en">Hold your palette up to the light.</span><span lang="zh">把色板举到光下。</span></h2>
+      <p class="lead"><span lang="en">Pick a set. The window, the light on this page and every button you see change with it. Each swatch shows the colour on paper and the colour with light behind it, plus how well text sits on top.</span><span lang="zh">选一套。旁边的窗、这一页的光、你看到的每个按钮都会跟着换。每个色块左边是纸上的颜色，右边是光透过来的颜色，后面标着文字压在上面清不清楚。</span></p>
+      <div class="presets" role="group" aria-label="Palettes"></div>
+      <div class="swatches"></div>
+      <div class="legend"><span><span lang="en">Left: on paper · Right: in light</span><span lang="zh">左：纸上 · 右：透光</span></span><span><span lang="en">Ratio: best of white or ink text</span><span lang="zh">对比度：白字或墨字取较好的一种</span></span></div>
+      <button class="btn line copy" id="copy"><span lang="en">Copy as CSS variables</span><span lang="zh">复制成 CSS 变量</span></button>
+    </div>
+    <figure class="triplet">
+      <canvas id="triplet" aria-label="Three lancet windows glazed with the selected palette"></canvas>
+      <figcaption><span lang="en">Move over the window to move the sun.</span><span lang="zh">在窗上移动鼠标，太阳跟着走。</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="en">What it checks</span><span lang="zh">它替你看什么</span></div>
+    <h2><span lang="en">Three things daylight tells you.</span><span lang="zh">阳光会告诉你的三件事。</span></h2>
+    <div class="arches">
+      <article class="arch-card">
+        <div class="win"><div class="demo-contrast">
+          <div style="background:var(--c0);color:#fff"><span lang="en">Read me</span><span lang="zh">看得清吗</span><small id="r0">8.9 : 1</small></div>
+          <div style="background:var(--c3);color:#17120a"><span lang="en">Read me</span><span lang="zh">看得清吗</span><small id="r3">9.1 : 1</small></div>
+        </div></div>
+        <h3><span lang="en">Contrast, pane by pane</span><span lang="zh">一块一块查对比度</span></h3>
+        <p><span lang="en">Every colour is checked against white and ink text, and marked when it fails.</span><span lang="zh">每个颜色都和白字、墨字比一遍，不合格的会标出来。</span></p>
+      </article>
+      <article class="arch-card">
+        <div class="win"><div class="demo-split"><div><span lang="en">On paper</span><span lang="zh">纸上</span></div><div><span lang="en">In light</span><span lang="zh">透光</span></div></div></div>
+        <h3><span lang="en">Through it, not just on it</span><span lang="zh">透过去，不只是照上去</span></h3>
+        <p><span lang="en">Screens are lit from behind, like glass. Vitrail previews colours as transmitted light, not ink.</span><span lang="zh">屏幕是从背后打光的，跟玻璃一样。Vitrail 按透光的样子预览颜色，不按印刷的样子。</span></p>
+      </article>
+      <article class="arch-card">
+        <div class="win"><div class="demo-code" id="code"></div></div>
+        <h3><span lang="en">Out as tokens</span><span lang="zh">导出成变量</span></h3>
+        <p><span lang="en">CSS variables, Tailwind config or design tokens, named the way you name things.</span><span lang="zh">CSS 变量、Tailwind 配置或设计变量都行，按你自己的叫法命名。</span></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="pricing">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="en">Pricing</span><span lang="zh">价格</span></div>
+    <h2><span lang="en">Pick a window size.</span><span lang="zh">选一扇窗的大小。</span></h2>
+    <div class="prices">
+      <div class="price">
+        <svg class="arch-ico" viewBox="0 0 34 52"><path d="M2 51V31A30 30 0 0 1 17 3A30 30 0 0 1 32 31V51Z" fill="none" stroke="var(--c3)" stroke-width="1.5"/></svg>
+        <h3><span lang="en">Lancet</span><span lang="zh">尖窗</span></h3>
+        <div class="amt">$0 <small><span lang="en">forever</span><span lang="zh">一直免费</span></small></div>
+        <ul><li><span lang="en">3 palettes</span><span lang="zh">3 套配色</span></li><li><span lang="en">Daylight preview</span><span lang="zh">阳光预览</span></li><li><span lang="en">CSS export</span><span lang="zh">导出 CSS</span></li></ul>
+        <a class="btn line" href="#lab"><span lang="en">Start free</span><span lang="zh">免费开始</span></a>
+      </div>
+      <div class="price mid">
+        <svg class="arch-ico" viewBox="0 0 34 52"><g fill="none" stroke="var(--c3)" stroke-width="1.5"><path d="M2 51V31A30 30 0 0 1 17 3A30 30 0 0 1 32 31V51Z"/><path d="M17 51V24"/><circle cx="17" cy="17" r="4"/></g></svg>
+        <h3><span lang="en">Triforium</span><span lang="zh">拱廊</span></h3>
+        <div class="amt">$9 <small><span lang="en">/ month</span><span lang="zh">/ 月</span></small></div>
+        <ul><li><span lang="en">Unlimited palettes</span><span lang="zh">配色不限</span></li><li><span lang="en">Contrast reports</span><span lang="zh">对比度报告</span></li><li><span lang="en">Tailwind and tokens</span><span lang="zh">Tailwind 和设计变量</span></li></ul>
+        <a class="btn solid" href="#lab"><span lang="en">Try 14 days</span><span lang="zh">试用 14 天</span></a>
+      </div>
+      <div class="price">
+        <svg class="arch-ico" viewBox="0 0 34 52"><g fill="none" stroke="var(--c3)" stroke-width="1.5"><circle cx="17" cy="26" r="15"/><circle cx="17" cy="26" r="6"/><path d="M17 11V20M17 32V41M2 26H11M23 26H32"/></g></svg>
+        <h3><span lang="en">Rose</span><span lang="zh">玫瑰窗</span></h3>
+        <div class="amt">$24 <small><span lang="en">/ seat</span><span lang="zh">/ 人 / 月</span></small></div>
+        <ul><li><span lang="en">Shared team library</span><span lang="zh">团队共用色库</span></li><li><span lang="en">Brand locks</span><span lang="zh">品牌色锁定</span></li><li><span lang="en">Review comments</span><span lang="zh">评审批注</span></li></ul>
+        <a class="btn line" href="#lab"><span lang="en">Talk to us</span><span lang="zh">联系我们</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="wrap">
+    <h2><span lang="en">Let the light in.</span><span lang="zh">让光进来。</span></h2>
+    <p><span lang="en">Your first three palettes are free. The sun is on us.</span><span lang="zh">前三套配色免费，阳光我们包了。</span></p>
+    <a class="btn solid" href="#lab"><span lang="en">Hold up a palette</span><span lang="zh">举起一套配色</span></a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="top"><span class="brand" style="font-size:20px">Vitrail <small lang="zh">花窗</small></span><span><span lang="en">A fictional product, built as a design study.</span><span lang="zh">虚构产品，仅作设计练习。</span></span></div>
+    <b>图源</b>：本页不使用任何图片。花窗、铅条、石框、光斑和墙面全部由 WebGL2 着色器即时生成；配色方案名借用沙特尔主教堂、巴黎圣礼拜堂与旺斯玫瑰经礼拜堂的花窗色调，仅为致敬，色值为自行调配。
+    字体：Marcellus、Uncial Antiqua、Alegreya、Noto Serif SC（均为 OFL-1.1，经 Fontsource 载入）。本页为学习用 demo，品牌与文案均为虚构。<br>
+    侵权请联系删除。
+  </div>
+</footer>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = s => document.querySelector(s);
+
+// ---------- palettes: 0 cobalt, 1 ruby, 2 emerald, 3 amber, 4 pale ----------
+const PALETTES = [
+  { en: "Chartres", zh: "沙特尔蓝", c: ["#1b3f9e", "#a3162b", "#1f7a4a", "#d99a1e", "#c9d6e8"],
+    names: [["Chartres blue", "沙特尔蓝"], ["Ruby", "宝石红"], ["Emerald", "祖母绿"], ["Amber", "琥珀"], ["Pale glass", "白玻璃"]] },
+  { en: "Sainte-Chapelle", zh: "圣礼拜堂", c: ["#24307e", "#b5162f", "#6b2c7a", "#e0a82e", "#e6d9bc"],
+    names: [["Night blue", "夜蓝"], ["Crimson", "绯红"], ["Violet", "紫罗兰"], ["Gold", "金"], ["Bone", "骨白"]] },
+  { en: "Vence", zh: "旺斯", c: ["#1e5aa8", "#e4572e", "#2e8b57", "#f2c12e", "#f5f0e1"],
+    names: [["Matisse blue", "马蒂斯蓝"], ["Vermilion", "朱红"], ["Cactus green", "仙人掌绿"], ["Lemon", "柠檬黄"], ["Chalk", "粉笔白"]] },
+  { en: "Neon chapel", zh: "霓虹礼拜堂", c: ["#3a0ca3", "#f72585", "#06a7b8", "#ffc300", "#dcdcff"],
+    names: [["Ultraviolet", "紫外"], ["Hot pink", "荧光粉"], ["Cyan", "青"], ["Signal", "信号黄"], ["Haze", "雾白"]] },
+];
+const hex2rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255);
+let palIdx = 0, palCur = PALETTES[0].c.map(hex2rgb), palTarget = palCur.map(c => c.slice());
+
+function lum([r, g, b]) { const f = v => v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; return .2126 * f(r) + .7152 * f(g) + .0722 * f(b); }
+function contrast(a, b) { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + .05) / (y + .05); }
+const WHITE = [1, 1, 1], INK = hex2rgb("#17120a");
+
+function renderPalette() {
+  const P = PALETTES[palIdx], zh = document.documentElement.dataset.lang === "zh";
+  P.c.forEach((h, i) => document.documentElement.style.setProperty(`--c${i}`, h));
+  $(".swatches").innerHTML = P.c.map((h, i) => {
+    const c = hex2rgb(h), w = contrast(c, WHITE), k = contrast(c, INK), best = Math.max(w, k);
+    const grade = best >= 7 ? "AAA" : best >= 4.5 ? "AA" : "—";
+    return `<div class="sw" style="--c:${h}"><div class="chip"><s></s><s></s></div>
+      <div><span class="nm"><span lang="en">${P.names[i][0]}</span><span lang="zh">${P.names[i][1]}</span></span><span class="hx">${h.toUpperCase()} · ${w >= k ? (zh ? "白字" : "white text") : (zh ? "墨字" : "ink text")}</span></div>
+      <div class="ct">${best.toFixed(1)} : 1<b class="${best < 4.5 ? "fail" : ""}">${grade}</b></div></div>`;
+  }).join("");
+  $("#r0").textContent = contrast(hex2rgb(P.c[0]), WHITE).toFixed(1) + " : 1";
+  $("#r3").textContent = contrast(hex2rgb(P.c[3]), INK).toFixed(1) + " : 1";
+  const keys = ["cobalt", "ruby", "emerald", "amber", "pale"];
+  $("#code").innerHTML = `<b>:root</b> {\n` + P.c.map((h, i) => `  <s style="background:${h}"></s>--glass-${keys[i]}: <b>${h}</b>;`).join("\n") + `\n}`;
+  document.querySelectorAll(".presets button").forEach((b, i) => b.setAttribute("aria-pressed", i === palIdx));
+  palTarget = P.c.map(hex2rgb);
+}
+$(".presets").innerHTML = PALETTES.map(p => `<button><i>${p.c.map(h => `<s style="background:${h}"></s>`).join("")}</i><span lang="en">${p.en}</span><span lang="zh">${p.zh}</span></button>`).join("");
+document.querySelectorAll(".presets button").forEach((b, i) => b.addEventListener("click", () => { palIdx = i; renderPalette(); }));
+$("#copy").addEventListener("click", async () => {
+  const keys = ["cobalt", "ruby", "emerald", "amber", "pale"];
+  const css = `:root {\n${PALETTES[palIdx].c.map((h, i) => `  --glass-${keys[i]}: ${h};`).join("\n")}\n}`;
+  try { await navigator.clipboard.writeText(css); } catch {}
+  const b = $("#copy"), old = b.innerHTML;
+  b.innerHTML = `<span lang="en">Copied</span><span lang="zh">已复制</span>`;
+  setTimeout(() => b.innerHTML = old, 1400);
+});
+renderPalette();
+
+// ---------- glass shader (one program, three modes) ----------
+const FRAG = `#version 300 es
+precision highp float;
+uniform vec2 u_res; uniform float u_time; uniform int u_mode;
+uniform vec2 u_win; uniform float u_s; uniform vec2 u_sun; uniform vec2 u_pool;
+uniform vec3 u_pal[5]; uniform float u_build; uniform float u_light; uniform float u_rot;
+out vec4 o;
+const float PI = 3.14159265;
+
+float h12(vec2 p){ vec3 q = fract(vec3(p.xyx) * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
+vec2 h22(vec2 p){ vec3 q = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973)); q += dot(q, q.yzx + 33.33); return fract((q.xx + q.yz) * q.zy); }
+float noise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+  return mix(mix(h12(i), h12(i + vec2(1, 0)), f.x), mix(h12(i + vec2(0, 1)), h12(i + vec2(1, 1)), f.x), f.y); }
+float fbm(vec2 p){ float s = 0., a = .5; for (int i = 0; i < 4; i++) { s += a * noise(p); p *= 2.03; a *= .5; } return s; }
+
+// Voronoi: x = distance to cell border (exact, second pass only if edges), y = cell id
+vec2 voro(vec2 x, bool edges){
+  vec2 n = floor(x), f = fract(x), mg = vec2(0), mr = vec2(0); float md = 8.;
+  for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++) {
+    vec2 g = vec2(i, j), r = g + .15 + .7 * h22(n + g) - f; float d = dot(r, r);
+    if (d < md) { md = d; mr = r; mg = g; }
+  }
+  float id = h12(n + mg + 7.7);
+  if (!edges) return vec2(1., id);
+  md = 8.;
+  for (int j = -2; j <= 2; j++) for (int i = -2; i <= 2; i++) {
+    vec2 g = mg + vec2(i, j), r = g + .15 + .7 * h22(n + g) - f, dr = r - mr;
+    if (dot(dr, dr) > 1e-5) md = min(md, dot(.5 * (mr + r), normalize(dr)));
+  }
+  return vec2(md, id);
+}
+int pick(float h, vec4 w){ return h < w.x ? 0 : h < w.y ? 1 : h < w.z ? 2 : h < w.w ? 3 : 4; }
+
+struct Pane { float a; float stone; float edge; float id; float order; float cov; vec3 col; };
+Pane blank(){ Pane P; P.a = 0.; P.stone = 0.; P.edge = 1.; P.id = 0.; P.order = 0.; P.cov = 0.; P.col = vec3(0); return P; }
+
+// Lancet: x in [-1,1], sill at y=-3, equilateral pointed arch from y=1. Medallion window, Chartres style.
+float archSD(vec2 l){
+  float d = min(1. - abs(l.x), l.y + 3.);
+  if (l.y > 1.) d = min(min(2. - length(l - vec2(1, 1)), 2. - length(l - vec2(-1, 1))), l.y + 3.);
+  return d;
+}
+Pane lancet(vec2 l, bool edges){
+  Pane P = blank();
+  float sd = archSD(l);
+  P.cov = smoothstep(-.175, -.155, sd);
+  if (sd < -.16) return P;
+  if (sd < 0.) { P.stone = 1.; P.edge = min(-sd, sd + .16); return P; }
+  P.a = 1.; P.order = (l.y + 3.) / 6.;
+  if (sd < .2) {                                   // border band, alternating ruby / emerald
+    float t = (l.y + 3.) * 2.2, seg = floor(t), f = fract(t);
+    P.edge = min(min(sd, .2 - sd), min(f, 1. - f) / 2.2);
+    P.id = h12(vec2(seg, sign(l.x) + 3.));
+    P.col = u_pal[mod(seg, 2.) < 1. ? 1 : (l.y > 1.4 ? 3 : 2)];
+    return P;
+  }
+  float e = sd - .2;
+  for (int k = 0; k < 3; k++) e = min(e, abs(l.y - (-1.25 + 1.5 * float(k))) - .014);   // iron saddle bars
+  float R = .68;
+  vec2 c = vec2(0, clamp(floor((l.y + 2.) / 1.5 + .5), 0., 2.) * 1.5 - 2.);
+  float rr = length(l - c);
+  if (rr < R) {
+    e = min(e, R - rr);
+    if (rr > R - .14) {                            // pearl border
+      float s = (atan(l.y - c.y, l.x - c.x) / (2. * PI)) * 22., f = fract(s);
+      e = min(e, min(rr - (R - .14), min(f, 1. - f) * rr * 2. * PI / 22.));
+      P.id = h12(vec2(floor(s), c.y)); P.col = u_pal[mod(floor(s), 2.) < 1. ? 4 : 3];
+    } else {
+      e = min(e, (R - .14) - rr);
+      vec2 v = voro(l * 5.2 + c * 3., edges); e = min(e, v.x / 5.2); P.id = v.y;
+      P.col = u_pal[pick(v.y, vec4(.16, .6, .78, .92))];
+    }
+  } else {
+    e = min(e, rr - R);
+    vec2 v = voro(l * 3.4, edges); e = min(e, v.x / 3.4); P.id = v.y;
+    P.col = u_pal[pick(v.y, vec4(.72, .86, .94, .98))];
+  }
+  P.edge = e; return P;
+}
+
+// Rose window, radius 1: oculus, 12 petals, 24 roundels, 12 outer lights; tracery is stone.
+Pane rose(vec2 l, bool edges){
+  Pane P = blank();
+  float r = length(l);
+  P.cov = 1. - smoothstep(1.03, 1.045, r);
+  if (r > 1.04) return P;
+  if (r > .955) { P.stone = 1.; P.edge = min(r - .955, 1.04 - r); return P; }
+  float cs = cos(u_rot), sn = sin(u_rot); vec2 q = mat2(cs, -sn, sn, cs) * l;
+  float a = atan(q.y, q.x), st = 2. * PI / 12., sw = .018;
+  float ring = min(min(abs(r - .2), abs(r - .56)), abs(r - .69)) - sw;
+  if (ring < 0.) { P.stone = 1.; P.edge = -ring; return P; }
+  float e, ang = fract(a / (2. * PI) + .25);
+  if (r < .2) {
+    vec2 v = voro(q * 16., edges); e = min(.2 - sw - r, v.x / 16.); P.id = v.y;
+    P.col = u_pal[pick(v.y, vec4(.1, .45, .5, .9))]; P.order = 0.;
+  } else if (r < .56) {
+    float sec = floor(a / st), la = (fract(a / st) - .5) * st, arc = (st * .5 - abs(la)) * r - sw;
+    if (arc < 0.) { P.stone = 1.; P.edge = -arc; return P; }
+    vec2 rc = vec2(cos((sec + .5) * st), sin((sec + .5) * st)) * .39; float rd = length(q - rc);
+    if (rd < .065) { e = min(.065 - rd, arc); P.id = h12(vec2(sec, 1.)); P.col = u_pal[mod(sec, 2.) < 1. ? 3 : 2]; }
+    else {
+      vec2 v = voro(q * 11. + sec, edges); e = min(min(arc, rd - .065), v.x / 11.); e = min(e, min(r - .2 - sw, .56 - sw - r)); P.id = v.y;
+      P.col = mod(sec, 2.) < 1. ? u_pal[pick(v.y, vec4(.2, .85, .9, .96))] : u_pal[pick(v.y, vec4(.75, .88, .93, .97))];
+    }
+    P.order = .25 + .2 * ang;
+  } else if (r < .69) {
+    float st2 = st * .5, sec = floor(a / st2);
+    vec2 rc = vec2(cos((sec + .5) * st2), sin((sec + .5) * st2)) * .625; float rd = length(q - rc);
+    if (rd > .048) { P.stone = 1.; P.edge = min(rd - .048, .3); return P; }
+    e = .048 - rd; P.id = h12(vec2(sec, 2.)); P.col = u_pal[mod(sec, 2.) < 1. ? 2 : 4]; P.order = .5 + .15 * ang;
+  } else {
+    float a2 = a + st * .5, sec = floor(a2 / st), la = (fract(a2 / st) - .5) * st, arc = (st * .5 - abs(la)) * r - sw;
+    if (arc < 0.) { P.stone = 1.; P.edge = -arc; return P; }
+    float ca = (sec + .5) * st - st * .5; vec2 tc = vec2(cos(ca), sin(ca)) * .85; float td = length(q - tc);
+    if (td < .07) { e = min(.07 - td, arc); P.id = h12(vec2(sec, 3.)); P.col = u_pal[1]; }
+    else {
+      vec2 v = voro(q * 9. + sec * 2., edges); e = min(min(arc, td - .07), v.x / 9.); e = min(e, min(r - .69 - sw, .955 - r)); P.id = v.y;
+      P.col = u_pal[pick(v.y, vec4(.7, .82, .88, .95))];
+    }
+    P.order = .7 + .25 * ang;
+  }
+  P.a = 1.; P.edge = e; return P;
+}
+
+vec3 glass(Pane P, vec2 l, float lw, float glow, float amb){
+  float streak = fbm(vec2(l.x * 2.2 + P.id * 9., l.y * 16.));
+  vec3 c = pow(max(P.col, vec3(.002)), vec3(.75 + .8 * streak));      // uneven thickness
+  c *= mix(.4, 1., smoothstep(lw, lw * 4., P.edge));                   // grisaille shading by the lead
+  float seeds = smoothstep(.86, .93, noise(l * 60. + P.id * 13.));     // bubbles
+  return c * (amb + glow * 2.4) + seeds * glow * .22;
+}
+vec3 came(float edge, float lw){ return vec3(.03, .03, .036) + .07 * max(0., 1. - edge / lw); }
+vec3 stone(vec2 l, float edge, float lit){
+  vec3 s = vec3(.33, .31, .29) * (.65 + .55 * fbm(l * 7.));
+  return s * mix(.5, 1.05, smoothstep(0., .05, edge)) * (.32 + .3 * lit);
+}
+vec3 wall(vec2 p){
+  vec2 b = p * vec2(6., 12.); float row = floor(b.y); b.x += mod(row, 2.) * .5;
+  vec2 f = fract(b), id = floor(b);
+  float m = min(min(f.x, 1. - f.x) / 6., min(f.y, 1. - f.y) / 12.);
+  float tone = .75 + .35 * h12(id) + .3 * (fbm(p * 18.) - .5);
+  return vec3(.14, .135, .15) * tone * mix(.62, 1., smoothstep(.001, .003, m));
+}
+// The window projected onto the wall: same lancet, sheared along the light direction, softened by 3 taps.
+vec3 pool(vec2 p){
+  vec2 d = p - u_pool, dir = normalize(u_pool - u_win + vec2(1e-4));
+  vec2 dd = d + (1. / 1.7 - 1.) * dot(d, dir) * dir;
+  vec2 lc = vec2(0., -.2) + dd / (u_s * 1.05);
+  vec3 acc = vec3(0);
+  for (int k = 0; k < 5; k++) {
+    float fk = float(k);
+    vec2 off = vec2(cos(fk * 2.4), sin(fk * 2.4)) * (.025 + .03 * fk);
+    Pane P = lancet(lc + off, false);
+    acc += P.col * P.a * smoothstep(.0, .08, P.edge);
+  }
+  float fade = smoothstep(3.6, 1.2, length((lc - vec2(0., -.2)) * vec2(1.6, .55)));
+  return pow(acc / 5., vec3(.85)) * fade;
+}
+void main(){
+  vec2 p = (gl_FragCoord.xy - .5 * u_res) / u_res.y;
+  float px = 1. / (u_res.y * u_s);
+  vec2 l = (p - u_win) / u_s, sunL = (u_sun - u_win) / u_s;
+  vec3 col; float alpha = 1.;
+  if (u_mode == 1) {                                         // rose, assembled by u_build
+    Pane P = rose(l, true);
+    float glow = exp(-dot(l - sunL, l - sunL) * 1.1) * u_light;
+    float lw = .0075;
+    if (P.stone > 0.) col = stone(l * 6., P.edge * 6., .7 + glow);
+    else {
+      float ord = P.order + P.id * .05;
+      float leadOn = smoothstep(ord * .6, ord * .6 + .02, u_build);
+      float glassOn = smoothstep(ord * .6 + .2, ord * .6 + .28, u_build);
+      vec3 sky = vec3(.17, .19, .25) * (1. + glow * 1.5);
+      col = mix(sky, glass(P, l * 3., lw, glow, .24 + .2 * u_light), glassOn);
+      col = mix(col, came(P.edge, lw), (1. - smoothstep(lw - px, lw + px, P.edge)) * leadOn);
+    }
+    alpha = P.cov;
+  } else if (u_mode == 2) {                                  // three lancets
+    float k = clamp(floor(l.x / 2.35 + .5), -1., 1.);
+    vec2 lk = (l - vec2(2.35 * k, k == 0. ? 0. : -.45)) / (k == 0. ? 1. : .86);
+    Pane P = lancet(lk, true);
+    float glow = exp(-dot(l - sunL, l - sunL) * .12);
+    float lw = .03;
+    if (P.stone > 0.) col = stone(lk, P.edge, glow);
+    else col = mix(glass(P, lk, lw, glow, .3), came(P.edge, lw), 1. - smoothstep(lw - px, lw + px, P.edge));
+    alpha = P.cov;
+  } else {                                                   // hero: one lancet, its light on the wall
+    Pane P = lancet(l, true);
+    float glow = exp(-dot(l - sunL, l - sunL) * .09);
+    float lw = .03;
+    if (P.a > 0.) col = mix(glass(P, l, lw, glow, .45), came(P.edge, lw), 1. - smoothstep(lw - px, lw + px, P.edge));
+    else if (P.stone > 0.) col = stone(l, P.edge, glow);
+    else {
+      vec3 W = wall(p);
+      vec3 L = pool(p);
+      float mote = smoothstep(.93, 1., noise(p * 160. + vec2(0., u_time * .6))) * .5;
+      col = W * (.6 + L * 6.5) + L * (.05 + mote);
+    }
+    col *= 1. - .35 * smoothstep(.5, 1.3, length(p * vec2(.8, 1.)));
+  }
+  col = 1. - exp(-col * 1.15);                               // soft tone map
+  col += (h12(gl_FragCoord.xy + fract(u_time) * 91.) - .5) * .012;
+  o = vec4(col * alpha, alpha);
+}`;
+const VERT = `#version 300 es
+in vec2 p; void main(){ gl_Position = vec4(p, 0., 1.); }`;
+
+function makeGL(canvas, mode, scaleCap) {
+  const gl = canvas.getContext("webgl2", { premultipliedAlpha: true, antialias: false });
+  if (!gl) return null;
+  const sh = (t, s) => { const x = gl.createShader(t); gl.shaderSource(x, s); gl.compileShader(x);
+    if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x)); return x; };
+  const pr = gl.createProgram();
+  gl.attachShader(pr, sh(gl.VERTEX_SHADER, VERT)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FRAG)); gl.linkProgram(pr);
+  gl.useProgram(pr);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  const U = {}; ["u_res", "u_time", "u_mode", "u_win", "u_s", "u_sun", "u_pool", "u_pal", "u_build", "u_light", "u_rot"].forEach(n => U[n] = gl.getUniformLocation(pr, n));
+  gl.uniform1i(U.u_mode, mode);
+  const g = { canvas, gl, U, visible: false, w: 1, h: 1, size() {
+    const r = canvas.getBoundingClientRect(), s = Math.min(devicePixelRatio || 1, scaleCap);
+    g.w = Math.max(1, Math.round(r.width * s)); g.h = Math.max(1, Math.round(r.height * s));
+    canvas.width = g.w; canvas.height = g.h; gl.viewport(0, 0, g.w, g.h); g.aspect = r.width / r.height;
+  }, draw(u) {
+    gl.uniform2f(U.u_res, g.w, g.h); gl.uniform1f(U.u_time, u.time);
+    gl.uniform2f(U.u_win, ...u.win); gl.uniform1f(U.u_s, u.s); gl.uniform2f(U.u_sun, ...u.sun); gl.uniform2f(U.u_pool, ...(u.pool || [0, 0]));
+    gl.uniform3fv(U.u_pal, palCur.flat()); gl.uniform1f(U.u_build, u.build ?? 1); gl.uniform1f(U.u_light, u.light ?? 1); gl.uniform1f(U.u_rot, u.rot ?? 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  } };
+  g.size();
+  new IntersectionObserver(([e]) => g.visible = e.isIntersecting).observe(canvas);
+  new ResizeObserver(() => g.size()).observe(canvas);
+  return g;
+}
+
+let hero, roseG, trip;
+try {
+  hero = makeGL($("#hero"), 0, 1.5);
+  roseG = makeGL($("#rose"), 1, 2);
+  trip = makeGL($("#triplet"), 2, 2);
+} catch (err) { window.__glErr = String(err); hero = roseG = trip = null; }
+if (!hero) document.documentElement.classList.add("nogl");
+
+// ---------- interaction state ----------
+const toP = (g, x, y) => { const r = g.canvas.getBoundingClientRect(); return [((x - r.left) - r.width / 2) / r.height, -((y - r.top) - r.height / 2) / r.height]; };
+let heroPtr = null, tripPtr = null;
+function heroLayout() {
+  const a = hero.aspect;
+  if (a >= 1) return { s: .8 / 5.9, win: [a / 2 - .36, -.03], rest: [-a / 2 + .44, -.1] };
+  return { s: .38 / 5.9, win: [0, .27], rest: [0, -.2] };
+}
+let pool = null;
+if (hero) {
+  const hEl = $(".hero");
+  hEl.addEventListener("pointermove", e => heroPtr = toP(hero, e.clientX, e.clientY));
+  hEl.addEventListener("pointerleave", () => heroPtr = null);
+}
+if (trip) {
+  trip.canvas.addEventListener("pointermove", e => tripPtr = toP(trip, e.clientX, e.clientY));
+  trip.canvas.addEventListener("pointerleave", () => tripPtr = null);
+}
+
+// rose progress from scroll
+const roseSec = $(".rose-sec"), steps = [...document.querySelectorAll(".steps li")];
+function roseBuild() {
+  if (reduce) return 1;
+  const total = roseSec.offsetHeight - innerHeight;
+  return Math.min(1, Math.max(0, (scrollY - roseSec.offsetTop) / total) * 1.12);
+}
+
+const t0 = performance.now();
+let tripSun = [-.3, .35];
+function frame(now) {
+  const time = reduce ? 0 : (now - t0) / 1000;
+  // ease palette towards the selected one
+  palCur = palCur.map((c, i) => c.map((v, j) => v + (palTarget[i][j] - v) * (reduce ? 1 : .08)));
+
+  if (hero && hero.visible) {
+    const L = heroLayout();
+    const idle = [L.rest[0] + Math.sin(time * .21) * .05, L.rest[1] + Math.cos(time * .17) * .03];
+    const target = heroPtr ? [Math.max(-hero.aspect / 2 + .1, Math.min(hero.aspect / 2 - .05, heroPtr[0])), Math.max(-.45, Math.min(.42, heroPtr[1]))] : idle;
+    pool = pool || target.slice();
+    pool = pool.map((v, i) => v + (target[i] - v) * (reduce ? 1 : .07));
+    const sun = [L.win[0] - (pool[0] - L.win[0]) * .55, L.win[1] - (pool[1] - L.win[1]) * .55 + .1];
+    hero.draw({ time, win: L.win, s: L.s, sun, pool });
+    // sun altitude readout from the light direction
+    const dx = L.win[0] - pool[0], dy = L.win[1] - pool[1];
+    const alt = Math.round(Math.max(8, Math.min(78, Math.atan2(Math.abs(dy) + .2, Math.abs(dx) + .05) * 180 / Math.PI)));
+    $("#alt").textContent = alt;
+    const mins = 6 * 60 + Math.round((dx + hero.aspect / 2) / hero.aspect * 12 * 60) % (12 * 60);
+    $("#clock").textContent = `${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
+  }
+  if (roseG && roseG.visible) {
+    const b = roseBuild();
+    const k = b < .08 ? 0 : b < .35 ? 1 : b < .82 ? 2 : 3;
+    steps.forEach((li, i) => li.classList.toggle("on", i === k));
+    roseG.draw({ time, win: [0, 0], s: .49, sun: [-.18 + Math.sin(time * .2) * .04, .22], build: b, light: Math.min(1, Math.max(0, (b - .82) / .16)), rot: (1 - b) * 1.2 });
+  }
+  if (trip && trip.visible) {
+    const a = trip.aspect, s = Math.min(.95 / 5.9, a * .95 / 7.1);
+    const goal = tripPtr || [Math.sin(time * .25) * .25, .18 + Math.cos(time * .2) * .05];
+    tripSun = tripSun.map((v, i) => v + (goal[i] - v) * (reduce ? 1 : .08));
+    trip.draw({ time, win: [0, .2 * s], s, sun: tripSun });
+  }
+  requestAnimationFrame(frame);
+}
+if (hero) requestAnimationFrame(frame);
+
+// language switch re-renders swatch labels
+document.querySelector("[data-lang-toggle]").addEventListener("click", () => setTimeout(renderPalette, 0));
+</script>
+</body>
+</html>

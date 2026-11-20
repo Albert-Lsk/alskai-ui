@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mensura 度 · Measure yourself the way Leonardo did</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/alegreya@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/alegreya@5/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/alegreya@5/400-italic.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/alegreya-sc@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/dm-mono@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/italianno@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-bold.css">
+<script src="../../shared/lang.js"></script>
+<style>
+:root {
+  --paper: #ece0c7;
+  --paper-2: #e3d4b5;
+  --ink: #3a2414;
+  --ink-2: #634530;
+  --ink-3: #8c6d50;
+  --chalk: #a5452b;        /* sanguine / red chalk */
+  --rule: rgba(90, 60, 35, .28);
+  --serif: "Alegreya", "LXGW WenKai", Georgia, serif;
+  --sc: "Alegreya SC", "Alegreya", serif;
+  --zh: "LXGW WenKai", "Alegreya", serif;
+  --mono: "DM Mono", ui-monospace, monospace;
+  --hand: "Italianno", "LXGW WenKai", cursive;
+  --wrap: min(1240px, calc(100vw - 48px));
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--paper); }
+body {
+  color: var(--ink); font: 18px/1.65 var(--serif); -webkit-font-smoothing: antialiased;
+}
+/* toned paper; shared with sticky boxes so multiply has paper to land on */
+body, .how .stick {
+  background:
+    radial-gradient(ellipse at 8% 12%, rgba(150, 100, 50, .10), transparent 32%),
+    radial-gradient(ellipse at 92% 70%, rgba(150, 100, 50, .09), transparent 30%),
+    url(img/paper.png) 0 0 / 512px,
+    var(--paper);
+  background-blend-mode: normal, normal, soft-light, normal;
+  background-attachment: fixed;
+}
+html[data-lang="zh"] body { font-family: var(--zh); font-size: 17px; line-height: 1.8; }
+[lang="zh"] em, [lang="zh"] i { font-style: normal; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.wrap { width: var(--wrap); margin: 0 auto; }
+.mono { font-family: var(--mono); font-size: 12.5px; letter-spacing: .04em; }
+
+/* ---------- nav ---------- */
+nav { display: flex; align-items: center; gap: 34px; height: 84px; border-bottom: 1px solid var(--rule); }
+.brand { display: flex; align-items: center; gap: 12px; font: 500 23px var(--sc); letter-spacing: .06em; }
+.brand svg { width: 30px; height: 30px; }
+html[data-lang="zh"] .brand .zh-name { font-family: var(--zh); font-weight: 700; letter-spacing: 0; font-size: 20px; margin-left: -4px; color: var(--chalk); }
+nav ul { list-style: none; padding: 0; display: flex; gap: 30px; margin-left: auto; font-size: 16px; color: var(--ink-2); }
+nav li a { transition: color .2s; }
+nav li a:hover { color: var(--chalk); }
+.lang { font: 13px var(--mono); border: 1px solid var(--rule); padding: 6px 12px; letter-spacing: .06em; }
+.lang b { font-weight: 400; opacity: .45; }
+html[data-lang="zh"] .lang .z, html[data-lang="en"] .lang .e { opacity: 1; }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 22px; font-size: 16px; white-space: nowrap; transition: transform .15s ease, background-color .2s, color .2s; }
+.btn:active { transform: scale(.97); }
+.btn.solid { background: var(--ink); color: var(--paper); }
+.btn.solid:hover { background: #55351e; }
+.btn.line { border: 1px solid var(--ink-3); }
+.btn.line:hover { border-color: var(--ink); }
+
+/* ---------- hero ---------- */
+.hero { display: grid; grid-template-columns: 1fr 1.02fr; grid-template-areas: "copy fig" "ctrl fig"; column-gap: 64px; padding: 52px 0 40px; align-items: start; }
+.hero .copy { grid-area: copy; padding-top: 34px; }
+.hero .fig { grid-area: fig; }
+.hero .ctrl { grid-area: ctrl; }
+.folio { font: 15px var(--sc); letter-spacing: .14em; color: var(--chalk); display: flex; align-items: center; gap: 12px; }
+.folio::after { content: ""; width: 64px; height: 1px; background: var(--chalk); opacity: .6; }
+h1 { font: 500 clamp(44px, 4.7vw, 70px)/1.04 var(--serif); letter-spacing: -.012em; margin: 20px 0 22px; }
+h1 em { color: var(--chalk); }
+html[data-lang="zh"] h1 { font: 700 clamp(40px, 4.2vw, 62px)/1.25 var(--zh); letter-spacing: .02em; }
+.lead { color: var(--ink-2); max-width: 30em; }
+.cta-row { display: flex; gap: 14px; margin-top: 30px; flex-wrap: wrap; }
+
+/* measuring card */
+.ctrl { margin-top: 34px; border-top: 1px solid var(--ink); padding-top: 18px; max-width: 520px; }
+.ctrl .row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.ctrl label { font: 15px var(--sc); letter-spacing: .1em; color: var(--ink-2); }
+html[data-lang="zh"] .ctrl label { font: 15px var(--zh); letter-spacing: .06em; }
+.ctrl .h { font: 500 30px var(--serif); font-variant-numeric: tabular-nums; }
+.ctrl .h small { font: 13px var(--mono); color: var(--ink-3); margin-left: 4px; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: transparent; margin: 8px 0 4px; cursor: ew-resize; }
+input[type=range] { background: linear-gradient(var(--ink), var(--ink)) 0 13px / 100% 1px no-repeat, repeating-linear-gradient(90deg, var(--ink-3) 0 1px, transparent 1px 8px) 0 8px / 100% 5px no-repeat; }
+input[type=range]::-webkit-slider-runnable-track { height: 22px; background: transparent; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: 0; background: var(--chalk); clip-path: polygon(50% 100%, 0 0, 100% 0); }
+input[type=range]::-moz-range-track { height: 1px; background: transparent; }
+input[type=range]::-moz-range-thumb { width: 14px; height: 18px; border: 0; border-radius: 0; background: var(--chalk); clip-path: polygon(50% 100%, 0 0, 100% 0); }
+input[type=range]:focus-visible { outline: 1px dashed var(--chalk); outline-offset: 4px; }
+.units { display: inline-flex; border: 1px solid var(--ink-3); }
+.units button { font: 13px var(--mono); padding: 4px 10px; color: var(--ink-2); }
+.units button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.readout { list-style: none; padding: 0; margin-top: 14px; }
+.readout li { display: grid; grid-template-columns: 24px 1fr auto; gap: 10px; align-items: baseline; padding: 7px 0; border-bottom: 1px dotted var(--rule); cursor: default; transition: color .2s, padding .25s; }
+.readout li .n { font: 12px var(--mono); color: var(--chalk); }
+.readout li .v { font: 15px var(--mono); font-variant-numeric: tabular-nums; }
+.readout li .r { font: 12px var(--mono); color: var(--ink-3); margin-left: 6px; }
+.readout li.on { color: var(--chalk); padding-left: 6px; }
+
+/* figure */
+.fig { position: relative; }
+.sheet { position: relative; width: 100%; aspect-ratio: 1400 / 1650; }
+.sheet img { position: absolute; inset: 0; width: 100%; height: 100%; mix-blend-mode: multiply;
+  -webkit-mask: radial-gradient(ellipse 54% 54% at 50% 50%, #000 66%, transparent 100%); mask: radial-gradient(ellipse 54% 54% at 50% 50%, #000 66%, transparent 100%); }
+.sheet svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.draw { fill: none; stroke: var(--chalk); stroke-width: 2.4; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: .85; }
+.go .draw { animation: draw 1.8s cubic-bezier(.55,.1,.25,1) forwards; }
+.go .draw.d2 { animation-delay: .5s; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.dim { opacity: 0; transition: opacity .5s ease; }
+.go .dim { opacity: .9; transition-delay: calc(1.6s + var(--i) * .12s); }
+.dim line, .dim path { stroke: var(--ink); stroke-width: 2; fill: none; }
+.dim .lbl rect { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
+.dim .lbl text { font: 26px var(--mono); fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
+.dim.on line, .dim.on path { stroke: var(--chalk); stroke-width: 3; }
+.dim.on .lbl rect { fill: var(--chalk); stroke: var(--chalk); }
+.dim.on .lbl text { fill: var(--paper); }
+.scan { pointer-events: none; opacity: 0; }
+.scan.on { opacity: 1; }
+.scan line { stroke: var(--chalk); stroke-width: 2; stroke-dasharray: 10 8; }
+.scan text { font: 26px var(--mono); fill: var(--chalk); }
+.scan .mark { font: 30px var(--zh); }
+html[data-lang="en"] .scan .mark { font: italic 32px var(--serif); }
+.fig .cap { display: flex; justify-content: space-between; gap: 16px; margin-top: 10px; color: var(--ink-3); font-size: 14px; }
+.fig .cap i { font-style: italic; }
+
+/* mirror-script marginalia: hover to read it the right way round */
+.mirror { display: inline-block; font: 34px/1.05 var(--hand); color: var(--ink-2); transform: scaleX(-1); transition: transform .6s cubic-bezier(.5,0,.2,1), color .3s; cursor: help; position: relative; }
+.mirror:hover, .mirror:focus-visible { transform: scaleX(1); color: var(--chalk); outline: none; }
+.mirror .gloss { position: absolute; left: 0; top: 100%; margin-top: 6px; font: 14px/1.4 var(--serif); color: var(--ink-2); white-space: nowrap; opacity: 0; transition: opacity .3s .2s; transform: scaleX(1); }
+html[data-lang="zh"] .mirror .gloss { font-family: var(--zh); }
+.mirror:hover .gloss, .mirror:focus-visible .gloss { opacity: 1; }
+.margin-note { margin-top: 24px; }
+.margin-note:hover .hint, .margin-note:focus-within .hint { opacity: 0; }
+.hint { transition: opacity .2s; }
+.hint { font: 13px var(--mono); color: var(--ink-3); margin-top: 6px; }
+
+/* ---------- sections ---------- */
+section.block { padding: 110px 0 40px; }
+.head { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: end; margin-bottom: 48px; }
+.head h2 { font: 500 clamp(36px, 3.6vw, 52px)/1.08 var(--serif); }
+html[data-lang="zh"] .head h2 { font: 700 clamp(34px, 3.4vw, 48px)/1.3 var(--zh); }
+.head p { color: var(--ink-2); }
+
+/* annotated hands */
+.study { display: grid; grid-template-columns: 1fr minmax(320px, 470px) 1fr; gap: 44px; align-items: center; position: relative; }
+.study .sheet { aspect-ratio: 1200 / 1674; }
+.study .sheet img { -webkit-mask: radial-gradient(ellipse 54% 54% at 50% 50%, #000 66%, transparent 100%); mask: radial-gradient(ellipse 54% 54% at 50% 50%, #000 66%, transparent 100%); }
+.hot { cursor: pointer; }
+.hot circle.ring { fill: rgba(236,224,199,.35); stroke: var(--chalk); stroke-width: 3; transition: r .3s cubic-bezier(.2,.8,.2,1), fill .3s; }
+.hot text { font: 30px var(--mono); fill: var(--chalk); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.hot.on circle.ring { fill: var(--chalk); r: 30; }
+.hot.on text { fill: var(--paper); }
+.notes { list-style: none; padding: 0; display: grid; gap: 26px; }
+.notes li { cursor: pointer; padding-left: 38px; position: relative; transition: color .25s; }
+.notes li .k { position: absolute; left: 0; top: 2px; width: 26px; height: 26px; border: 1px solid var(--chalk); border-radius: 50%; display: grid; place-items: center; font: 12px var(--mono); color: var(--chalk); transition: background-color .25s, color .25s; }
+.notes li b { display: block; font: 500 20px/1.3 var(--serif); }
+html[data-lang="zh"] .notes li b { font: 700 18px/1.4 var(--zh); }
+.notes li span.t { display: block; color: var(--ink-2); font-size: 15.5px; line-height: 1.55; margin-top: 3px; }
+.notes li .m { display: block; font: 12px var(--mono); color: var(--ink-3); margin-top: 6px; }
+.notes li.on { color: var(--chalk); }
+.notes li.on .k { background: var(--chalk); color: var(--paper); }
+.notes.right li { text-align: left; }
+.leaders { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.leaders path { fill: none; stroke: var(--chalk); stroke-width: 1.3; }
+.leaders circle { fill: var(--chalk); }
+
+/* how it works: construction drawn step by step */
+.how { display: grid; grid-template-columns: 1.05fr .95fr; gap: 72px; align-items: start; }
+/* sticky makes its own stacking context, so it carries the same paper for the multiply to land on */
+.how .stick { position: sticky; top: 40px; }
+.how .sheet svg { overflow: hidden; }
+.how .sheet { aspect-ratio: 960 / 760; }
+.how .sheet svg image { mix-blend-mode: multiply; }
+.layer { opacity: 0; transition: opacity .7s ease; }
+.layer.on { opacity: 1; }
+.layer .c { fill: none; stroke: var(--chalk); stroke-width: 2.4; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.4s cubic-bezier(.55,.1,.25,1); }
+.layer.on .c { stroke-dashoffset: 0; }
+.layer text { font: 22px var(--mono); fill: var(--chalk); }
+.layer .zt { font: 26px var(--zh); }
+html[data-lang="en"] .layer .zt { font: italic 26px var(--serif); }
+.steps { list-style: none; padding: 0; }
+.steps li { min-height: 46vh; padding: 26px 0 0 0; border-top: 1px solid var(--rule); color: var(--ink-3); transition: color .4s; }
+.steps li:last-child { min-height: 30vh; }
+.steps li .no { font: 14px var(--sc); letter-spacing: .14em; color: var(--ink-3); }
+.steps li h3 { font: 500 30px/1.15 var(--serif); margin: 8px 0 10px; }
+html[data-lang="zh"] .steps li h3 { font: 700 26px/1.4 var(--zh); }
+.steps li p { max-width: 28em; }
+.steps li.on { color: var(--ink); }
+.steps li.on .no { color: var(--chalk); }
+
+/* pricing as folios */
+.folios { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+.leaf { border: 1px solid var(--ink-3); padding: 28px 26px 30px; position: relative; background: rgba(245,236,216,.35); transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s; }
+.leaf:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -28px rgba(60,35,15,.5); }
+.leaf::before { content: ""; position: absolute; inset: 6px; border: 1px solid var(--rule); pointer-events: none; }
+.leaf .no { font: 14px var(--sc); letter-spacing: .14em; color: var(--chalk); }
+.leaf h3 { font: 500 28px/1.1 var(--serif); margin: 10px 0 4px; }
+html[data-lang="zh"] .leaf h3 { font: 700 24px/1.4 var(--zh); }
+.leaf .price { font: 500 38px var(--serif); font-variant-numeric: lining-nums; margin: 14px 0 6px; }
+.leaf .price small { font: 14px var(--mono); color: var(--ink-3); }
+.leaf ul { padding: 0; list-style: none; margin: 14px 0 24px; color: var(--ink-2); font-size: 15.5px; }
+.leaf ul li { padding: 5px 0 5px 20px; position: relative; border-bottom: 1px dotted var(--rule); }
+.leaf ul li::before { content: "·"; position: absolute; left: 4px; color: var(--chalk); font-weight: 700; }
+.leaf.main { border-color: var(--ink); background: rgba(245,236,216,.7); }
+
+/* closing */
+.closing { text-align: center; padding: 140px 0 110px; }
+.closing svg { width: 120px; height: 120px; }
+.closing svg .draw { stroke-width: 1.4; }
+.closing h2 { font: 500 clamp(56px, 8vw, 116px)/1 var(--serif); letter-spacing: -.02em; margin: 22px 0 16px; }
+html[data-lang="zh"] .closing h2 { font: 700 clamp(48px, 7vw, 96px)/1.2 var(--zh); letter-spacing: .04em; }
+.closing p { color: var(--ink-2); margin-bottom: 30px; }
+
+footer { border-top: 1px solid var(--ink); padding: 34px 0 56px; font-size: 13.5px; line-height: 1.85; color: var(--ink-3); }
+footer b { color: var(--ink-2); }
+footer .top { display: flex; justify-content: space-between; gap: 20px; color: var(--ink-2); margin-bottom: 14px; }
+
+@media (max-width: 960px) {
+  nav ul { display: none; }
+  nav { gap: 14px; }
+  nav .btn { display: none; }
+  .hero { grid-template-columns: 1fr; grid-template-areas: "copy" "fig" "ctrl"; padding-top: 24px; }
+  .hero .copy { padding-top: 6px; }
+  .fig { margin-top: 26px; }
+  .ctrl { max-width: none; margin-top: 20px; }
+  .head { grid-template-columns: 1fr; gap: 14px; }
+  .study { grid-template-columns: 1fr; gap: 26px; }
+  .study .sheet { max-width: 420px; margin: 0 auto; width: 100%; }
+  .leaders { display: none; }
+  .notes { gap: 18px; }
+  .how { grid-template-columns: 1fr; gap: 10px; }
+  .study .sheet { order: -1; }
+  .how .stick { position: static; }
+  .layer { opacity: 1; }
+  .layer .c { stroke-dashoffset: 0; }
+  .steps li { min-height: 0; padding-bottom: 26px; color: var(--ink); }
+  .steps li .no { color: var(--chalk); }
+  .folios { grid-template-columns: 1fr; }
+  section.block { padding-top: 80px; }
+  .mirror { font-size: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .draw, .layer .c { stroke-dashoffset: 0 !important; }
+  .dim, .layer { opacity: .9 !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#" aria-label="Mensura">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="7" y="9" width="26" height="26" fill="none" stroke="#3a2414" stroke-width="1.6"/><circle cx="20" cy="20" r="15.5" fill="none" stroke="#a5452b" stroke-width="1.6"/><path d="M20 10v25M8 17h24" stroke="#3a2414" stroke-width="1.2"/></svg>
+      Mensura <span class="zh-name" lang="zh">度</span>
+    </a>
+    <ul>
+      <li><a href="#measure"><span lang="en">Proportions</span><span lang="zh">比例</span></a></li>
+      <li><a href="#notes"><span lang="en">Notes</span><span lang="zh">批注</span></a></li>
+      <li><a href="#how"><span lang="en">How it works</span><span lang="zh">原理</span></a></li>
+      <li><a href="#price"><span lang="en">Pricing</span><span lang="zh">价格</span></a></li>
+    </ul>
+    <button class="lang" data-lang-toggle aria-label="Switch language"><b class="z">中</b> / <b class="e">EN</b></button>
+    <a class="btn solid" href="#price"><span lang="en">Get the app</span><span lang="zh">下载 App</span></a>
+  </nav>
+
+  <section class="hero" id="measure">
+    <div class="copy">
+      <div class="folio"><span lang="en">Folio I · De proportione</span><span lang="zh">第一页 · 论比例</span></div>
+      <h1><span lang="en">Measure yourself the way <em>Leonardo</em> did.</span><span lang="zh">用达·芬奇的尺子，<br>量一量<em>你自己</em>。</span></h1>
+      <p class="lead">
+        <span lang="en">Mensura reads one photo of you and finds the same lines Leonardo drew in 1490: the square, the circle, the eighth of a head. Thirty measurements, good to a finger's width, with notes in the margin.</span>
+        <span lang="zh">拍一张照片，Mensura 就能在你身上找到达·芬奇 1490 年画下的那几条线：方、圆、八分之一个头。三十个尺寸，误差不到一根手指宽，旁边还会写上批注。</span>
+      </p>
+      <div class="cta-row">
+        <a class="btn solid" href="#price"><span lang="en">Take your first measure</span><span lang="zh">量第一次</span></a>
+        <a class="btn line" href="#how"><span lang="en">How it reads a body</span><span lang="zh">看它怎么量</span></a>
+      </div>
+      <div class="margin-note">
+        <span class="mirror" tabindex="0">tanto apre l'omo nelle braccia, quanto è la sua altezza<span class="gloss"><span lang="en">"A man's arm span equals his height." (Leonardo, on this sheet)</span><span lang="zh">“人张开双臂有多宽，人就有多高。”（达·芬奇写在这张纸上）</span></span></span>
+        <div class="hint"><span lang="en">↑ Mirror writing. Hover to turn it round.</span><span lang="zh">↑ 这是镜像字，鼠标放上去翻过来看。</span></div>
+      </div>
+    </div>
+
+    <figure class="fig">
+      <div class="sheet" id="vitru">
+        <img src="img/vitruvian.jpg" alt="Leonardo da Vinci, Vitruvian Man, c. 1490">
+        <svg viewBox="0 0 1400 1650" aria-hidden="true">
+          <!-- tracing Leonardo's construction in red chalk -->
+          <rect class="draw" pathLength="1" x="183" y="455" width="1034" height="1042"/>
+          <circle class="draw d2" pathLength="1" cx="700" cy="860" r="632"/>
+          <!-- dimension lines; d = key into the readout -->
+          <g class="dim" data-d="span" style="--i:0"><path d="M183 392v26M1217 392v26M183 405H1217"/><g class="lbl"><rect x="620" y="384" width="160" height="42"/><text x="700" y="405">—</text></g></g>
+          <g class="dim" data-d="height" style="--i:1"><path d="M1272 455h26M1272 1497h26M1285 455V1497"/><g class="lbl"><rect x="1205" y="955" width="160" height="42"/><text x="1285" y="976">—</text></g></g>
+          <g class="dim" data-d="shoulders" style="--i:2"><path d="M570 650v26M830 650v26M570 663H830"/><g class="lbl"><rect x="620" y="604" width="160" height="42"/><text x="700" y="625">—</text></g></g>
+          <g class="dim" data-d="head" style="--i:3"><path d="M520 455h26M520 585h26M533 455V585"/><g class="lbl"><rect x="370" y="499" width="150" height="42"/><text x="445" y="520">—</text></g></g>
+          <g class="dim" data-d="hand" style="--i:4"><path d="M1113 588v22M1217 588v22M1113 599H1217"/><g class="lbl"><rect x="1085" y="535" width="160" height="42"/><text x="1165" y="556">—</text></g></g>
+          <g class="dim" data-d="foot" style="--i:5"><path d="M626 1525v26M774 1525v26M626 1538H774"/><g class="lbl"><rect x="620" y="1556" width="160" height="42"/><text x="700" y="1577">—</text></g></g>
+          <!-- cursor level -->
+          <g class="scan"><line x1="150" x2="1250" y1="0" y2="0"/><text class="val" x="200" y="-12">—</text><text class="mark" x="200" y="38"></text></g>
+        </svg>
+      </div>
+      <figcaption class="cap"><span><span lang="en">After Leonardo da Vinci, <i>Vitruvian Man</i>, c. 1490</span><span lang="zh">据达·芬奇《维特鲁威人》，约 1490 年</span></span><span class="mono" id="scanhint"><span lang="en">move over the figure</span><span lang="zh">在人像上移动鼠标</span></span></figcaption>
+    </figure>
+
+    <div class="ctrl">
+      <div class="row">
+        <label for="hgt"><span lang="en">Your height</span><span lang="zh">你的身高</span></label>
+        <div class="units" role="group" aria-label="Units">
+          <button type="button" data-u="cm" aria-pressed="true">cm</button>
+          <button type="button" data-u="palm" aria-pressed="false"><span lang="en">palms</span><span lang="zh">掌</span></button>
+        </div>
+      </div>
+      <div class="row"><div class="h"><span id="hval">175</span><small>cm</small></div></div>
+      <input id="hgt" type="range" min="140" max="205" value="175" step="1" aria-label="Height in centimetres">
+      <ul class="readout">
+        <li data-d="span"><span class="n">I</span><span><span lang="en">Arm span</span><span lang="zh">两臂张开</span><span class="r">= 1</span></span><span class="v"></span></li>
+        <li data-d="shoulders"><span class="n">II</span><span><span lang="en">Shoulders</span><span lang="zh">肩宽</span><span class="r">1/4</span></span><span class="v"></span></li>
+        <li data-d="head"><span class="n">III</span><span><span lang="en">Chin to crown</span><span lang="zh">下巴到头顶</span><span class="r">1/8</span></span><span class="v"></span></li>
+        <li data-d="foot"><span class="n">IV</span><span><span lang="en">Foot</span><span lang="zh">脚长</span><span class="r">1/7</span></span><span class="v"></span></li>
+        <li data-d="hand"><span class="n">V</span><span><span lang="en">Hand</span><span lang="zh">手长</span><span class="r">1/10</span></span><span class="v"></span></li>
+      </ul>
+      <p class="hint" id="palmnote"><span lang="en">In Leonardo's units everyone is the same: 24 palms tall.</span><span lang="zh">换成达·芬奇的单位，每个人都一样高：24 掌。</span></p>
+    </div>
+  </section>
+
+  <section class="block" id="notes">
+    <div class="head">
+      <h2><span lang="en">Every joint gets a note in the margin.</span><span lang="zh">每个关节，<br>都有一条页边批注。</span></h2>
+      <p><span lang="en">Leonardo drew hands until he understood them. Mensura does the reading for you: point at a joint, or at a note, and the leader line finds its partner.</span><span lang="zh">达·芬奇画手，画到看懂为止。Mensura 替你读：指一个关节，或者指一条批注，引线会自己连过去。</span></p>
+    </div>
+    <div class="study" id="study">
+      <ol class="notes left">
+        <li data-k="1"><span class="k">1</span><b><span lang="en">Fingertips</span><span lang="zh">指尖</span></b><span class="t"><span lang="en">Grip without tension: the tips curl, the knuckles stay soft.</span><span lang="zh">握得住但不用力：指尖弯，指节是松的。</span></span><span class="m">±2 mm</span></li>
+        <li data-k="2"><span class="k">2</span><b><span lang="en">Knuckles</span><span lang="zh">指节</span></b><span class="t"><span lang="en">Four knuckles on one arc. A flat line means a stiff hand.</span><span lang="zh">四个指节在一条弧线上。连成直线，说明手是僵的。</span></span><span class="m">arc r 11.4 cm</span></li>
+        <li data-k="3"><span class="k">3</span><b><span lang="en">Wrist</span><span lang="zh">手腕</span></b><span class="t"><span lang="en">Bent about 30°. Past 40° for hours, and the tendons will tell you.</span><span lang="zh">弯了大约 30°。一连几小时超过 40°，肌腱会提醒你。</span></span><span class="m">31°</span></li>
+      </ol>
+      <div class="sheet" id="hands">
+        <img src="img/hands.jpg" alt="Leonardo da Vinci, A study of a woman's hands, c. 1490">
+        <svg viewBox="0 0 1200 1674" aria-hidden="true">
+          <g class="hot" data-k="1"><circle class="ring" cx="430" cy="150" r="22"/><text x="430" y="150">1</text></g>
+          <g class="hot" data-k="2"><circle class="ring" cx="650" cy="218" r="22"/><text x="650" y="218">2</text></g>
+          <g class="hot" data-k="3"><circle class="ring" cx="545" cy="620" r="22"/><text x="545" y="620">3</text></g>
+          <g class="hot" data-k="4"><circle class="ring" cx="150" cy="1455" r="22"/><text x="150" y="1455">4</text></g>
+          <g class="hot" data-k="5"><circle class="ring" cx="390" cy="1225" r="22"/><text x="390" y="1225">5</text></g>
+          <g class="hot" data-k="6"><circle class="ring" cx="885" cy="1240" r="22"/><text x="885" y="1240">6</text></g>
+        </svg>
+      </div>
+      <ol class="notes right">
+        <li data-k="4"><span class="k">4</span><b><span lang="en">Resting fingers</span><span lang="zh">放松的手指</span></b><span class="t"><span lang="en">The long finger leads; the others fall away by a few degrees each.</span><span lang="zh">中指领头，其余几根各错开几度，自然垂下去。</span></span><span class="m">Δ 4–7°</span></li>
+        <li data-k="5"><span class="k">5</span><b><span lang="en">Back of the hand</span><span lang="zh">手背</span></b><span class="t"><span lang="en">Tendons barely show. Good: nothing here is working hard.</span><span lang="zh">肌腱几乎看不见。这是好事：这里没有在用力。</span></span><span class="m">0.4 / 5</span></li>
+        <li data-k="6"><span class="k">6</span><b><span lang="en">Forearm</span><span lang="zh">前臂</span></b><span class="t"><span lang="en">Turned palm-down, the two bones cross. Leonardo was the first to draw why.</span><span lang="zh">掌心朝下时，前臂的两根骨头交叉。最早画出原因的，就是达·芬奇。</span></span><span class="m">pronation 78°</span></li>
+      </ol>
+      <svg class="leaders" id="leaders" aria-hidden="true"></svg>
+    </div>
+  </section>
+
+  <section class="block" id="how">
+    <div class="head">
+      <h2><span lang="en">Three passes of the pen.</span><span lang="zh">落三次笔，<br>量完一个人。</span></h2>
+      <p><span lang="en">Leonardo found the centre of the skull by crossing two lines. Mensura works the same way, in the same order, on your photo.</span><span lang="zh">达·芬奇找头骨的中心，靠的是两条交叉的线。Mensura 在你的照片上，也按同样的顺序来。</span></p>
+    </div>
+    <div class="how">
+      <div class="stick">
+        <div class="sheet" id="skull">
+          <svg viewBox="120 40 960 760" aria-label="Leonardo da Vinci, The cranium, 1489">
+            <defs>
+              <radialGradient id="fade" cx="600" cy="400" r="410" gradientUnits="userSpaceOnUse"><stop offset=".6" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient>
+              <mask id="skullmask"><rect x="0" y="0" width="1200" height="1694" fill="url(#fade)"/></mask>
+            </defs>
+            <image href="img/cranium.jpg" x="0" y="0" width="1200" height="1694" mask="url(#skullmask)"/>
+            <g class="layer" data-s="1">
+              <path class="c" pathLength="1" d="M330 120v-30h40M840 90h40v30M330 540v30h40M840 570h40v-30"/>
+              <path class="c" pathLength="1" d="M348 74H864M348 64v20M864 64v20"/>
+              <text x="560" y="62">≈ 19.6 cm</text>
+            </g>
+            <g class="layer" data-s="2">
+              <path class="c" pathLength="1" d="M300 398H905"/>
+              <path class="c" pathLength="1" d="M624 85V585"/>
+              <circle class="c" pathLength="1" cx="624" cy="398" r="34"/>
+              <text x="912" y="404">a</text><text x="632" y="80">b</text>
+            </g>
+            <g class="layer" data-s="3">
+              <path class="c" pathLength="1" d="M760 380 L960 300"/><circle cx="760" cy="380" r="6" fill="#a5452b"/>
+              <text class="zt" x="968" y="300">orbit</text>
+              <path class="c" pathLength="1" d="M700 525 L960 620"/><circle cx="700" cy="525" r="6" fill="#a5452b"/>
+              <text class="zt" x="968" y="628">jaw</text>
+              <path class="c" pathLength="1" d="M520 190 L300 230"/><circle cx="520" cy="190" r="6" fill="#a5452b"/>
+              <text class="zt" x="150" y="236">crown</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <ol class="steps">
+        <li data-s="1"><span class="no"><span lang="en">Pass I · Frame</span><span lang="zh">第一笔 · 定框</span></span><h3><span lang="en">Find the edges.</span><span lang="zh">先找到边。</span></h3><p><span lang="en">From one photo, Mensura marks where you begin and end, top to toe and fingertip to fingertip. Your phone held at arm's length is enough.</span><span lang="zh">一张照片里，Mensura 先标出你从哪到哪：头顶到脚底，指尖到指尖。手机拿在一臂远的地方就够了。</span></p></li>
+        <li data-s="2"><span class="no"><span lang="en">Pass II · Cross</span><span lang="zh">第二笔 · 十字</span></span><h3><span lang="en">Cross two lines.</span><span lang="zh">画两条交叉线。</span></h3><p><span lang="en">A level line and a plumb line, crossed where Leonardo crossed them. Every other measure hangs off that point, so tilt and distance stop mattering.</span><span lang="zh">一条水平线，一条铅垂线，在达·芬奇交叉的地方交叉。其余尺寸都从这个点量起，照片拍歪一点、远一点都没关系。</span></p></li>
+        <li data-s="3"><span class="no"><span lang="en">Pass III · Annotate</span><span lang="zh">第三笔 · 批注</span></span><h3><span lang="en">Write in the margin.</span><span lang="zh">在页边写字。</span></h3><p><span lang="en">Thirty numbers are not advice. Mensura writes the three that matter next to the part they belong to, like a notebook, not a dashboard.</span><span lang="zh">三十个数字不等于建议。Mensura 只挑三条要紧的，写在对应部位旁边，像笔记本，不像仪表盘。</span></p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="block" id="price">
+    <div class="head">
+      <h2><span lang="en">Choose your notebook.</span><span lang="zh">挑一本笔记。</span></h2>
+      <p><span lang="en">All three keep your photos on your phone. Only the measurements, never the picture, leave the device.</span><span lang="zh">三种都把照片留在你手机里。离开手机的只有尺寸，从来不是照片。</span></p>
+    </div>
+    <div class="folios">
+      <article class="leaf"><div class="no">Quaderno</div><h3><span lang="en">Pocket</span><span lang="zh">小本</span></h3><div class="price">$0 <small><span lang="en">/ forever</span><span lang="zh">/ 一直免费</span></small></div>
+        <ul><li><span lang="en">Five core proportions</span><span lang="zh">五个基本比例</span></li><li><span lang="en">One measure a month</span><span lang="zh">每月量一次</span></li><li><span lang="en">Margin notes in two languages</span><span lang="zh">中英双语批注</span></li></ul>
+        <a class="btn line" href="#"><span lang="en">Start free</span><span lang="zh">免费开始</span></a></article>
+      <article class="leaf main"><div class="no">Codice</div><h3><span lang="en">Codex</span><span lang="zh">手稿</span></h3><div class="price">$6 <small><span lang="en">/ month</span><span lang="zh">/ 月</span></small></div>
+        <ul><li><span lang="en">All thirty measurements</span><span lang="zh">全部三十个尺寸</span></li><li><span lang="en">Unlimited measures, change over time</span><span lang="zh">不限次数，看得到变化</span></li><li><span lang="en">Posture notes for desk, run and lift</span><span lang="zh">伏案、跑步、举重三套姿态批注</span></li></ul>
+        <a class="btn solid" href="#"><span lang="en">Try a month</span><span lang="zh">试用一个月</span></a></article>
+      <article class="leaf"><div class="no">Bottega</div><h3><span lang="en">Workshop</span><span lang="zh">工坊</span></h3><div class="price">$24 <small><span lang="en">/ seat</span><span lang="zh">/ 人</span></small></div>
+        <ul><li><span lang="en">For tailors, coaches and physios</span><span lang="zh">给裁缝、教练和理疗师</span></li><li><span lang="en">Shared client folios</span><span lang="zh">客户档案共享</span></li><li><span lang="en">Export as measured drawings</span><span lang="zh">导出成带尺寸的图纸</span></li></ul>
+        <a class="btn line" href="#"><span lang="en">Talk to us</span><span lang="zh">联系我们</span></a></article>
+    </div>
+  </section>
+
+  <section class="closing" id="closing">
+    <svg viewBox="0 0 120 120" aria-hidden="true"><rect class="draw" pathLength="1" x="22" y="26" width="76" height="76" style="stroke:#3a2414"/><circle class="draw d2" pathLength="1" cx="60" cy="60" r="46"/></svg>
+    <h2><span lang="en">Measure twice.</span><span lang="zh">量两次，再下笔。</span></h2>
+    <p><span lang="en">Then cut, run, sew, or simply stand a little straighter.</span><span lang="zh">然后裁衣、跑步、缝纫，或者只是站得直一点。</span></p>
+    <a class="btn solid" href="#"><span lang="en">Get Mensura</span><span lang="zh">下载 Mensura</span></a>
+  </section>
+
+  <footer>
+    <div class="top"><span class="brand" style="font-size:18px">Mensura</span><span><span lang="en">A fictional product, built as a design study.</span><span lang="zh">虚构产品，仅作设计练习。</span></span></div>
+    <b>图源</b>：首屏为列奥纳多·达·芬奇《维特鲁威人》（约 1490 年，威尼斯学院美术馆藏，公有领域）；批注区为达·芬奇《女性双手习作》（约 1490 年，英国皇家收藏 RCIN 912558，公有领域）；原理区为达·芬奇《颅骨》（1489 年，英国皇家收藏 RCIN 919057 背面，公有领域）。均经 Wikimedia Commons 获取，经裁切、去底色、统一调成棕褐墨色处理；页面上的红色构造线与尺寸线为本页另绘。
+    镜像字引自《维特鲁威人》原纸上的达·芬奇手书。
+    字体：Alegreya、Alegreya SC、DM Mono、Italianno、霞鹜文楷 LXGW WenKai（均为 OFL-1.1）。本页为学习用 demo，品牌与文案均为虚构。<br>
+    侵权请联系删除。
+  </footer>
+</div>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isZh = () => document.documentElement.dataset.lang === "zh";
+
+/* ---------- Vitruvian measure ---------- */
+// Leonardo's ratios of the whole height (from the text on the sheet)
+const RATIO = { span: 1, height: 1, shoulders: 1 / 4, head: 1 / 8, foot: 1 / 7, hand: 1 / 10 };
+// landmarks as a share of height from the ground, also from Leonardo's text
+const MARKS = [
+  [.25, "knee", "膝下", "below the knee · 1/4"],
+  [.5, "pubis", "身长一半", "half the man"],
+  [.75, "nipples", "乳头", "nipples · 3/4"],
+  [5 / 6, "chest", "胸口", "top of the chest · 1/6"],
+  [.875, "chin", "下巴", "below the chin · 1/8"],
+];
+const GROUND = 1497, CROWN = 455;  // square bottom/top in image px
+let unit = "cm";
+const hgt = document.getElementById("hgt"), hval = document.getElementById("hval");
+
+function fmt(cm, ratio) {
+  if (unit === "cm") return `${cm.toFixed(cm < 100 ? 1 : 0)} cm`;
+  // 1 man = 24 palms = 96 fingers
+  const fingers = Math.round(ratio * 96 * 4) / 4, p = Math.floor(fingers / 4), f = fingers - p * 4;
+  const F = String(f);  // ponytail: decimals, DM Mono has no ¼ ½ ¾ glyphs
+  return isZh() ? `${p ? p + " 掌" : ""}${f ? " " + F + " 指" : ""}`.trim()
+    : `${p ? p + " palm" + (p > 1 ? "s" : "") : ""}${f ? " " + F + " finger" + (f > 1 ? "s" : "") : ""}`.trim();
+}
+function update() {
+  const H = +hgt.value;
+  hval.textContent = unit === "cm" ? H : 24;
+  hval.nextElementSibling.textContent = unit === "cm" ? "cm" : (isZh() ? "掌" : "palms");
+  for (const [k, r] of Object.entries(RATIO)) {
+    const s = fmt(H * r, r);
+    document.querySelectorAll(`.dim[data-d="${k}"] .lbl`).forEach(g => {
+      const t = g.querySelector("text"), r = g.querySelector("rect");
+      t.textContent = s;
+      const w = Math.max(120, t.getComputedTextLength() + 28), cx = +t.getAttribute("x");
+      r.setAttribute("x", cx - w / 2); r.setAttribute("width", w);  // label box fits its text
+    });
+    const li = document.querySelector(`.readout li[data-d="${k}"] .v`); if (li) li.textContent = s;
+  }
+  document.getElementById("palmnote").style.visibility = unit === "palm" ? "visible" : "hidden";
+}
+hgt.addEventListener("input", update);
+document.querySelectorAll(".units button").forEach(b => b.addEventListener("click", () => {
+  unit = b.dataset.u;
+  document.querySelectorAll(".units button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  update();
+}));
+document.querySelector("[data-lang-toggle]").addEventListener("click", () => setTimeout(() => { update(); placeLeaders(); }, 0));
+
+// hover a readout row <-> its dimension line
+function lightDim(k, on) {
+  document.querySelectorAll(`.dim[data-d="${k}"], .readout li[data-d="${k}"]`).forEach(el => el.classList.toggle("on", on));
+}
+document.querySelectorAll(".readout li").forEach(li => {
+  li.addEventListener("pointerenter", () => lightDim(li.dataset.d, true));
+  li.addEventListener("pointerleave", () => lightDim(li.dataset.d, false));
+});
+
+// level line follows the cursor and snaps to Leonardo's landmarks
+const vit = document.getElementById("vitru"), svg = vit.querySelector("svg"), scan = vit.querySelector(".scan");
+const scanLine = scan.querySelector("line"), scanVal = scan.querySelector(".val"), scanMark = scan.querySelector(".mark");
+function toSvgY(clientY) { const r = svg.getBoundingClientRect(); return (clientY - r.top) / r.height * 1650; }
+vit.addEventListener("pointermove", e => {
+  let y = toSvgY(e.clientY);
+  if (y < CROWN - 10 || y > GROUND + 10) { scan.classList.remove("on"); return; }
+  y = Math.min(GROUND, Math.max(CROWN, y));
+  let share = (GROUND - y) / (GROUND - CROWN), label = "";
+  for (const [s, , zh, en] of MARKS) if (Math.abs(share - s) < .018) { share = s; y = GROUND - s * (GROUND - CROWN); label = isZh() ? zh : en; }
+  scan.setAttribute("transform", `translate(0 ${y})`);
+  scanVal.textContent = fmt(+hgt.value * share, share);
+  scanMark.textContent = label;
+  scan.classList.add("on");
+});
+vit.addEventListener("pointerleave", () => scan.classList.remove("on"));
+
+// draw the construction once the figure is on screen
+new IntersectionObserver(([e], ob) => { if (e.isIntersecting) { vit.classList.add("go"); ob.disconnect(); } }, { threshold: .3 }).observe(vit);
+new IntersectionObserver(([e], ob) => { if (e.isIntersecting) { e.target.classList.add("go"); ob.disconnect(); } }, { threshold: .4 }).observe(document.getElementById("closing"));
+update();
+
+/* ---------- annotated hands: leader lines between hotspot and note ---------- */
+const study = document.getElementById("study"), leaders = document.getElementById("leaders"), handsSvg = document.querySelector("#hands svg");
+let active = 0, auto = true;
+function placeLeaders() {
+  leaders.innerHTML = "";
+  if (!active || getComputedStyle(leaders).display === "none") return;
+  const sr = study.getBoundingClientRect(), hr = handsSvg.getBoundingClientRect();
+  const c = handsSvg.querySelector(`.hot[data-k="${active}"] circle`);
+  const hx = hr.left - sr.left + (+c.getAttribute("cx")) / 1200 * hr.width, hy = hr.top - sr.top + (+c.getAttribute("cy")) / 1674 * hr.height;
+  const li = study.querySelector(`.notes li[data-k="${active}"]`), lr = li.getBoundingClientRect(), right = li.closest(".right");
+  const nx = right ? lr.left - sr.left - 10 : lr.right - sr.left + 10, ny = lr.top - sr.top + 15;
+  const ex = right ? nx - 40 : nx + 40;  // short horizontal tail at the note, like a draughtsman's leader
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("d", `M${hx} ${hy} L${ex} ${ny} L${nx} ${ny}`);
+  leaders.append(p);
+  const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  dot.setAttribute("cx", nx); dot.setAttribute("cy", ny); dot.setAttribute("r", 3); leaders.append(dot);
+  if (!reduce) {
+    const L = p.getTotalLength();
+    p.style.strokeDasharray = L; p.style.strokeDashoffset = L;
+    p.animate([{ strokeDashoffset: L }, { strokeDashoffset: 0 }], { duration: 650, easing: "cubic-bezier(.55,.1,.25,1)", fill: "forwards" });
+  }
+}
+function setActive(k) {
+  active = k;
+  study.querySelectorAll("[data-k]").forEach(el => el.classList.toggle("on", +el.dataset.k === k));
+  placeLeaders();
+}
+study.querySelectorAll("[data-k]").forEach(el => {
+  el.addEventListener("pointerenter", () => { auto = false; setActive(+el.dataset.k); });
+  el.addEventListener("click", () => { auto = false; setActive(+el.dataset.k); });
+});
+addEventListener("resize", placeLeaders);
+let studyVisible = false;
+new IntersectionObserver(([e]) => { studyVisible = e.isIntersecting; if (studyVisible && !active) setActive(1); }, { threshold: .35 }).observe(study);
+if (!reduce) setInterval(() => { if (auto && studyVisible) setActive(active % 6 + 1); }, 2600);
+
+/* ---------- how it works: each step draws one layer ---------- */
+const layers = [...document.querySelectorAll(".layer")], steps = [...document.querySelectorAll(".steps li")];
+const stepIO = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  const s = +e.target.dataset.s;
+  steps.forEach(li => li.classList.toggle("on", +li.dataset.s === s));
+  layers.forEach(l => l.classList.toggle("on", +l.dataset.s <= s));
+}), { rootMargin: "-45% 0px -45% 0px" });
+steps.forEach(li => stepIO.observe(li));
+// the skull labels follow the page language
+function skullLabels() {
+  const zh = isZh(), t = [...document.querySelectorAll(".layer .zt")];
+  [["orbit", "眼眶"], ["jaw", "下颌"], ["crown", "颅顶"]].forEach(([en, z], i) => t[i].textContent = zh ? z : en);
+}
+skullLabels();
+document.querySelector("[data-lang-toggle]").addEventListener("click", () => setTimeout(skullLabels, 0));
+</script>
+</body>
+</html>

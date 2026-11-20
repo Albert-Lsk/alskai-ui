@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Firmament 穹 · every satellite, charted like a star</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/im-fell-english@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/im-fell-english@5/400-italic.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/im-fell-english-sc@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/eb-garamond@5/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/eb-garamond@5/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5/600.css">
+<script src="../../shared/lang.js"></script>
+<style>
+:root {
+  --night: #0a1330;
+  --deep: #060c21;
+  --gold: #d8b56a;
+  --gold-2: #a8874a;
+  --ivory: #efe5cb;
+  --mute: #a3acc8;
+  --rule: rgba(216,181,106,.38);
+  --fell: "IM Fell English", "EB Garamond", "Noto Serif SC", serif;
+  --fell-sc: "IM Fell English SC", "IM Fell English", serif;
+  --body: "EB Garamond", "Noto Serif SC", Georgia, serif;
+  --zh: "Noto Serif SC", "Songti SC", serif;
+  --wrap: min(1240px, calc(100vw - 48px));
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--deep); }
+body { color: var(--ivory); font: 19px/1.6 var(--body); -webkit-font-smoothing: antialiased; background: var(--deep); }
+main { background:
+  radial-gradient(1px 1px at 37px 61px, rgba(239,229,203,.55), transparent 1.5px), radial-gradient(1px 1px at 213px 141px, rgba(239,229,203,.35), transparent 1.5px),
+  radial-gradient(1.5px 1.5px at 151px 247px, rgba(216,181,106,.5), transparent 2px), radial-gradient(1px 1px at 271px 33px, rgba(239,229,203,.3), transparent 1.5px),
+  radial-gradient(1px 1px at 89px 191px, rgba(163,172,200,.4), transparent 1.5px), radial-gradient(1px 1px at 241px 277px, rgba(239,229,203,.25), transparent 1.5px);
+  background-size: 300px 300px; }
+html[data-lang="zh"] body { font: 16.5px/1.85 var(--zh); }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.wrap { width: var(--wrap); margin: 0 auto; }
+.sc { font-family: var(--fell-sc); letter-spacing: .14em; }
+html[data-lang="zh"] .sc [lang="zh"] { font-family: var(--zh); letter-spacing: .3em; }
+
+/* gilded double rule with degree ticks, the frame of an atlas plate */
+.plate-frame { position: absolute; inset: 14px; pointer-events: none; z-index: 3;
+  border: 1px solid var(--rule); box-shadow: inset 0 0 0 5px transparent, inset 0 0 0 6px var(--rule); }
+.plate-frame::before, .plate-frame::after { content: ""; position: absolute; left: 6px; right: 6px; height: 7px;
+  background: repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 24px), repeating-linear-gradient(90deg, var(--gold-2) 0 1px, transparent 1px 120px); }
+.plate-frame::before { top: 6px; } .plate-frame::after { bottom: 6px; }
+
+/* ---------- nav ---------- */
+nav { position: absolute; z-index: 5; top: 28px; left: 0; right: 0; }
+nav .wrap { display: flex; align-items: center; gap: 34px; }
+.brand { display: flex; align-items: center; gap: 12px; font: 22px var(--fell-sc); letter-spacing: .22em; color: var(--ivory); }
+.brand svg { width: 30px; height: 30px; }
+nav ul { list-style: none; display: flex; gap: 30px; padding: 0; margin-left: auto; font: 17px var(--fell); color: var(--mute); }
+html[data-lang="zh"] nav ul { font: 15px var(--zh); }
+nav li a:hover { color: var(--ivory); }
+.lang { font: 14px var(--fell-sc); letter-spacing: .12em; border: 1px solid var(--rule); padding: 4px 12px; }
+.lang b { font-weight: 400; opacity: .45; } html[data-lang="zh"] .lang .z, html[data-lang="en"] .lang .e { opacity: 1; color: var(--gold); }
+.btn { display: inline-block; padding: 12px 24px; font: 17px var(--fell); border: 1px solid var(--gold); color: var(--deep); background: var(--gold); transition: transform .15s ease, background-color .2s; white-space: nowrap; }
+html[data-lang="zh"] .btn { font: 15px var(--zh); letter-spacing: .08em; }
+.btn:hover { background: #e7c67f; } .btn:active { transform: scale(.97); }
+.btn.ghost { background: transparent; color: var(--ivory); border-color: var(--rule); }
+.btn.ghost:hover { border-color: var(--gold); background: rgba(216,181,106,.08); }
+
+/* ---------- hero sky ---------- */
+.sky { position: relative; height: 100vh; min-height: 640px; overflow: hidden; background: radial-gradient(120% 90% at 60% 45%, #12204a 0%, var(--night) 45%, var(--deep) 100%); }
+#sky { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; }
+#sky.drag { cursor: grabbing; }
+.veil { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(90deg, rgba(6,12,33,.62) 0%, rgba(6,12,33,.38) 30%, rgba(6,12,33,0) 50%); }
+.sky .copy { position: absolute; z-index: 4; left: max(24px, calc((100vw - 1240px) / 2)); top: 50%; transform: translateY(-46%); max-width: 520px; pointer-events: none; }
+.sky .copy > * { pointer-events: auto; }
+.eyebrow { font: 14px var(--fell-sc); letter-spacing: .24em; color: var(--gold); display: flex; align-items: center; gap: 12px; }
+.eyebrow::before { content: ""; width: 34px; height: 1px; background: var(--gold); }
+html[data-lang="zh"] .eyebrow { font: 13px var(--zh); letter-spacing: .3em; }
+h1 { font: 400 clamp(46px, 5.6vw, 82px)/1.0 var(--fell); margin: 22px 0 22px; text-shadow: 0 2px 30px rgba(6,12,33,.9); }
+h1 em { color: var(--gold); }
+html[data-lang="zh"] h1 { font: 600 clamp(36px, 4vw, 58px)/1.3 var(--zh); letter-spacing: .03em; }
+.sky p.lead { color: #d6d3cf; text-shadow: 0 1px 14px rgba(6,12,33,.95); max-width: 30em; }
+.sky .row { display: flex; gap: 14px; margin-top: 30px; flex-wrap: wrap; }
+.readout { position: absolute; z-index: 4; right: max(24px, calc((100vw - 1240px) / 2)); bottom: 46px; width: 290px;
+  background: rgba(6,12,33,.72); border: 1px solid var(--rule); padding: 16px 18px 14px; font: 15px var(--body); backdrop-filter: blur(3px); }
+.readout h4 { font: 13px var(--fell-sc); letter-spacing: .2em; color: var(--gold); font-weight: 400; border-bottom: 1px solid var(--rule); padding-bottom: 8px; margin-bottom: 8px; }
+html[data-lang="zh"] .readout h4 { font: 12px var(--zh); letter-spacing: .3em; }
+.readout dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 14px; }
+.readout dt { color: var(--mute); font-size: 14px; } .readout dd { text-align: right; font-variant-numeric: tabular-nums; }
+.hint { position: absolute; z-index: 4; bottom: 46px; left: 50%; translate: -50% 0; font: italic 16px var(--fell); color: var(--mute); white-space: nowrap; }
+html[data-lang="zh"] .hint { font: 13px var(--zh); letter-spacing: .1em; }
+.label { position: absolute; z-index: 4; pointer-events: none; transform: translate(-50%, -100%); text-align: center; opacity: 0; transition: opacity .5s ease; }
+.label.on { opacity: 1; }
+.label .nm { font: 22px var(--fell-sc); letter-spacing: .2em; color: var(--gold); text-shadow: 0 0 12px var(--deep), 0 0 4px var(--deep); }
+.label .zh { font: 14px var(--zh); letter-spacing: .3em; color: var(--ivory); text-shadow: 0 0 8px var(--deep); }
+.label .note { white-space: nowrap; margin-top: 6px; font: italic 15px var(--fell); color: var(--ivory); background: rgba(6,12,33,.7); border: 1px solid var(--rule); padding: 3px 12px; display: inline-block; }
+html[data-lang="zh"] .label .note { font: 13px var(--zh); font-style: normal; }
+
+/* ---------- section heads ---------- */
+section.band { position: relative; padding: 130px 0; }
+.head { max-width: 760px; }
+.head h2 { font: 400 clamp(38px, 4.2vw, 60px)/1.05 var(--fell); margin: 18px 0 18px; }
+html[data-lang="zh"] .head h2 { font: 600 clamp(30px, 3.2vw, 44px)/1.35 var(--zh); }
+.head p { color: #cfcbc2; max-width: 36em; }
+.flourish { display: block; width: 180px; height: 16px; margin-top: 26px; }
+
+/* ---------- Tabula II: turning plate ---------- */
+.plate-sec { display: grid; grid-template-columns: 1.15fr .85fr; gap: 64px; align-items: center; margin-top: 60px; }
+.cellarius { position: relative; aspect-ratio: 1700 / 1467; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7), 0 0 0 1px var(--rule); background: url(img/copernicanum.jpg) center / 100% 100%; }
+.cellarius .disc { position: absolute; left: 50%; top: 51%; width: 72.5%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%;
+  background: url(img/copernicanum.jpg) no-repeat; background-size: 137.9% auto; background-position: 50% 49.2%; will-change: transform; box-shadow: 0 0 0 2px rgba(150,40,20,.3); }
+.legend { list-style: none; padding: 0; display: grid; gap: 26px; }
+.legend li { display: grid; grid-template-columns: 56px 1fr; gap: 16px; padding-bottom: 24px; border-bottom: 1px solid var(--rule); }
+.legend .num { font: 34px/1 var(--fell-sc); color: var(--gold); padding-top: 4px; }
+.legend b { display: block; font: 400 26px/1.2 var(--fell); margin-bottom: 4px; }
+html[data-lang="zh"] .legend b { font: 600 19px/1.5 var(--zh); }
+.legend span { color: #cfcbc2; }
+
+/* ---------- Tonight: ephemeris ---------- */
+.eph { margin-top: 56px; display: grid; grid-template-columns: 1.4fr .6fr; gap: 28px; }
+.sheet { border: 1px solid var(--rule); background: linear-gradient(180deg, rgba(18,32,74,.55), rgba(6,12,33,.6)); padding: 26px 28px; }
+.sheet h3 { font: 15px var(--fell-sc); letter-spacing: .2em; color: var(--gold); font-weight: 400; display: flex; justify-content: space-between; border-bottom: 1px solid var(--rule); padding-bottom: 12px; }
+html[data-lang="zh"] .sheet h3 { font: 13px var(--zh); letter-spacing: .25em; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th { font: 13px var(--fell-sc); letter-spacing: .15em; color: var(--mute); text-align: left; font-weight: 400; padding: 14px 8px 8px; }
+html[data-lang="zh"] th { font: 12px var(--zh); letter-spacing: .2em; }
+td { padding: 11px 8px; border-top: 1px dotted rgba(216,181,106,.25); }
+td.t { font: 20px var(--fell); color: var(--gold); }
+tr.next td { background: rgba(216,181,106,.07); }
+tr.next td.t::after { content: " ◂"; font-size: 14px; }
+.elev { display: inline-block; height: 8px; vertical-align: middle; margin-right: 8px; border: 1px solid var(--gold-2);
+  background: repeating-linear-gradient(135deg, var(--gold) 0 1px, transparent 1px 4px); }
+.countdown { font: 46px/1.1 var(--fell); color: var(--ivory); margin: 18px 0 4px; font-variant-numeric: tabular-nums; }
+.kp { display: flex; align-items: flex-end; gap: 6px; height: 120px; margin: 20px 0 8px; }
+.kp i { flex: 1; border: 1px solid var(--gold-2); border-bottom: 0; background: repeating-linear-gradient(135deg, var(--gold) 0 1px, transparent 1px 5px); transform-origin: bottom; transform: scaleY(0); transition: transform .9s cubic-bezier(.2,.8,.2,1); }
+.kp i.hi { background: repeating-linear-gradient(135deg, #e48a5a 0 1.5px, transparent 1.5px 4px); border-color: #c26a3f; }
+.in .kp i { transform: none; }
+.small { font-size: 14px; color: var(--mute); }
+
+/* ---------- Spheres: armillary pricing ---------- */
+.spheres { display: grid; grid-template-columns: .9fr 1.1fr; gap: 56px; align-items: center; margin-top: 40px; }
+.armillary { width: 100%; max-width: 480px; aspect-ratio: 1; justify-self: center; overflow: visible; }
+.armillary .ring { fill: none; stroke: var(--gold); stroke-width: 1.4; }
+.armillary .thin { fill: none; stroke: var(--gold-2); stroke-width: .7; stroke-dasharray: 2 5; }
+.tiers { display: grid; gap: 18px; }
+.tier { display: grid; grid-template-columns: 1fr auto; gap: 4px 20px; padding: 22px 24px; border: 1px solid var(--rule); transition: border-color .3s, background-color .3s; cursor: default; }
+.tier:hover, .tier.on { border-color: var(--gold); background: rgba(216,181,106,.06); }
+.tier .n { font: 30px/1.1 var(--fell); } html[data-lang="zh"] .tier .n { font: 600 21px/1.4 var(--zh); }
+.tier .n small { font: italic 17px var(--fell); color: var(--mute); margin-left: 10px; }
+.tier .price { font: 30px var(--fell); color: var(--gold); text-align: right; }
+.tier .price small { font-size: 15px; color: var(--mute); }
+.tier p { grid-column: 1 / -1; color: #cfcbc2; font-size: 16.5px; }
+html[data-lang="zh"] .tier p { font-size: 15px; }
+
+/* ---------- footer ---------- */
+footer { border-top: 1px solid var(--rule); padding: 56px 0 64px; color: var(--mute); font-size: 14px; line-height: 1.85; }
+html[data-lang="zh"] footer { font-size: 13px; }
+footer .top { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 22px; color: var(--ivory); flex-wrap: wrap; }
+footer b { color: var(--ivory); font-weight: 500; }
+
+@media (max-width: 900px) {
+  nav ul, nav .btn { display: none; }
+  nav .wrap { gap: 14px; justify-content: space-between; }
+  .sky { height: auto; min-height: 0; padding: 120px 0 0; display: flex; flex-direction: column; }
+  #sky { position: relative; height: 62vh; order: 2; }
+  .sky .copy { position: relative; transform: none; left: auto; top: auto; padding: 0 24px; max-width: none; order: 1; }
+  .readout { position: relative; right: auto; bottom: auto; order: 3; width: auto; margin: 0 24px 40px; }
+  .hint { bottom: auto; top: calc(120px + var(--copy-h, 0px)); display: none; }
+  .plate-sec, .eph, .spheres { grid-template-columns: 1fr; gap: 36px; }
+  section.band { padding: 90px 0; }
+  td, th { padding-left: 4px; padding-right: 4px; }
+  .hide-m { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .kp i { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="sky" id="atlas">
+  <div class="plate-frame"></div>
+  <nav><div class="wrap">
+    <a class="brand" href="#"><svg viewBox="0 0 30 30" fill="none" stroke="#d8b56a" stroke-width="1.1"><circle cx="15" cy="15" r="12"/><ellipse cx="15" cy="15" rx="12" ry="4.2" transform="rotate(-24 15 15)"/><ellipse cx="15" cy="15" rx="4.2" ry="12"/><circle cx="15" cy="15" r="2" fill="#d8b56a"/></svg>Firmament</a>
+    <ul>
+      <li><a href="#atlas"><span lang="en">The atlas</span><span lang="zh">星图</span></a></li>
+      <li><a href="#tonight"><span lang="en">Tonight</span><span lang="zh">今夜</span></a></li>
+      <li><a href="#spheres"><span lang="en">Spheres</span><span lang="zh">方案</span></a></li>
+    </ul>
+    <button class="lang" data-lang-toggle aria-label="Switch language"><b class="z">中</b> · <b class="e">EN</b></button>
+    <a class="btn" href="#tonight"><span lang="en">Open the atlas</span><span lang="zh">打开星图</span></a>
+  </div></nav>
+
+  <div class="veil"></div>
+  <canvas id="sky" aria-label="Live star atlas: hover a constellation, drag to turn the sky"></canvas>
+  <div class="copy">
+    <div class="eyebrow"><span lang="en">Tabula I · The sky above you</span><span lang="zh">第一图 · 你头顶的天</span></div>
+    <h1><span lang="en">Every satellite, <em>charted</em> like a star.</span><span lang="zh">每颗卫星，<br>都像星星一样画在图上。</span></h1>
+    <p class="lead">
+      <span lang="en">Firmament keeps a living atlas of everything overhead: 9,400 satellites, tonight's passes over your ground stations, and the solar weather that might scramble them. Drawn the way astronomers drew the sky in 1690, computed the way we do it now.</span>
+      <span lang="zh">穹替你维护一张会动的星图：九千四百颗卫星，今晚飞过你地面站的每一次过境，还有可能把信号搅乱的太阳风暴。画法照 1690 年的天文学家，算法照今天。</span>
+    </p>
+    <div class="row">
+      <a class="btn" href="#tonight"><span lang="en">See tonight's passes</span><span lang="zh">看今晚的过境</span></a>
+      <a class="btn ghost" href="#plate"><span lang="en">How the atlas works</span><span lang="zh">星图怎么画的</span></a>
+    </div>
+  </div>
+  <div class="hint"><span lang="en">Hover a constellation · drag to turn the sky</span><span lang="zh">鼠标移到星座上看图 · 拖动可以转动天空</span></div>
+  <div class="readout">
+    <h4><span lang="en">Plate centre</span><span lang="zh">图心</span></h4>
+    <dl>
+      <dt><span lang="en">Right ascension</span><span lang="zh">赤经</span></dt><dd id="ro-ra">05h 40m</dd>
+      <dt><span lang="en">Declination</span><span lang="zh">赤纬</span></dt><dd id="ro-dec">+20°</dd>
+      <dt><span lang="en">Stars drawn</span><span lang="zh">画出的恒星</span></dt><dd id="ro-stars">0</dd>
+      <dt><span lang="en">Satellites in view</span><span lang="zh">视野里的卫星</span></dt><dd id="ro-sats">0</dd>
+    </dl>
+  </div>
+  <div class="label" id="label"><div class="nm"></div><div class="zh"></div><div class="note"></div></div>
+</header>
+
+<main>
+  <section class="band" id="plate">
+    <div class="wrap">
+      <div class="head">
+        <div class="eyebrow"><span lang="en">Tabula II · The system turns</span><span lang="zh">第二图 · 整个体系都在转</span></div>
+        <h2><span lang="en">One plate, always turning, always current.</span><span lang="zh">一张图，一直在转，<br>一直是最新的。</span></h2>
+        <p><span lang="en">In 1660 Andreas Cellarius drew Copernicus's universe as a wheel. We draw your fleet the same way. Scroll, and the plate turns with you.</span><span lang="zh">1660 年，塞拉里乌斯把哥白尼的宇宙画成一只转轮。我们用同样的办法画你的卫星。往下滚，这张图跟着你转。</span></p>
+      </div>
+      <div class="plate-sec">
+        <div class="cellarius" role="img" aria-label="Andreas Cellarius, Planisphaerium Copernicanum, 1660"><div class="disc"></div></div>
+        <ol class="legend">
+          <li><span class="num">I</span><div><b><span lang="en">Passes, to the second</span><span lang="zh">过境预报，精确到秒</span></b><span><span lang="en">Every satellite over every ground station, a week ahead, recomputed whenever a new orbit is published.</span><span lang="zh">每颗卫星飞过每个地面站的时刻，提前一周算好；轨道一更新，马上重算。</span></span></div></li>
+          <li><span class="num">II</span><div><b><span lang="en">Solar weather, translated</span><span lang="zh">太阳天气，说成人话</span></b><span><span lang="en">Kp index and flare alerts, with a plain sentence about what they will do to your links tonight.</span><span lang="zh">地磁指数和耀斑预警，再加一句大白话：今晚它会把你的链路怎么样。</span></span></div></li>
+          <li><span class="num">III</span><div><b><span lang="en">Antenna time, booked like a calendar</span><span lang="zh">天线时间，像订日历一样订</span></b><span><span lang="en">Drag a pass onto a dish. If two teams want the same sky, Firmament says so before anyone shouts.</span><span lang="zh">把一次过境拖到一面天线上。两个团队抢同一片天，穹会在吵起来之前先告诉你。</span></span></div></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="tonight">
+    <div class="wrap">
+      <div class="head">
+        <div class="eyebrow"><span lang="en">Tabula III · Ephemeris for tonight</span><span lang="zh">第三图 · 今夜星历</span></div>
+        <h2><span lang="en">An almanac that updates itself.</span><span lang="zh">一本会自己更新的历书。</span></h2>
+        <p><span lang="en">Old almanacs printed the sky a year in advance and hoped. Ours is set in the same type, but every line is live.</span><span lang="zh">旧历书提前一年把天印出来，然后只能祈祷别出错。我们用同样的版式，但每一行都是实时的。</span></p>
+      </div>
+      <div class="eph reveal">
+        <div class="sheet">
+          <h3><span><span lang="en">Passes · Kiruna, Svalbard, Hartebeesthoek</span><span lang="zh">过境 · 基律纳、斯瓦尔巴、哈特比斯特胡克</span></span><span class="hide-m" id="today"></span></h3>
+          <table>
+            <thead><tr><th><span lang="en">Time</span><span lang="zh">时刻</span></th><th><span lang="en">Craft</span><span lang="zh">卫星</span></th><th class="hide-m"><span lang="en">Station</span><span lang="zh">地面站</span></th><th><span lang="en">Max elev.</span><span lang="zh">最高仰角</span></th></tr></thead>
+            <tbody id="passes"></tbody>
+          </table>
+        </div>
+        <div class="sheet">
+          <h3><span><span lang="en">Next pass</span><span lang="zh">下一次过境</span></span></h3>
+          <div class="countdown" id="countdown">00:00:00</div>
+          <div class="small" id="nextname"></div>
+          <h3 style="margin-top:28px"><span><span lang="en">Geomagnetic index · Kp</span><span lang="zh">地磁指数 · Kp</span></span></h3>
+          <div class="kp" id="kp"></div>
+          <div class="small"><span lang="en">Kp 6 expected after 02:00. Expect fades on polar links; aurora likely over Kiruna.</span><span lang="zh">凌晨两点后 Kp 可能到 6。极区链路会有衰落，基律纳上空大概率能看到极光。</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="spheres">
+    <div class="wrap">
+      <div class="head">
+        <div class="eyebrow"><span lang="en">Tabula IV · The three spheres</span><span lang="zh">第四图 · 三重天</span></div>
+        <h2><span lang="en">Pick the sphere you need.</span><span lang="zh">挑一层你需要的天。</span></h2>
+        <p><span lang="en">Medieval astronomers nested the heavens in spheres: the Moon, the Sun, the fixed stars. Our plans follow the same order.</span><span lang="zh">中世纪的天文学家把天分成一层套一层：月亮天、太阳天、恒星天。我们的方案也按这个顺序排。</span></p>
+      </div>
+      <div class="spheres">
+        <svg class="armillary" viewBox="-200 -200 400 400" aria-hidden="true">
+          <circle class="thin" r="190"/>
+          <g id="rings">
+            <ellipse class="ring" data-k="1" rx="160" ry="160"/>
+            <ellipse class="ring" data-k="2" rx="160" ry="52"/>
+            <ellipse class="ring" data-k="3" rx="52" ry="160"/>
+            <ellipse class="ring" data-k="4" rx="160" ry="96"/>
+          </g>
+          <line x1="0" y1="-196" x2="0" y2="196" stroke="#a8874a" stroke-width="1"/>
+          <circle r="16" fill="none" stroke="#d8b56a"/><circle r="5" fill="#d8b56a"/>
+          <g id="bodies"><circle r="5" fill="#efe5cb"/><circle r="4" fill="#d8b56a"/><circle r="3" fill="#a3acc8"/></g>
+        </svg>
+        <div class="tiers">
+          <div class="tier" data-t="0"><div class="n"><span lang="en">Luna</span><span lang="zh">月亮天</span><small><span lang="en">one station</span><span lang="zh">一个地面站</span></small></div><div class="price">$0</div>
+            <p><span lang="en">The live atlas, a week of passes, and solar alerts by email. For students and one-dish teams.</span><span lang="zh">实时星图、一周过境预报、太阳预警发邮件。适合学生和只有一面天线的小团队。</span></p></div>
+          <div class="tier on" data-t="1"><div class="n"><span lang="en">Sol</span><span lang="zh">太阳天</span><small><span lang="en">up to 12 stations</span><span lang="zh">最多十二个地面站</span></small></div><div class="price">$480<small> /mo</small></div>
+            <p><span lang="en">Antenna booking, conflict warnings, and the plain-language weather brief for every pass.</span><span lang="zh">天线排期、冲突提醒，每一次过境都附一份说人话的天气简报。</span></p></div>
+          <div class="tier" data-t="2"><div class="n"><span lang="en">Firmamentum</span><span lang="zh">恒星天</span><small><span lang="en">whole networks</span><span lang="zh">整张网络</span></small></div><div class="price"><span lang="en">Write to us</span><span lang="zh">来信详谈</span></div>
+            <p><span lang="en">Your own orbits, your own catalogue, and an engraver on call for the plate of your choosing.</span><span lang="zh">你自己的轨道、你自己的星表，想要哪一幅星图，我们请刻版师来画。</span></p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="top"><span class="brand" style="font-size:18px">Firmament · 穹</span><span><span lang="en">A fictional product, built as a design study.</span><span lang="zh">虚构产品，仅作设计练习。</span></span></div>
+    <b>图源</b>：星座图取自 Johannes Hevelius《Firmamentum Sobiescianum sive Uranographia》（1690，猎户座、狮子座为手工上色本，大熊座为单色本，公有领域）；第二图为 Andreas Cellarius《Harmonia Macrocosmica》之《Planisphaerium Copernicanum》（1660，手工上色，公有领域）；均经 Wikimedia Commons 获取。星座图经裁切、提取刻线、转为金色透明图层，并按真实恒星位置做仿射对位；天图经缩放，中心圆盘随滚动旋转。
+    恒星数据：Yale Bright Star Catalogue 第 5 版（Hoffleit &amp; Warren，1991，哈佛-史密森天体物理中心发布），JSON 由 brettonw/YaleBrightStarCatalog 转换（MIT），取亮于 4.6 等的 1010 颗星。卫星轨道与过境数据均为虚构。
+    字体：IM Fell English、IM Fell English SC、EB Garamond、Noto Serif SC（均为 OFL-1.1）。本页为学习用 demo，品牌与文案均为虚构。<br>
+    侵权请联系删除。
+  </div>
+</footer>
+
+<script>/*DATA*/const STARS=[[2.097,29.091,2.06,14000],[2.295,59.15,2.27,7200],[2.353,-45.748,3.88,5000],[3.309,15.184,2.83,26000],[3.66,-18.933,4.44,3050],[4.582,36.785,4.52,9500],[4.857,-8.824,3.56,4850],[5.018,-64.875,4.23,6150],[6.438,-77.254,2.8,5800],[6.571,-42.306,2.39,5000],[6.551,-43.68,3.94,8250],[7.886,-62.958,4.37,12000],[7.89,-62.966,4.54,9500],[8.25,62.932,4.16,28000],[9.243,53.897,3.66,26000],[9.22,33.719,4.36,20000],[9.639,29.312,4.37,5400],[9.832,30.861,3.27,4550],[10.127,56.537,2.23,5000],[10.332,-46.085,4.59,5200],[10.898,-17.987,2.04,5100],[10.838,-57.463,4.36,10000],[11.181,48.284,4.54,20000],[11.835,24.267,4.06,4850],[12.275,57.816,3.44,6150],[12.171,7.585,4.43,4400],[12.453,41.079,4.53,20000],[14.177,60.717,2.47,30000],[14.188,38.499,3.87,8750],[14.302,23.418,4.42,5200],[14.652,-29.358,4.31,16000],[17.186,86.257,4.25,4700],[15.736,7.89,4.28,5000],[16.521,-46.719,3.31,5200],[17.148,-10.182,3.45,4850],[17.376,47.242,4.25,16000],[17.433,35.621,2.06,3500],[17.096,-55.246,3.92,18000],[17.776,55.15,4.33,8250],[17.915,30.09,4.51,5000],[21.006,-8.183,3.6,5000],[21.454,60.235,2.68,8750],[37.953,89.264,2.02,6450],[22.091,-43.318,3.41,3500],[22.871,15.346,3.62,5300],[22.813,-49.073,3.95,5000],[24.199,41.406,4.09,6300],[24.498,48.628,3.57,4550],[24.429,-57.237,0.46,24000],[25.358,5.487,4.44,4550],[25.915,50.689,4.07,26000],[26.017,-15.938,3.5,5200],[26.348,9.158,4.26,5200],[27.865,-10.335,3.73,5000],[28.599,63.67,3.38,24000],[28.27,29.579,3.41,6600],[28.66,20.808,2.64,8750],[28.412,-46.302,4.41,2900],[28.99,-51.609,3.7,5200],[30.489,70.907,4.54,9250],[30.859,72.421,3.98,9500],[30.001,-21.078,4.0,3500],[29.692,-61.57,2.86,7500],[30.512,2.764,4.33,10000],[30.975,42.33,2.26,4550],[31.793,23.462,2.0,4700],[32.386,34.987,3.0,8750],[33.25,8.847,4.37,5400],[34.329,33.847,4.01,9750],[34.128,-51.512,3.56,14000],[34.836,-2.978,3.04,2450],[35.437,-68.659,4.09,9250],[37.267,67.403,4.52,8750],[37.04,8.46,4.28,12000],[36.746,-47.704,4.25,20000],[39.871,0.329,4.07,26000],[40.167,-39.856,4.11,5000],[41.05,49.228,4.12,6300],[40.825,3.236,3.47,9250],[39.898,-68.267,4.11,12000],[41.031,-13.859,4.25,16000],[41.235,10.114,4.27,7500],[41.276,-18.572,4.47,6600],[41.977,29.247,4.51,4850],[42.674,55.896,3.76,4550],[42.496,27.261,3.63,14000],[42.646,38.319,4.23,7200],[42.272,-32.406,4.46,5000],[42.878,35.06,4.53,4250],[43.565,52.763,3.95,5600],[43.47,-49.89,4.0,2450],[44.107,-8.898,3.89,4850],[44.565,-40.305,3.24,9000],[44.568,-40.304,4.35,9750],[45.57,4.09,2.53,3350],[46.199,53.506,2.93,5200],[45.598,-23.624,4.09,9000],[46.294,38.84,3.39,2900],[47.042,40.956,2.12,14000],[47.267,49.613,4.05,6000],[47.374,44.857,3.8,5000],[47.907,19.727,4.35,4700],[48.018,-28.987,3.87,6300],[50.085,29.048,4.47,4700],[49.879,-21.758,3.69,3050],[49.982,-43.07,4.27,5200],[51.081,49.861,1.79,6750],[51.203,9.029,3.6,5400],[52.267,59.94,4.21,12000],[51.793,9.733,3.74,12000],[52.479,58.879,4.54,10000],[52.644,47.995,4.36,4550],[52.718,12.937,4.11,5000],[53.232,-9.458,3.73,4700],[54.123,48.193,4.23,20000],[53.447,-21.633,4.27,14000],[54.218,0.402,4.28,6150],[54.274,-40.275,4.58,4850],[55.731,47.788,3.01,20000],[56.08,32.288,3.83,28000],[56.298,42.579,3.77,6750],[55.812,-9.763,3.54,5000],[56.219,24.113,3.7,18000],[55.709,-37.314,4.59,4700],[56.302,24.467,4.3,18000],[56.457,24.368,3.87,14000],[57.38,65.526,4.47,3200],[56.582,23.948,4.18,18000],[56.535,-12.102,4.42,3200],[56.871,24.105,2.87,16000],[56.712,-23.25,4.23,7050],[56.05,-64.807,3.85,4700],[57.29,24.053,3.63,14000],[57.364,-36.2,4.17,5100],[58.533,31.884,2.85,28000],[56.81,-74.239,3.24,3200],[59.463,40.01,2.89,30000],[59.741,35.791,4.04,39000],[59.508,-13.509,2.95,3500],[60.17,12.49,3.47,24000],[59.686,-61.4,4.56,3200],[60.789,5.989,3.91,9750],[61.174,22.082,4.36,5000],[61.646,50.351,4.29,10000],[60.224,-62.159,4.51,2900],[62.165,47.713,4.04,24000],[62.966,-6.837,4.04,7200],[63.725,48.409,4.14,6000],[63.884,8.892,4.29,24000],[63.818,-7.653,4.43,4850],[63.5,-42.294,3.86,4850],[63.606,-62.474,3.35,5200],[64.007,-51.487,4.25,6900],[64.948,15.628,3.65,5000],[64.474,-33.798,3.56,12000],[64.12,-59.302,4.44,4700],[65.734,17.543,3.76,5000],[66.342,22.294,4.22,8250],[66.373,17.928,4.29,9500],[66.577,22.814,4.28,8000],[66.009,-34.017,3.96,4400],[66.587,15.618,4.49,7500],[67.154,19.18,3.53,5100],[67.144,15.962,3.84,5000],[67.165,15.871,3.4,8250],[68.377,-29.767,4.51,5000],[69.172,41.265,4.25,4400],[68.98,16.509,0.85,4250],[68.914,10.161,4.25,8750],[69.08,-3.353,3.93,26000],[68.887,-30.562,3.82,5200],[68.499,-55.045,3.27,10000],[69.54,12.511,4.27,8500],[69.545,-14.304,3.87,4700],[70.11,-19.672,4.32,2900],[70.561,22.957,4.28,24000],[70.14,-41.864,4.45,7200],[71.375,-3.255,4.02,20000],[73.513,66.343,4.29,33000],[72.46,6.961,3.19,6600],[72.653,8.9,4.36,9750],[72.802,5.605,3.69,26000],[73.224,-5.453,4.39,6900],[73.563,2.441,3.72,24000],[74.322,53.752,4.47,9750],[74.248,33.166,2.69,4550],[74.093,13.514,4.07,4700],[74.637,1.714,4.47,4700],[75.855,60.442,4.03,5900],[75.492,43.823,2.99,7500],[75.62,41.076,3.75,4400],[76.629,41.234,3.17,24000],[76.102,-35.483,4.55,4550],[76.365,-22.371,3.19,4250],[76.963,-5.086,2.79,9250],[77.287,-8.754,4.27,26000],[78.075,-11.869,4.45,14000],[78.323,2.861,4.46,5000],[78.233,-16.206,3.31,12000],[78.308,-12.941,4.36,12000],[79.172,45.998,0.08,5500],[78.635,-8.202,0.12,14000],[79.545,33.372,4.54,4700],[79.402,-6.844,3.6,20000],[79.894,-13.177,4.29,30000],[80.987,-7.808,4.14,5200],[81.119,-2.397,3.36,28000],[81.283,6.35,1.64,26000],[81.573,28.608,1.65,16000],[81.709,3.096,4.59,26000],[82.061,-20.759,2.84,5500],[82.696,5.948,4.2,20000],[83.053,18.594,4.38,3200],[83.002,-0.299,2.23,33000],[82.803,-35.471,3.87,4850],[83.182,-17.822,2.58,7500],[83.705,9.489,4.41,30000],[83.785,9.934,3.54,36000],[83.847,-4.838,4.59,28000],[83.858,-5.91,2.77,33000],[84.053,-1.202,1.7,30000],[84.226,9.291,4.09,5000],[84.411,21.142,3.0,22000],[83.406,-62.49,3.76,6600],[84.687,-2.6,3.81,33000],[84.796,4.121,4.57,24000],[85.19,-1.943,2.05,33000],[85.19,-1.943,4.21,30000],[84.912,-34.074,2.64,16000],[86.116,-22.448,3.6,6600],[87.294,39.181,4.52,5200],[86.739,-14.822,3.55,9250],[86.939,-9.67,2.06,30000],[87.873,39.149,3.97,5100],[86.193,-65.736,4.35,8250],[86.821,-51.066,3.85,8750],[88.332,27.612,4.58,10000],[87.83,-20.879,3.81,5000],[87.74,-35.768,3.12,4700],[87.457,-56.167,4.51,4850],[88.595,20.276,4.41,6000],[88.793,7.407,0.5,3350],[89.882,54.285,3.72,5000],[89.101,-14.168,3.71,7350],[89.882,44.947,1.9,9500],[89.984,45.937,4.26,3050],[89.93,37.213,2.62,10000],[89.384,-35.283,4.36,26000],[90.014,-3.074,4.53,4850],[89.787,-42.815,3.96,5000],[90.596,9.647,4.12,9500],[91.03,23.263,4.16,5300],[91.893,14.768,4.42,24000],[92.985,14.209,4.48,24000],[93.719,22.507,3.28,3050],[93.845,29.498,4.35,5200],[93.714,-6.275,3.98,4850],[94.906,59.011,4.48,9500],[94.138,-35.141,4.37,5000],[95.078,-30.063,3.02,26000],[95.74,22.514,2.88,3050],[95.675,-17.956,1.98,28000],[95.528,-33.436,3.85,5300],[95.942,4.593,4.44,8750],[95.988,-52.696,-0.72,7500],[97.241,20.212,4.15,18000],[97.204,-7.033,4.6,24000],[97.042,-32.58,4.48,22000],[98.226,7.333,4.5,10000],[97.964,-23.418,4.33,30000],[98.764,-22.965,4.54,10000],[99.428,16.399,1.93,10000],[99.171,-19.256,3.95,4850],[98.744,-52.976,4.39,10000],[99.473,-18.238,4.43,4850],[99.44,-43.196,3.17,14000],[100.983,25.131,2.98,5200],[100.997,13.228,4.49,5000],[101.322,12.896,3.36,6750],[101.287,-16.716,-1.46,9750],[101.965,2.412,4.47,5000],[105.017,76.978,4.55,4400],[102.46,-32.509,3.96,28000],[103.197,33.961,3.6,9250],[102.047,-61.941,3.27,8250],[102.484,-50.615,2.93,4850],[102.464,-53.622,4.4,5400],[104.319,58.422,4.35,5500],[103.548,-12.039,4.07,4400],[103.533,-24.184,3.87,4700],[104.034,-17.054,4.37,24000],[104.656,-28.972,1.5,26000],[105.43,-27.935,3.47,3950],[106.027,20.57,3.79,6450],[105.756,-23.833,3.02,24000],[105.94,-15.633,4.12,14000],[107.098,-26.393,1.84,6300],[107.785,30.245,4.41,4700],[107.966,-0.493,4.15,9500],[107.187,-70.499,3.78,5000],[108.14,-46.759,4.49,7500],[108.703,-26.773,3.85,26000],[109.523,16.54,3.58,9250],[109.286,-37.098,2.7,4550],[110.031,21.982,3.53,7200],[109.677,-24.954,4.4,33000],[109.207,-67.957,3.98,6600],[111.432,27.798,3.79,5100],[111.024,-29.303,2.45,20000],[111.788,8.289,2.9,14000],[112.278,31.784,4.18,7500],[112.041,8.926,4.32,4550],[112.449,12.007,4.54,4850],[112.308,-43.301,3.25,4250],[113.65,31.889,2.88,9500],[113.65,31.888,1.98,9750],[113.98,26.896,4.06,3500],[113.513,-22.296,4.45,6600],[114.342,-34.969,4.53,14000],[114.825,5.225,0.38,6750],[114.705,-26.802,4.5,18000],[115.312,-9.551,3.93,5000],[115.828,28.884,4.28,4850],[116.112,24.398,3.57,5200],[116.329,28.026,1.14,5000],[115.885,-28.411,4.59,4550],[115.952,-28.955,3.96,9500],[116.314,-37.969,3.61,4700],[115.455,-72.606,3.95,5000],[117.022,-25.937,4.5,30000],[117.324,-24.86,3.34,5400],[117.31,-46.373,4.11,30000],[118.054,-40.576,3.73,4850],[118.161,-38.863,4.49,26000],[118.326,-48.103,4.24,30000],[119.215,-22.88,4.2,6450],[119.195,-52.982,3.47,24000],[119.56,-49.245,4.41,28000],[120.566,2.334,4.39,4700],[120.896,-40.003,2.25,45000],[121.886,-24.304,2.81,6600],[122.148,-2.984,4.34,5800],[122.257,-19.245,4.4,20000],[122.372,-47.346,4.27,28000],[122.383,-47.337,1.78,14086],[121.983,-68.617,4.35,18000],[122.84,-39.619,4.45,4550],[123.512,-40.348,4.44,4850],[124.129,9.186,3.52,4400],[124.639,-36.659,4.45,8250],[125.709,43.188,4.25,4400],[125.628,-59.51,1.86,4550],[126.415,-3.906,3.9,10000],[124.632,-76.92,4.07,6750],[127.566,60.718,3.36,5500],[125.16,-77.484,4.35,4700],[126.434,-66.137,3.77,4850],[130.053,64.328,4.6,4850],[129.414,5.704,4.16,9750],[129.689,3.341,4.44,4850],[129.411,-42.989,4.14,8500],[130.026,-35.308,3.97,5300],[130.157,-46.649,3.84,7050],[130.073,-52.922,3.62,24000],[130.806,3.399,4.3,24000],[130.154,-59.761,4.33,28000],[131.171,18.154,3.94,5000],[130.898,-33.186,3.68,28000],[131.674,28.76,4.02,5300],[131.1,-42.649,4.07,5500],[131.694,6.419,3.38,5500],[131.594,-13.548,4.32,5200],[131.176,-54.708,1.96,9750],[131.507,-46.042,3.91,9750],[132.108,5.838,4.36,10000],[131.677,-56.77,4.49,24000],[132.633,-27.71,4.01,4550],[133.848,5.946,3.11,5100],[134.802,48.042,3.14,8250],[133.762,-60.645,3.84,14000],[134.622,11.858,4.25,8750],[135.16,41.783,3.97,6750],[135.023,-41.254,4.45,5200],[135.906,47.157,3.6,9750],[136.632,38.452,4.56,5300],[136.039,-47.098,3.75,4700],[135.612,-66.396,4.0,9500],[137.218,51.605,4.48,7500],[137.012,-25.858,4.58,4400],[136.999,-43.432,2.21,4400],[136.287,-72.603,4.48,6150],[137.742,-58.967,3.44,26000],[137.819,-62.317,3.97,24000],[138.591,2.314,3.88,12000],[138.3,-69.717,1.68,9500],[139.711,36.802,3.82,9250],[139.051,-57.541,4.34,3350],[139.273,-59.275,2.25,8000],[140.264,34.392,3.13,3950],[141.164,26.182,4.46,4700],[140.528,-55.011,2.5,26000],[141.897,-8.659,1.98,4550],[144.272,81.326,4.29,4550],[142.882,63.062,3.67,7500],[142.287,-2.769,4.6,6600],[142.311,-35.951,4.51,4550],[143.62,69.83,4.56,5600],[142.93,22.968,4.31,4250],[143.214,51.677,3.17,6600],[142.675,-40.467,3.6,7050],[142.995,-1.185,4.57,9250],[143.706,52.051,4.5,9500],[143.556,36.398,4.55,5200],[142.805,-57.034,3.13,4250],[143.611,-59.229,4.08,20000],[144.207,-49.355,4.35,8750],[144.964,-1.143,3.91,4700],[145.287,9.892,3.52,6600],[144.838,-61.328,4.52,12000],[146.463,23.774,2.98,5900],[146.312,-62.508,3.69,5500],[147.748,59.039,3.8,7200],[146.775,-65.072,3.01,8500],[148.027,54.064,4.59,9250],[147.87,-14.847,4.12,5300],[148.191,26.007,3.88,4700],[147.92,-46.548,4.58,5500],[149.216,-54.568,3.54,20000],[151.281,-13.065,4.6,12000],[151.858,35.245,4.48,8250],[151.833,16.763,3.52,10000],[151.976,9.997,4.37,4550],[151.985,-0.372,4.49,10000],[152.093,11.967,1.35,16000],[152.647,-12.354,3.61,5000],[153.684,-42.122,3.85,9500],[154.173,23.417,3.44,7500],[154.274,42.914,3.45,9500],[153.434,-70.038,3.32,14000],[154.271,-61.332,3.4,4550],[154.993,19.842,2.61,4850],[154.994,19.841,3.8,5300],[154.903,-55.029,4.57,4550],[155.582,41.499,3.05,3500],[155.228,-56.043,4.5,24000],[156.523,-16.836,3.81,4400],[156.971,36.707,4.21,5100],[156.099,-74.032,4.0,7200],[156.788,-31.068,4.25,4400],[156.97,-58.739,3.82,7200],[158.203,9.307,3.85,28000],[158.006,-61.685,3.32,22000],[158.897,-57.558,4.45,4550],[159.325,-48.226,3.84,6900],[158.867,-78.608,4.11,3500],[159.827,-55.603,4.28,5800],[160.739,-64.394,2.76,30000],[160.884,-60.567,4.57,4400],[161.692,-49.42,2.69,5500],[162.406,-16.194,3.11,4700],[161.445,-80.54,4.45,26000],[163.328,34.215,3.83,5000],[163.373,-58.853,3.78,4850],[163.903,24.75,4.5,9750],[164.18,-37.138,4.6,4850],[164.944,-18.299,4.08,5000],[165.039,-42.226,4.39,9250],[165.46,56.383,2.37,9750],[165.582,20.18,4.42,9750],[165.932,61.751,1.79,5000],[167.416,44.499,3.01,4850],[167.147,-58.975,3.91,5600],[167.915,-22.826,4.48,9500],[168.15,-60.318,4.6,8500],[168.527,20.524,2.56,9000],[168.56,15.429,3.34,9500],[169.165,-3.652,4.47,8250],[169.546,31.529,4.41,6000],[169.62,33.094,3.48,4550],[169.835,-14.779,3.56,5200],[170.284,6.029,4.05,12000],[170.252,-54.491,3.89,20000],[170.981,10.529,3.94,6900],[171.22,-17.684,4.08,8750],[172.851,69.331,3.84,3500],[173.25,-31.858,3.54,5300],[173.945,-63.02,3.13,12000],[174.237,-0.824,4.3,5200],[176.465,6.529,4.03,3350],[176.512,47.779,3.71,5000],[176.402,-66.729,3.64,8250],[176.628,-61.178,4.11,5500],[176.996,20.219,4.53,5500],[177.265,14.572,2.14,9250],[177.421,-63.788,4.32,24000],[177.674,1.765,3.61,6150],[177.786,-45.174,4.46,4550],[178.228,-33.908,4.28,12000],[178.457,53.695,2.44,10000],[180.756,-63.313,4.33,8750],[181.302,8.733,4.12,5200],[181.72,-64.614,4.15,7200],[182.022,-50.661,4.47,18000],[182.09,-50.723,2.6,26000],[182.103,-24.729,4.02,7200],[182.531,-22.62,3.0,4700],[182.913,-52.369,3.96,24000],[183.786,-58.749,2.8,26000],[183.857,57.032,3.31,9250],[183.952,-17.542,2.59,14000],[184.392,-67.961,4.11,2750],[184.586,-79.312,4.26,20000],[184.609,-64.003,4.04,26000],[184.977,-0.667,3.89,9500],[185.34,-60.401,3.59,4550],[186.65,-63.099,1.33,30000],[186.652,-63.099,1.73,28000],[186.735,28.268,4.36,4850],[187.01,-50.231,3.91,26000],[187.466,-16.516,2.95,12000],[187.791,-57.113,1.63,3050],[188.117,-72.133,3.87,20000],[188.017,-16.196,4.31,7200],[188.435,41.358,4.26,6000],[188.597,-23.397,2.65,5500],[188.371,69.788,3.87,18000],[189.296,-69.136,2.69,26000],[189.426,-48.541,3.86,9500],[190.379,-48.96,2.17,9750],[190.415,-1.449,3.65,7500],[190.415,-1.449,3.68,7500],[191.57,-68.108,3.05,26000],[191.93,-59.689,1.25,30000],[193.279,-48.943,4.33,4550],[193.359,-40.179,4.27,8250],[193.648,-57.178,4.03,26000],[193.507,55.96,1.77,10000],[193.901,3.397,3.38,3050],[194.007,38.318,2.9,10000],[195.567,-71.549,3.62,4700],[195.544,10.959,2.83,5200],[196.728,-49.906,4.27,28000],[197.488,-5.539,4.38,9750],[198.072,-59.921,4.6,14000],[197.968,27.878,4.26,6150],[199.73,-23.172,3.0,5200],[200.149,-36.712,2.75,9500],[200.658,-60.988,4.53,24000],[201.002,-64.536,4.53,5400],[200.981,54.925,2.27,9750],[200.985,54.922,3.95,9750],[201.298,-11.161,0.98,28000],[201.306,54.988,4.01,8750],[202.761,-39.407,3.88,5100],[203.673,-0.596,3.37,9250],[204.972,-53.466,2.3,28000],[206.422,-33.044,4.23,7050],[206.815,17.457,4.5,6600],[207.376,-41.688,3.41,26000],[206.885,49.313,1.86,24000],[207.361,-34.451,4.19,2900],[207.404,-42.474,3.04,26000],[207.369,15.798,4.07,4250],[207.957,-32.994,4.56,20000],[208.885,-47.288,2.55,26000],[208.671,18.398,2.68,6000],[209.568,-42.101,3.83,26000],[209.67,-44.804,3.87,26000],[210.431,-45.604,4.34,6600],[210.412,1.544,4.26,9250],[210.956,-60.373,0.61,28000],[211.512,-41.18,4.36,26000],[211.593,-26.683,3.27,4700],[211.671,-36.37,2.06,5000],[211.097,64.376,3.65,10000],[213.224,-10.274,4.19,4700],[213.371,51.79,4.54,8000],[214.004,-6.001,4.08,6600],[216.729,-83.668,4.32,4700],[213.915,19.183,-0.04,4850],[214.096,46.088,4.18,10000],[214.851,-46.058,3.55,26000],[215.081,-56.387,4.33,18000],[214.778,-13.371,4.52,9500],[215.139,-37.885,4.05,10000],[215.759,-39.512,4.42,16000],[216.534,-45.221,4.56,26000],[216.545,-45.379,4.35,6900],[216.299,51.851,4.05,6450],[218.154,-50.457,4.42,26000],[217.958,30.371,3.58,4550],[216.881,75.696,4.25,4400],[218.02,38.308,3.03,8250],[218.877,-42.158,2.31,28000],[218.67,29.745,4.46,7200],[219.472,-49.426,4.05,20000],[219.9,-60.835,-0.01,5800],[219.9,-60.836,1.33,4850],[220.627,-64.975,3.19,8750],[220.482,-47.388,2.3,28000],[221.965,-79.045,3.83,4550],[220.49,-37.794,4.0,24000],[220.287,13.728,4.43,9500],[220.914,-35.174,4.05,4550],[220.765,-5.658,3.88,7200],[221.31,16.964,4.6,5200],[221.247,27.074,2.7,5000],[221.562,1.893,3.72,10000],[222.572,-27.96,4.41,4400],[222.91,-43.576,4.32,20000],[222.72,-16.042,2.75,9250],[222.847,19.101,4.55,5200],[222.676,74.156,2.08,4400],[224.296,-4.346,4.49,7500],[224.633,-43.134,2.68,26000],[224.79,-42.104,3.13,26000],[224.396,65.933,4.6,2900],[225.725,2.091,4.4,5000],[225.487,40.391,3.5,5200],[226.017,-25.282,3.29,3050],[226.111,26.948,4.54,4700],[227.211,-45.28,4.05,24000],[227.984,-48.738,3.87,12000],[228.071,-52.099,3.41,5200],[228.055,-19.792,4.54,10000],[229.378,-58.801,4.07,9250],[229.728,-68.679,2.89,9750],[228.876,33.315,3.47,5200],[229.633,-47.875,4.27,14000],[229.252,-9.383,2.61,14000],[229.458,-30.149,4.34,5100],[230.343,-40.648,3.22,28000],[230.845,-59.321,4.51,20000],[230.452,-36.261,3.56,4250],[230.67,-44.689,3.37,26000],[230.789,-36.859,4.54,22000],[231.334,-38.734,4.6,10000],[231.123,37.377,4.31,7200],[230.182,71.834,3.05,9250],[231.232,58.966,3.29,4700],[231.957,29.106,3.68,7500],[234.18,-66.317,4.11,4850],[233.785,-41.167,2.78,26000],[233.232,31.359,4.14,18000],[233.972,-44.959,4.54,24000],[233.882,-14.789,3.91,5200],[233.7,10.537,3.8,7500],[233.7,10.539,3.8,7500],[233.672,26.715,2.23,10000],[234.256,-28.135,3.58,4550],[234.513,-42.568,4.33,4400],[234.664,-29.778,3.66,26000],[235.388,19.67,4.52,9750],[235.686,26.296,3.84,12000],[236.067,6.426,2.65,4700],[236.547,15.422,3.67,9500],[236.611,7.353,4.43,6000],[237.185,18.142,4.09,3500],[237.405,-3.43,3.53,10000],[237.74,-33.627,3.95,12000],[237.704,4.478,3.71,9500],[238.785,-63.431,2.85,7200],[236.015,77.794,4.32,9250],[238.403,-25.327,4.59,26000],[238.456,-16.729,4.15,5200],[239.221,-29.214,3.88,26000],[239.113,15.662,3.85,6600],[239.713,-26.114,2.89,28000],[239.397,26.878,4.15,4700],[240.03,-38.397,3.41,26000],[240.083,-22.622,2.32,30000],[239.876,25.92,2.0,24000],[241.359,-19.806,2.62,28000],[240.472,58.565,4.01,6300],[241.648,-36.802,4.23,26000],[241.702,-20.669,3.96,28000],[241.851,-20.869,4.32,5700],[242.192,44.935,4.26,12000],[242.999,-19.461,4.01,24000],[243.076,-27.926,4.59,26000],[243.86,-63.686,3.85,5800],[243.586,-3.694,2.74,3500],[244.96,-50.156,4.02,5200],[244.58,-4.692,3.24,5100],[245.159,-24.169,4.55,8750],[245.297,-25.593,2.89,28000],[244.935,46.313,3.89,20000],[245.48,19.153,3.75,7750],[248.363,-78.897,3.89,5200],[246.026,-20.038,4.5,5000],[246.796,-47.555,4.47,22000],[246.354,14.033,4.57,12000],[246.756,-18.456,4.42,26000],[245.998,61.514,2.74,5200],[247.352,-26.432,0.96,3350],[247.845,-34.704,4.23,26000],[247.785,-16.613,4.28,5200],[247.555,21.49,2.77,5300],[247.728,1.984,3.82,10000],[248.034,-21.466,4.45,8250],[250.769,-77.517,4.24,5000],[248.971,-28.216,2.82,30000],[249.094,-35.256,4.16,4100],[248.526,42.437,4.2,12000],[249.29,-10.567,2.56,33000],[250.322,31.603,2.81,6000],[252.166,-69.028,1.92,4700],[250.724,38.922,3.53,5300],[252.446,-59.041,3.76,4250],[252.541,-34.293,2.29,4700],[252.968,-38.047,3.08,28000],[253.084,-38.017,3.57,26000],[253.646,-42.361,3.62,4400],[253.502,10.165,4.38,14000],[254.655,-55.99,3.13,4550],[254.896,-53.161,4.06,4400],[254.417,9.375,3.2,4700],[251.492,82.037,4.23,5500],[255.073,30.926,3.92,10000],[257.595,-15.725,2.43,9500],[258.038,-43.239,3.33,7050],[257.197,65.715,3.17,18000],[258.662,14.39,3.48,2750],[258.758,24.839,3.14,9250],[258.762,36.809,3.16,4550],[260.251,-21.113,4.39,7350],[260.207,-12.847,4.33,9500],[260.502,-24.999,3.27,26000],[261.325,-55.53,2.85,4550],[261.348,-56.377,3.34,28000],[260.921,37.146,4.52,12000],[261.592,-24.175,4.17,9250],[261.839,-29.867,4.29,6750],[261.658,-5.087,4.54,7050],[261.629,4.14,4.34,4700],[262.775,-60.684,3.62,14000],[262.691,-37.296,2.69,26000],[262.96,-49.876,2.95,26000],[262.685,26.111,4.41,4550],[263.402,-37.104,1.63,26000],[262.608,52.301,2.79,5800],[263.915,-46.506,4.59,10000],[264.137,-38.635,4.29,5000],[264.33,-42.998,1.87,7350],[263.734,12.56,2.08,8750],[264.397,-15.399,3.54,7500],[265.622,-39.03,2.41,28000],[265.354,-12.875,4.26,9500],[266.433,-64.724,3.62,4700],[264.866,46.006,3.8,24000],[265.868,4.567,2.77,4700],[266.896,-40.127,3.03,7200],[266.89,-27.831,4.54,6450],[266.615,27.721,3.42,5500],[266.973,2.707,3.75,10000],[267.465,-37.043,3.21,4700],[265.485,72.149,4.58,6750],[268.382,56.873,3.75,4700],[269.063,37.251,3.86,4850],[269.757,-9.774,3.34,5000],[269.441,29.248,3.7,5200],[269.152,51.489,2.23,4250],[269.626,30.189,4.41,7200],[270.161,2.932,3.97,20000],[270.438,1.305,4.45,9500],[271.658,-50.092,3.66,26000],[272.145,-63.668,4.35,8250],[271.452,-30.424,2.99,5000],[271.364,2.499,4.03,5000],[272.021,-28.457,4.57,5300],[271.837,9.564,3.73,9000],[271.886,28.762,3.83,12000],[272.808,-45.954,4.53,5000],[272.19,20.814,4.36,26000],[263.054,86.586,4.36,9750],[273.441,-21.059,3.86,14000],[274.407,-36.762,3.11,3050],[275.807,-61.494,4.36,4400],[275.249,-29.828,2.7,4550],[275.328,-2.899,3.26,5000],[274.965,36.064,4.33,4700],[276.043,-34.385,1.85,12000],[275.925,21.77,3.84,4700],[276.743,-45.968,3.51,24000],[277.208,-49.071,4.13,5200],[276.993,-25.422,2.81,4850],[275.19,71.338,4.22,10000],[275.264,72.733,3.57,6450],[278.802,-8.244,3.85,4550],[280.759,-71.428,4.01,5000],[279.235,38.784,0.03,10000],[281.414,-26.991,3.17,14000],[281.193,37.605,4.36,9000],[281.415,20.546,4.19,6600],[281.794,-4.748,4.22,5600],[281.755,18.181,4.36,8750],[283.054,-62.188,4.22,26000],[282.52,33.363,3.45,14000],[284.238,-67.234,4.44,6750],[283.816,-26.297,2.02,26000],[283.687,22.645,4.59,5600],[283.626,36.899,4.3,2900],[284.432,-21.107,3.51,4850],[283.834,43.946,4.04,2750],[284.906,15.068,4.02,4850],[284.736,32.689,3.24,12000],[285.42,-5.739,4.02,4850],[285.653,-29.88,2.6,9500],[286.171,-21.742,3.77,5100],[286.735,-27.671,3.32,4850],[286.352,13.863,2.99,10000],[286.562,-4.883,3.44,12000],[287.087,-40.497,4.59,4850],[287.368,-37.904,4.11,9500],[287.507,-39.341,4.11,5000],[287.441,-21.024,2.89,7200],[288.44,39.146,4.39,26000],[288.139,67.662,3.07,5100],[289.092,38.134,4.36,5000],[289.276,53.369,3.77,5100],[290.66,-44.459,4.01,12000],[290.418,-17.847,3.93,7500],[290.805,-44.8,4.29,7200],[290.972,-40.616,3.97,14000],[288.887,73.356,4.45,4700],[290.167,65.715,4.59,9500],[291.375,3.115,3.36,7050],[292.176,24.665,4.44,3500],[292.68,27.96,3.08,4550],[292.426,51.73,3.79,8750],[293.522,7.379,4.45,4550],[294.177,-24.884,4.6,12000],[294.18,-1.286,4.36,20000],[294.11,50.221,4.48,6900],[295.024,18.014,4.37,5900],[295.262,17.476,4.37,5200],[296.565,10.613,2.72,4550],[296.244,45.131,2.87,12000],[296.847,18.534,3.82,3200],[297.696,8.868,0.77,8250],[297.641,32.914,4.23,2600],[298.118,1.006,3.9,6600],[298.815,-41.868,4.13,5000],[297.043,70.268,3.83,5300],[300.148,-72.911,3.96,10000],[298.365,24.08,4.58,12000],[298.828,6.407,3.71,5200],[299.237,-27.17,4.52,4700],[299.077,35.083,3.89,5000],[299.934,-35.276,4.37,24000],[299.689,19.492,3.47,3500],[300.665,-27.71,4.58,2900],[302.182,-66.182,3.56,5400],[300.705,67.874,4.51,4550],[302.826,-0.821,3.23,12000],[303.408,46.741,3.79,4700],[303.35,56.568,4.3,9250],[303.942,27.814,4.52,4550],[304.412,-12.508,4.24,5700],[302.222,77.711,4.39,12000],[303.868,47.714,3.98,4550],[304.514,-12.545,3.57,5200],[305.253,-14.781,3.08,6300],[306.412,-56.735,1.94,26000],[305.557,40.257,2.2,6300],[305.965,32.19,4.43,4700],[307.349,30.369,4.01,6750],[307.395,62.994,4.22,8250],[308.303,11.303,4.03,18000],[309.392,-47.291,3.11,5000],[309.387,14.595,3.63,6750],[309.585,-1.105,4.32,5300],[309.91,15.912,3.77,12000],[311.24,-66.203,3.42,8250],[311.01,-51.921,4.51,8250],[310.358,45.28,1.25,9500],[310.865,15.074,4.43,8250],[311.524,-25.271,4.14,6900],[311.415,30.72,4.22,5100],[311.665,16.124,4.27,4850],[311.553,33.97,2.46,5000],[311.919,-9.496,3.77,9750],[311.934,-5.028,4.42,3050],[311.338,57.58,4.51,6300],[311.322,61.839,3.43,5000],[311.852,36.491,4.53,20000],[312.955,-26.919,4.11,3500],[313.702,-58.454,3.65,4850],[313.032,27.097,4.59,5300],[314.293,41.167,3.94,9750],[316.487,-17.233,4.07,9750],[316.233,43.928,3.72,4400],[316.782,-25.006,4.5,3500],[316.65,47.648,4.55,4400],[317.399,-11.372,4.51,5200],[318.234,30.227,3.2,5200],[318.62,10.007,4.49,6750],[318.698,38.046,3.72,7200],[318.956,5.248,3.92,6000],[319.967,-53.45,4.39,8750],[319.354,39.395,4.23,12000],[319.48,34.897,4.43,26000],[319.645,62.586,2.44,8250],[320.562,-16.834,4.28,5300],[320.522,19.804,4.08,4850],[321.611,-65.366,4.22,6600],[321.667,-22.411,3.74,5600],[322.181,-21.807,4.51,5500],[322.487,23.639,4.57,3350],[322.89,-5.571,2.91,6000],[322.165,70.561,3.23,28000],[323.495,45.592,4.02,5200],[325.369,-77.39,3.76,5000],[325.023,-16.662,3.68,7500],[326.237,-33.026,4.34,10000],[326.047,9.875,2.39,4700],[326.128,17.35,4.34,5500],[326.161,25.645,4.13,6750],[325.877,58.78,4.08,3200],[325.48,71.311,4.56,4850],[326.76,-16.127,2.87,8750],[326.362,61.121,4.29,9500],[326.698,49.309,4.23,24000],[328.482,-37.365,3.01,14000],[329.48,-54.992,4.4,7500],[331.529,-39.543,4.46,4550],[331.446,-0.32,2.96,5800],[330.947,64.628,4.29,9250],[331.609,-13.87,4.27,12000],[332.058,-46.961,1.74,16000],[331.753,25.345,3.76,6750],[332.096,-32.989,4.5,9500],[332.55,6.198,3.53,9500],[332.497,33.178,4.29,6750],[332.714,58.201,3.35,4850],[333.47,39.715,4.49,4550],[333.758,57.044,4.19,7500],[333.993,37.749,4.13,4550],[334.208,-7.783,4.16,5200],[334.625,-60.26,2.86,4550],[335.414,-1.387,3.84,10000],[335.257,46.537,4.57,18000],[335.89,52.229,4.43,5200],[336.833,-64.966,4.48,12000],[336.129,49.476,4.57,12000],[337.317,-43.496,3.97,5400],[337.207,-0.02,4.59,6600],[337.209,-0.02,4.42,7050],[337.44,-43.749,4.11,2900],[337.293,58.415,3.75,6750],[337.382,47.707,4.36,3500],[337.876,-32.346,4.29,10000],[337.622,43.123,4.51,26000],[337.823,50.282,3.77,9750],[338.839,-0.118,4.02,12000],[340.164,-27.044,4.17,14000],[341.514,-81.382,4.15,7750],[340.129,44.276,4.46,4700],[340.365,10.831,3.4,14000],[340.667,-46.885,2.1,2750],[340.75,30.221,2.94,5800],[341.673,12.173,4.19,6600],[341.633,23.566,3.95,5200],[342.139,-51.317,3.49,9250],[342.398,-13.593,4.01,3500],[342.501,24.602,3.48,5200],[342.42,66.201,3.52,5000],[343.132,-32.876,4.46,10000],[343.154,-7.58,3.74,3200],[343.662,-15.821,3.27,9250],[343.987,-32.54,4.21,5200],[344.413,-29.622,1.16,9250],[345.22,-52.754,4.12,5200],[345.48,42.326,3.62,18000],[345.969,3.82,4.53,18000],[345.944,28.083,2.42,3200],[346.19,15.205,2.49,12000],[346.72,-43.521,4.28,6750],[346.67,-23.743,4.47,5100],[346.751,9.409,4.52,3350],[347.362,-21.172,3.66,4850],[346.975,75.388,4.41,5800],[347.59,-45.247,3.9,4850],[348.137,49.406,4.52,7500],[348.581,-6.049,4.22,3350],[348.973,-9.088,4.21,5000],[349.358,-58.236,3.99,7350],[349.291,3.282,3.69,5100],[349.476,-9.182,4.39,20000],[349.706,-32.532,4.41,4850],[350.159,23.74,4.6,8750],[350.743,-20.101,3.97,5000],[351.345,23.404,4.4,6300],[351.512,-20.642,4.39,4250],[351.992,6.379,4.28,4850],[352.289,12.761,4.55,5300],[353.243,-37.818,4.37,12000],[354.391,46.458,3.82,5200],[354.534,43.268,4.29,14000],[354.987,5.626,4.13,6450],[354.837,77.632,3.21,4850],[355.102,44.334,4.14,12000],[355.512,1.78,4.5,8250],[355.68,-14.545,4.49,12000],[357.232,-28.13,4.57,10000],[358.596,57.499,4.54,5800],[359.828,6.863,4.01,6900],[359.979,-65.577,4.5,12000],[0.49,-6.014,4.41,3050],[0.935,-17.336,4.55,12000]];
+const CONS={"Ori":{"n":["Orion","猎户座"],"l":[217,241,217,207,241,226,207,213,213,220,220,226,226,232,213,201]},"UMa":{"n":["Ursa Major","大熊座"],"l":[469,467,467,498,498,508,508,469,508,536,536,549,549,559]},"Leo":{"n":["Leo","狮子座"],"l":[433,430,430,440,440,436,436,425,425,419,440,474,474,493,493,475,475,433,474,475]},"Cas":{"n":["Cassiopeia","仙后座"],"l":[1,18,18,27,27,41,41,54]},"Cyg":{"n":["Cygnus","天鹅座"],"l":[875,864,864,848,848,828,837,864,864,880,880,895]},"Lyr":{"n":["Lyra","天琴座"],"l":[790,792,792,797,797,805,805,801,801,792]},"Sco":{"n":["Scorpius","天蝎座"],"l":[672,670,670,667,670,685,685,694,694,701,701,709,709,710,710,712,712,720,720,743,743,751,751,746,746,739]},"Tau":{"n":["Taurus","金牛座"],"l":[153,156,156,162,162,208,153,167,167,222]},"Gem":{"n":["Gemini","双子座"],"l":[315,324,315,297,297,276,276,260,324,304,304,293,293,271]},"CMa":{"n":["Canis Major","大犬座"],"l":[261,279,279,296,296,291,296,308]},"Aql":{"n":["Aquila","天鹰座"],"l":[826,839,839,836,839,854,839,810]},"Cru":{"n":["Crux","南十字座"],"l":[515,520,532,507]},"Peg":{"n":["Pegasus","飞马座"],"l":[976,975,976,3,976,915]},"Boo":{"n":["Boötes","牧夫座"],"l":[579,606,606,627,627,618,618,592,592,590,590,579,579,565]}};
+const FIGS={"Ori":{"ref":[[82.9035,1.8517,333.8,657.4],[87.4798,1.8458,460.4,664.6],[82.9035,6.4256,344.1,521.0]],"w":746,"h":1100},"Leo":{"ref":[[166.6112,15.6231,685.7,311.6],[171.3599,15.572,794.7,263.4],[166.6113,20.197,596.9,224.9]],"w":1100,"h":774},"UMa":{"ref":[[181.3658,56.6243,702.3,226.0],[189.6398,56.3483,769.8,163.4],[181.3658,61.1982,639.8,156.7]],"w":1100,"h":889}};/*END*/</script>
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const D2R = Math.PI / 180, isZh = () => document.documentElement.dataset.lang === "zh";
+
+/* ---------------- sky ---------------- */
+const cv = document.getElementById("sky"), ctx = cv.getContext("2d");
+const view = innerWidth < 900 ? { ra: 86, dec: 6, fov: .8 } : { ra: 98, dec: 14, fov: .8 };            // plate centre; fov scales the projection
+let W = 0, H = 0, dpr = 1, R = 1, running = true, hover = null, auto = null, lastUser = -1e9;
+const label = document.getElementById("label");
+
+// sprite for one star glow, tinted per spectral temperature at draw time via a small palette
+function tempColor(k) {
+  if (k > 20000) return [170, 196, 255]; if (k > 9500) return [200, 214, 255]; if (k > 7000) return [236, 236, 255];
+  if (k > 5600) return [255, 240, 214]; if (k > 4500) return [255, 214, 160]; return [255, 182, 120];
+}
+const sprites = new Map();
+function sprite(k) {
+  const c = tempColor(k), key = c.join();
+  if (sprites.has(key)) return sprites.get(key);
+  const s = document.createElement("canvas"); s.width = s.height = 64; const g = s.getContext("2d");
+  const rg = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  rg.addColorStop(0, `rgba(255,255,255,1)`); rg.addColorStop(.12, `rgba(${c},1)`); rg.addColorStop(.35, `rgba(${c},.28)`); rg.addColorStop(1, `rgba(${c},0)`);
+  g.fillStyle = rg; g.fillRect(0, 0, 64, 64); sprites.set(key, s); return s;
+}
+
+// stereographic projection, east to the left as seen from the ground
+function project(ra, dec) {
+  const a = (ra - view.ra) * D2R, d = dec * D2R, d0 = view.dec * D2R;
+  const cosc = Math.sin(d0) * Math.sin(d) + Math.cos(d0) * Math.cos(d) * Math.cos(a);
+  if (cosc < -0.35) return null;
+  const k = 2 / (1 + cosc);
+  const x = k * Math.cos(d) * Math.sin(a), y = k * (Math.cos(d0) * Math.sin(d) - Math.sin(d0) * Math.cos(d) * Math.cos(a));
+  return [W * (W < 900 ? .5 : .58) - x * R, H * .5 - y * R];
+}
+
+function resize() {
+  const r = cv.getBoundingClientRect(); dpr = Math.min(devicePixelRatio || 1, 2);
+  W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr;
+  R = Math.max(W, H * 1.3) * .62 * view.fov;
+  draw(performance.now());
+}
+
+// figures
+const figImg = {};
+for (const k in FIGS) { const im = new Image(); im.src = `img/fig-${k}.webp`; im.onload = () => draw(performance.now()); figImg[k] = im; }
+const figAlpha = {}; for (const k in CONS) figAlpha[k] = 0;
+const NOTES = {
+  Ori: ["3 passes tonight · next at 21:14", "今晚 3 次过境 · 下一次 21:14"],
+  Leo: ["2 passes tonight · next at 23:40", "今晚 2 次过境 · 下一次 23:40"],
+  UMa: ["Circumpolar · 5 passes tonight", "整夜不落 · 今晚 5 次过境"],
+};
+
+// fictional satellites on great circles: pole (ra, dec), angular speed, phase
+const SATS = [[30, 62, .055, 0, "FIRM-07"], [210, 40, .04, 2, "AURIGA-2"], [100, -20, .07, 4, "FIRM-12"], [300, 75, .035, 1, "LYRA-SAR"],
+  [160, 10, .05, 3.3, "FIRM-03"], [250, -55, .045, 5.1, "CETUS-1"], [60, 25, .06, .6, "FIRM-19"], [190, 70, .05, 2.2, "VELA-4"], [20, -30, .04, 4.4, "FIRM-21"], [130, 55, .065, 5.8, "AURIGA-5"]].map(([ra, dec, w, ph, n]) => {
+  const p = [Math.cos(dec * D2R) * Math.cos(ra * D2R), Math.cos(dec * D2R) * Math.sin(ra * D2R), Math.sin(dec * D2R)];
+  let u = Math.abs(p[2]) < .9 ? [0, 0, 1] : [1, 0, 0];
+  u = cross(p, u); u = norm(u); const v = cross(p, u);
+  return { u, v, w, ph, n };
+});
+function cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+function norm(a) { const l = Math.hypot(...a); return a.map(x => x / l); }
+function satRaDec(s, th) {
+  const c = Math.cos(th), si = Math.sin(th), x = s.u[0] * c + s.v[0] * si, y = s.u[1] * c + s.v[1] * si, z = s.u[2] * c + s.v[2] * si;
+  return [(Math.atan2(y, x) / D2R + 360) % 360, Math.asin(z) / D2R];
+}
+
+function polyline(pts) {
+  let pen = false, prev = null;
+  for (const p of pts) {
+    if (!p || (prev && Math.hypot(p[0] - prev[0], p[1] - prev[1]) > W * .5)) { pen = false; prev = p; continue; }
+    if (!pen) { ctx.moveTo(p[0], p[1]); pen = true; } else ctx.lineTo(p[0], p[1]);
+    prev = p;
+  }
+}
+
+let t0 = performance.now(), simT = 0;
+function draw(now) {
+  if (!W) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  // graticule: declination circles every 15 deg, hour circles every 2h, ecliptic dashed
+  ctx.lineWidth = .7; ctx.strokeStyle = "rgba(216,181,106,.13)"; ctx.beginPath();
+  for (let dec = -75; dec <= 75; dec += 15) { const pts = []; for (let ra = 0; ra <= 360; ra += 3) pts.push(project(ra, dec)); polyline(pts); }
+  for (let ra = 0; ra < 360; ra += 30) { const pts = []; for (let dec = -88; dec <= 88; dec += 3) pts.push(project(ra, dec)); polyline(pts); }
+  ctx.stroke();
+  ctx.setLineDash([2, 6]); ctx.strokeStyle = "rgba(216,181,106,.32)"; ctx.beginPath();
+  { const e = 23.44 * D2R, pts = []; for (let l = 0; l <= 360; l += 2) { const L = l * D2R;
+      pts.push(project((Math.atan2(Math.sin(L) * Math.cos(e), Math.cos(L)) / D2R + 360) % 360, Math.asin(Math.sin(e) * Math.sin(L)) / D2R)); } polyline(pts); }
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // engraved figures (behind the stars)
+  for (const k in FIGS) {
+    const a = figAlpha[k], im = figImg[k]; if (a < .01 || !im.complete) continue;
+    const f = FIGS[k], S = f.ref.map(r => project(r[0], r[1])); if (S.some(s => !s)) continue;
+    const [p0, p1, p2] = f.ref.map(r => [r[2], r[3]]);
+    const u1 = [p1[0] - p0[0], p1[1] - p0[1]], u2 = [p2[0] - p0[0], p2[1] - p0[1]];
+    const v1 = [S[1][0] - S[0][0], S[1][1] - S[0][1]], v2 = [S[2][0] - S[0][0], S[2][1] - S[0][1]];
+    const det = u1[0] * u2[1] - u2[0] * u1[1];
+    const ia = u2[1] / det, ib = -u2[0] / det, ic = -u1[1] / det, id = u1[0] / det;     // inverse of [u1 u2]
+    const A = v1[0] * ia + v2[0] * ic, B = v1[1] * ia + v2[1] * ic, C = v1[0] * ib + v2[0] * id, Dd = v1[1] * ib + v2[1] * id;
+    const E = S[0][0] - (A * p0[0] + C * p0[1]), F = S[0][1] - (B * p0[0] + Dd * p0[1]);
+    ctx.save(); ctx.globalAlpha = a * .92;
+    ctx.setTransform(dpr * A, dpr * B, dpr * C, dpr * Dd, dpr * E, dpr * F);
+    ctx.drawImage(im, 0, 0); ctx.restore(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  // constellation lines
+  for (const k in CONS) {
+    const c = CONS[k], a = figAlpha[k];
+    ctx.strokeStyle = `rgba(216,181,106,${.22 + a * .6})`; ctx.lineWidth = .8 + a * .6; ctx.beginPath();
+    for (let i = 0; i < c.l.length; i += 2) {
+      const s1 = STARS[c.l[i]], s2 = STARS[c.l[i + 1]], p = project(s1[0], s1[1]), q = project(s2[0], s2[1]);
+      if (p && q && Math.hypot(p[0] - q[0], p[1] - q[1]) < W * .4) { ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); }
+    }
+    ctx.stroke();
+  }
+
+  // stars
+  let drawn = 0; const tw = reduce ? 0 : now / 900;
+  ctx.globalCompositeOperation = "lighter";
+  for (let i = 0; i < STARS.length; i++) {
+    const s = STARS[i], p = project(s[0], s[1]); if (!p || p[0] < -20 || p[1] < -20 || p[0] > W + 20 || p[1] > H + 20) continue;
+    const size = Math.max(3, (5.2 - s[2]) * 4.6) * (1 + .08 * Math.sin(tw + i * 1.7));
+    ctx.globalAlpha = Math.min(1, .45 + (4.6 - s[2]) * .22);
+    ctx.drawImage(sprite(s[3]), p[0] - size, p[1] - size, size * 2, size * 2); drawn++;
+  }
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+
+  // satellites with fading trails
+  let inView = 0;
+  for (const s of SATS) {
+    const th = s.ph + simT * s.w, head = project(...satRaDec(s, th));
+    for (let j = 18; j > 0; j--) {
+      const p = project(...satRaDec(s, th - j * .012)), q = project(...satRaDec(s, th - (j - 1) * .012));
+      if (!p || !q) continue;
+      ctx.strokeStyle = `rgba(239,229,203,${(1 - j / 18) * .55})`; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke();
+    }
+    if (head && head[0] > 0 && head[0] < W && head[1] > 0 && head[1] < H) {
+      inView++;
+      ctx.fillStyle = "#efe5cb"; ctx.beginPath(); ctx.arc(head[0], head[1], 2.4, 0, 7); ctx.fill();
+      ctx.strokeStyle = "rgba(216,181,106,.7)"; ctx.beginPath(); ctx.arc(head[0], head[1], 6, 0, 7); ctx.stroke();
+      if (head[0] > W * .46 || W < 900) { ctx.font = "12px 'EB Garamond', serif"; ctx.fillStyle = "rgba(216,181,106,.85)"; ctx.fillText(s.n, head[0] + 9, head[1] - 7); }
+    }
+  }
+  roStars.textContent = drawn; roSats.textContent = inView;
+}
+const roStars = document.getElementById("ro-stars"), roSats = document.getElementById("ro-sats"), roRa = document.getElementById("ro-ra"), roDec = document.getElementById("ro-dec");
+
+function centroid(k) {
+  const c = CONS[k], pts = []; for (const i of c.l) { const s = STARS[i], p = project(s[0], s[1]); if (p) pts.push(p); }
+  if (!pts.length) return null;
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  return { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: Math.min(...ys), x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+}
+function onScreen(b) { return b && b.x0 > (W < 900 ? 8 : W * .38) && b.x1 < W * .97 && b.y0 > H * .12 && b.y1 < H * .88; }
+
+function pick(mx, my) {
+  let best = null, bd = 1e9;
+  for (const k in CONS) {
+    const b = centroid(k); if (!b) continue;
+    const pad = 40, inside = mx > b.x0 - pad && mx < b.x1 + pad && my > b.y0 - pad && my < b.y1 + pad;
+    const d = Math.hypot(mx - (b.x0 + b.x1) / 2, my - (b.y0 + b.y1) / 2);
+    if (inside && d < bd) { bd = d; best = k; }
+  }
+  return best;
+}
+
+function setLabel(k) {
+  if (!k) { label.classList.remove("on"); return; }
+  const b = centroid(k); if (!b) return;
+  const n = CONS[k].n;
+  label.querySelector(".nm").textContent = n[0]; label.querySelector(".zh").textContent = n[1];
+  const note = NOTES[k]; label.querySelector(".note").style.display = note ? "" : "none";
+  if (note) label.querySelector(".note").textContent = note[isZh() ? 1 : 0];
+  label.style.left = `${cv.offsetLeft + Math.min(W - 130, Math.max(130, b.x))}px`; let ly = b.y0 - 24; if (ly < (W < 900 ? 90 : 200)) ly = Math.min(H - 20, b.y1 + 110);   // too close to the nav: hang it below
+  label.style.top = `${cv.offsetTop + ly}px`;
+  label.classList.add("on");
+}
+
+// interaction
+let drag = null;
+cv.addEventListener("pointerdown", e => { drag = { x: e.clientX, y: e.clientY, ra: view.ra, dec: view.dec }; cv.classList.add("drag"); cv.setPointerCapture(e.pointerId); lastUser = performance.now(); });
+cv.addEventListener("pointermove", e => {
+  const r = cv.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+  if (drag) {
+    const k = 57.3 / R * 1.1;
+    view.ra = (drag.ra + (e.clientX - drag.x) * k + 360) % 360;
+    if (e.pointerType === "mouse") view.dec = Math.max(-60, Math.min(80, drag.dec + (e.clientY - drag.y) * k));
+  }
+  if (e.pointerType === "mouse") { hover = pick(mx, my); lastUser = performance.now(); }
+});
+addEventListener("pointerup", () => { drag = null; cv.classList.remove("drag"); });
+cv.addEventListener("pointerleave", () => { hover = null; });
+
+// auto tour: when idle, spotlight a figure constellation that is fully on screen
+function tour() {
+  if (performance.now() - lastUser < 5000 || hover) return;
+  const ks = Object.keys(FIGS).filter(k => onScreen(centroid(k)));
+  if (!ks.length) { auto = null; return; }
+  auto = ks[(ks.indexOf(auto) + 1) % ks.length];
+}
+setInterval(tour, 4200);
+
+let prev = performance.now();
+function loop(now) {
+  const dt = Math.min(64, now - prev); prev = now;
+  if (running) {
+    if (!reduce && !drag) view.ra = (view.ra + dt * .0008) % 360;   // stars rise in the east (left) and drift west (right)
+    simT += reduce ? 0 : dt / 1000;
+    const active = hover || auto;
+    for (const k in figAlpha) figAlpha[k] += ((k === active ? 1 : 0) - figAlpha[k]) * Math.min(1, dt / 260);
+    draw(now);
+    setLabel(active);
+    const h = Math.floor(view.ra / 15), m = Math.floor((view.ra / 15 - h) * 60);
+    roRa.textContent = `${String(h).padStart(2, "0")}h ${String(m).padStart(2, "0")}m`;
+    roDec.textContent = `${view.dec >= 0 ? "+" : "−"}${Math.abs(Math.round(view.dec))}°`;
+  }
+  requestAnimationFrame(loop);
+}
+new ResizeObserver(resize).observe(cv);
+new IntersectionObserver(([e]) => { running = e.isIntersecting; }).observe(cv);
+resize(); requestAnimationFrame(loop);
+setTimeout(() => { if (!hover) { auto = "Ori"; } }, 900);
+
+/* ---------------- Tabula II: plate turns with scroll ---------------- */
+const disc = document.querySelector(".cellarius .disc"), plateSec = document.getElementById("plate");
+function turnPlate() {
+  const r = plateSec.getBoundingClientRect(), p = (innerHeight - r.top) / (innerHeight + r.height);
+  if (p > -.1 && p < 1.1) disc.style.transform = `rotate(${(p - .5) * (reduce ? 0 : 140)}deg)`;
+  const s = document.getElementById("spheres").getBoundingClientRect(), q = (innerHeight - s.top) / (innerHeight + s.height);
+  if (q > -.1 && q < 1.1) turnRings(q);
+}
+addEventListener("scroll", turnPlate, { passive: true }); turnPlate();
+
+/* ---------------- Tonight ---------------- */
+const PASSES = [
+  [21, 14, "FIRM-07", "Kiruna", "基律纳", 68], [21, 52, "AURIGA-2", "Svalbard", "斯瓦尔巴", 41], [22, 31, "FIRM-12", "Kiruna", "基律纳", 83],
+  [23, 40, "LYRA-SAR", "Hartebeesthoek", "哈特比斯特胡克", 27], [0, 5, "FIRM-03", "Svalbard", "斯瓦尔巴", 55], [1, 18, "CETUS-1", "Hartebeesthoek", "哈特比斯特胡克", 62],
+];
+const tbody = document.getElementById("passes");
+function renderPasses() {
+  const now = new Date();
+  // ponytail: pass times are fictional; we roll them forward so one is always "next"
+  const times = PASSES.map(p => { const d = new Date(now); d.setHours(p[0], p[1], 0, 0); if (d < now) d.setDate(d.getDate() + 1); return d; });
+  const nextI = times.reduce((b, t, i) => t < times[b] ? i : b, 0);
+  const order = PASSES.map((p, i) => i).sort((a, b) => times[a] - times[b]);
+  tbody.innerHTML = order.map(i => { const p = PASSES[i];
+    return `<tr class="${i === nextI ? "next" : ""}"><td class="t">${String(p[0]).padStart(2, "0")}:${String(p[1]).padStart(2, "0")}</td><td>${p[2]}</td><td class="hide-m"><span lang="en">${p[3]}</span><span lang="zh">${p[4]}</span></td><td><span class="elev" style="width:${Math.round(p[5] * .9)}px"></span>${p[5]}°</td></tr>`; }).join("");
+  return { t: times[nextI], p: PASSES[nextI] };
+}
+let next = renderPasses();
+document.getElementById("today").textContent = new Date().toISOString().slice(0, 10);
+const cd = document.getElementById("countdown"), nn = document.getElementById("nextname");
+setInterval(() => {
+  let ms = next.t - new Date(); if (ms < 0) { next = renderPasses(); ms = next.t - new Date(); }
+  const s = Math.floor(ms / 1000);
+  cd.textContent = [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60].map(v => String(v).padStart(2, "0")).join(":");
+  nn.textContent = isZh() ? `${next.p[2]} · ${next.p[4]} · 最高仰角 ${next.p[5]}°` : `${next.p[2]} over ${next.p[3]}, rising to ${next.p[5]}°`;
+}, 1000);
+const kp = document.getElementById("kp");
+kp.innerHTML = [2, 2, 3, 3, 4, 5, 6, 6, 5, 4, 3, 3].map((v, i) => `<i class="${v >= 5 ? "hi" : ""}" style="height:${v / 9 * 100}%;transition-delay:${i * 50}ms"></i>`).join("");
+new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add("in")), { threshold: .3 }).observe(document.querySelector(".eph"));
+
+/* ---------------- Spheres: armillary ---------------- */
+const rings = [...document.querySelectorAll("#rings .ring")], bodies = [...document.querySelectorAll("#bodies circle")];
+let tierBoost = 1;
+function turnRings(q) {
+  const a = (reduce ? .5 : q) * 360;
+  rings.forEach((r, i) => r.setAttribute("transform", `rotate(${[a * .3 - 20, -a * .5 + 15, a * .7, -a * .2 + 40][i]})`));
+  bodies.forEach((b, i) => { const R = [52, 96, 160][i], th = (a * (1.6 - i * .45) + i * 120) * D2R; b.setAttribute("cx", Math.cos(th) * R); b.setAttribute("cy", Math.sin(th) * R * .33); });
+}
+document.querySelectorAll(".tier").forEach(t => t.addEventListener("mouseenter", () => {
+  document.querySelectorAll(".tier").forEach(x => x.classList.toggle("on", x === t));
+  const i = +t.dataset.t; rings.forEach((r, j) => r.style.stroke = j <= i + 1 ? "" : "rgba(216,181,106,.25)");
+}));
+document.querySelector("[data-lang-toggle]").addEventListener("click", () => setTimeout(() => { next = renderPasses(); }, 0));
+</script>
+</body>
+</html>
