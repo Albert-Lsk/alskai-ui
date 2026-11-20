@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raster 栅格 · Grid first. The rest follows.</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter-tight@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter-tight@5/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter-tight@5/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter-tight@5/900.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5/900.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5/index.css">
+<script src="../../shared/lang.js"></script>
+<style>
+:root {
+  --paper: #f3f2ed;
+  --ink: #111;
+  --ink-2: #4a4a48;
+  --ink-3: #8a8a85;
+  --red: #e2231a;
+  --rule: #111;
+  --grot: "Inter Tight", "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+  --zh: "Noto Sans SC", "PingFang SC", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --m: 40px;      /* page margin */
+  --g: 24px;      /* gutter */
+  --cols: 12;
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--paper); }
+body { color: var(--ink); font: 400 17px/1.5 var(--grot); -webkit-font-smoothing: antialiased; }
+html[data-lang="zh"] body { font-family: var(--zh); font-size: 16px; line-height: 1.75; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.wrap { padding: 0 var(--m); max-width: 1440px; margin: 0 auto; }
+.g12 { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); column-gap: var(--g); }
+.mono { font: 500 12px/1.5 var(--mono); letter-spacing: .02em; text-transform: uppercase; }
+html[data-lang="zh"] .mono { font-family: var(--mono), var(--zh); }
+.num-font { font-family: var(--grot); font-feature-settings: "tnum"; }
+
+/* ---------- page grid overlay (G) ---------- */
+.page-grid { position: fixed; inset: 0; pointer-events: none; z-index: -1; opacity: 0; transition: opacity .3s ease; }
+.page-grid .g12 { height: 100%; }
+.page-grid i { background: rgba(226, 35, 26, .07); border-inline: 1px solid rgba(226, 35, 26, .25); }
+html.grid-on .page-grid { opacity: 1; }
+
+/* ---------- nav ---------- */
+nav { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); column-gap: var(--g); align-items: center; height: 72px; border-bottom: 2px solid var(--rule); }
+.brand { grid-column: 1 / span 3; display: flex; align-items: center; gap: 12px; font: 900 22px/1 var(--grot); letter-spacing: -.02em; }
+.brand i { width: 22px; height: 22px; background: var(--red); display: block; }
+.brand small { font: 500 13px var(--zh); color: var(--ink-3); letter-spacing: 0; }
+nav ul { grid-column: 4 / span 5; display: flex; gap: 28px; list-style: none; padding: 0; font-weight: 500; font-size: 15px; }
+nav li a { position: relative; }
+nav li a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 2px; background: var(--red); transform: scaleX(0); transform-origin: left; transition: transform .25s ease; }
+nav li a:hover::after { transform: scaleX(1); }
+.nav-r { grid-column: 9 / -1; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+.chip { font: 500 12px var(--mono); text-transform: uppercase; border: 1.5px solid var(--ink); padding: 7px 10px; white-space: nowrap; transition: background-color .15s, color .15s; }
+.chip:hover, .chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.btn { font: 700 15px/1 var(--grot); padding: 14px 20px; background: var(--ink); color: var(--paper); white-space: nowrap; display: inline-flex; gap: 10px; align-items: center; transition: background-color .15s, transform .15s; }
+html[data-lang="zh"] .btn { font-family: var(--zh); }
+.btn:hover { background: var(--red); }
+.btn:active { transform: scale(.97); }
+.btn.ghost { background: none; color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
+.btn.ghost:hover { background: var(--ink); color: var(--paper); }
+
+/* ---------- hero: live grid ---------- */
+.hero { padding-top: 28px; }
+.stage { position: relative; z-index: 0; background: var(--paper); min-height: calc(100svh - 72px - 28px - 76px); display: flex; }
+.cols, .content { --tracks: repeat(6, minmax(0, 1fr)); display: grid; grid-template-columns: var(--tracks); column-gap: var(--g); width: 100%; }
+.cols { position: absolute; inset: 0; pointer-events: none; }
+.cols i { border-inline: 1px solid rgba(17,17,17,.12); transform-origin: top; animation: drop .9s cubic-bezier(.7,0,.2,1) both; animation-delay: calc(var(--k) * 60ms); }
+html.grid-on .cols i { background: rgba(226, 35, 26, .07); border-color: rgba(226, 35, 26, .35); }
+@keyframes drop { from { transform: scaleY(0); } }
+.content { position: relative; grid-template-rows: auto 1fr auto auto; row-gap: 20px; padding: 6px 0 18px; }
+.content > * { min-width: 0; }
+.h-meta { align-self: start; border-top: 2px solid var(--ink); padding-top: 10px; display: grid; gap: 2px; }
+.h-meta b { font: 900 15px var(--grot); letter-spacing: -.01em; text-transform: none; }
+.h-num { container-type: inline-size; align-self: start; border-top: 2px solid var(--red); padding-top: 6px; position: relative; }
+.h-num .n { display: block; font: 900 min(74cqi, 34svh)/.78 var(--grot); letter-spacing: -.06em; color: var(--red); font-feature-settings: "tnum"; margin-left: -.04em; }
+.h-num .cap { position: absolute; right: 0; top: 10px; }
+.h-title { container-type: inline-size; align-self: end; }
+.h-title h1 { font: 700 min(13.5cqi, 20svh)/.9 var(--grot); letter-spacing: -.045em; }
+html[data-lang="zh"] .h-title h1 { font: 900 min(14cqi, 17svh)/1.1 var(--zh); letter-spacing: -.02em; }
+.ln { display: block; overflow: hidden; padding-bottom: .04em; }
+.ln > span { display: inline-block; animation: up 1s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(.35s + var(--k, 0) * 90ms); }
+@keyframes up { from { transform: translateY(105%); } }
+.h-body { font-size: 19px; line-height: 1.5; color: var(--ink-2); border-top: 2px solid var(--ink); padding-top: 12px; }
+html[data-lang="zh"] .h-body { font-size: 17px; line-height: 1.8; }
+.h-cta { display: flex; gap: 10px; flex-wrap: wrap; align-self: start; }
+
+.handle { position: absolute; top: -6px; bottom: 0; width: 24px; margin-left: -12px; cursor: col-resize; touch-action: none; z-index: 3; }
+.handle::before { content: ""; position: absolute; left: 11px; top: 0; bottom: 0; width: 2px; background: var(--red); opacity: .0; transition: opacity .2s; }
+.handle::after { content: "↔"; position: absolute; left: 4px; top: 0; width: 16px; height: 16px; background: var(--red); color: #fff; font: 700 11px/16px var(--grot); text-align: center; }
+.handle:hover::before, .handle.drag::before { opacity: .9; }
+html.grid-on .handle::before { opacity: .45; }
+.stage.dragging .content { cursor: col-resize; user-select: none; }
+
+.controls { display: flex; align-items: center; gap: 18px 28px; flex-wrap: wrap; border-top: 2px solid var(--ink); padding: 14px 0 22px; min-height: 76px; }
+.seg { display: flex; }
+.seg button { font: 700 14px/1 var(--grot); width: 40px; height: 36px; border: 1.5px solid var(--ink); margin-left: -1.5px; font-feature-settings: "tnum"; transition: background-color .15s, color .15s; }
+.seg button:first-child { margin-left: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.seg button:hover:not([aria-pressed="true"]) { background: rgba(17,17,17,.08); }
+.ctl-label { color: var(--ink-3); }
+.readout { margin-left: auto; text-align: right; color: var(--ink-2); }
+.readout b { color: var(--red); font-weight: 500; }
+
+/* view-transition: elements glide to their new cells, the numeral rolls */
+::view-transition-group(*) { animation-duration: .62s; animation-timing-function: cubic-bezier(.2,.8,.2,1); }
+::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+::view-transition-old(hnum) { animation: numOut .4s cubic-bezier(.6,0,.4,1) both; }
+::view-transition-new(hnum) { animation: numIn .55s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes numOut { to { transform: translateY(-30%); opacity: 0; } }
+@keyframes numIn { from { transform: translateY(30%); opacity: 0; } }
+
+/* ---------- section heads ---------- */
+section.sec { padding-top: 120px; }
+.sec-head { border-top: 2px solid var(--ink); padding-top: 12px; margin-bottom: 56px; row-gap: 18px; }
+.sec-head .no { grid-column: 1 / span 2; font: 900 15px var(--grot); }
+.sec-head .no .k { color: var(--red); }
+.sec-head h2 { grid-column: 3 / span 7; font: 700 clamp(40px, 4.6vw, 72px)/.98 var(--grot); letter-spacing: -.04em; }
+html[data-lang="zh"] .sec-head h2 { font: 900 clamp(36px, 4vw, 60px)/1.2 var(--zh); letter-spacing: -.01em; }
+.sec-head p { grid-column: 10 / -1; color: var(--ink-2); font-size: 16px; align-self: end; }
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .9s cubic-bezier(.2,.8,.2,1); transition-delay: calc(var(--k, 0) * 70ms); }
+.reveal.in { opacity: 1; transform: none; }
+
+/* ---------- rhythm poster ---------- */
+.rhythm { align-items: start; }
+.rh-copy { grid-column: 1 / span 5; display: grid; gap: 26px; }
+.rh-copy .lead { font-size: 21px; line-height: 1.45; letter-spacing: -.01em; }
+html[data-lang="zh"] .rh-copy .lead { font-size: 18px; line-height: 1.8; }
+.rh-ctl { display: grid; gap: 14px; border-top: 2px solid var(--ink); padding-top: 14px; }
+.rh-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.rh-row .ctl-label { width: 72px; }
+input[type=range] { -webkit-appearance: none; appearance: none; flex: 1; min-width: 140px; height: 2px; background: var(--ink); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--red); border: 0; border-radius: 0; cursor: pointer; }
+input[type=range]::-moz-range-thumb { width: 16px; height: 16px; background: var(--red); border: 0; border-radius: 0; }
+.bpm { font: 900 34px/1 var(--grot); letter-spacing: -.03em; font-feature-settings: "tnum"; width: 70px; }
+.steps { list-style: none; padding: 0; display: grid; gap: 0; }
+.steps li { display: grid; grid-template-columns: 44px 1fr; border-top: 1px solid rgba(17,17,17,.2); padding: 12px 0; font-size: 15px; color: var(--ink-2); }
+.steps li b { font: 900 15px var(--grot); color: var(--ink); }
+.poster-wrap { grid-column: 7 / -1; position: relative; }
+.poster { position: relative; aspect-ratio: 5 / 7; background: #121212; color: #f3f2ed; overflow: hidden; user-select: none; box-shadow: 0 30px 60px -40px rgba(0,0,0,.5); }
+.poster svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.poster .pt { position: absolute; left: 6%; right: 6%; bottom: 5%; display: grid; grid-template-columns: repeat(6, 1fr); column-gap: 3%; row-gap: 4px; font-size: clamp(10px, 1vw, 13px); line-height: 1.35; }
+.poster .pt .big { grid-column: 1 / -1; font: 900 clamp(54px, 7.2vw, 108px)/.82 var(--grot); letter-spacing: -.055em; margin-bottom: 10px; }
+.poster .pt .c1 { grid-column: 1 / span 2; }
+.poster .pt .c2 { grid-column: 3 / span 2; }
+.poster .pt .c3 { grid-column: 5 / span 2; color: var(--red); font-weight: 700; }
+.poster .pt b { font-weight: 700; }
+.poster .tag { position: absolute; top: 4.5%; left: 6%; right: 6%; display: flex; justify-content: space-between; font: 500 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: rgba(243,242,237,.7); }
+.poster-cap { display: flex; justify-content: space-between; margin-top: 10px; color: var(--ink-3); }
+
+/* ---------- rules ---------- */
+.rule { border-top: 2px solid var(--ink); padding: 18px 0 30px; align-items: baseline; }
+.rule .rn { grid-column: 1 / span 2; font: 900 clamp(64px, 8vw, 128px)/.8 var(--grot); letter-spacing: -.06em; font-feature-settings: "tnum"; transition: color .25s; }
+.rule:hover .rn { color: var(--red); }
+.rule h3 { grid-column: 3 / span 5; font: 700 clamp(26px, 2.6vw, 38px)/1.08 var(--grot); letter-spacing: -.03em; }
+html[data-lang="zh"] .rule h3 { font: 900 clamp(24px, 2.3vw, 34px)/1.3 var(--zh); letter-spacing: 0; }
+.rule p { grid-column: 9 / -1; color: var(--ink-2); font-size: 16px; }
+.rule:last-child { border-bottom: 2px solid var(--ink); }
+
+/* ---------- features ---------- */
+.feat { grid-column: span 4; border-top: 2px solid var(--ink); padding-top: 14px; display: grid; gap: 14px; align-content: start; }
+.feat h3 { font: 700 24px/1.15 var(--grot); letter-spacing: -.02em; }
+html[data-lang="zh"] .feat h3 { font: 900 21px/1.4 var(--zh); }
+.feat p { color: var(--ink-2); font-size: 15.5px; }
+.diag { aspect-ratio: 4 / 3; background: #fff; border: 1.5px solid var(--ink); position: relative; overflow: hidden; }
+.diag svg { width: 100%; height: 100%; display: block; }
+.mini-grid { position: absolute; inset: 14px; display: grid; gap: 6px; grid-template-columns: repeat(var(--mc, 4), 1fr); transition: grid-template-columns .6s cubic-bezier(.2,.8,.2,1); }
+.mini-grid i { background: rgba(226,35,26,.08); border-inline: 1px solid rgba(226,35,26,.3); }
+.mini-blocks { position: absolute; inset: 14px; display: grid; gap: 6px; grid-template-columns: repeat(var(--mc, 4), 1fr); grid-auto-rows: min-content; align-content: start; }
+.mini-blocks b { display: block; background: var(--ink); height: 10px; transition: all .6s cubic-bezier(.2,.8,.2,1); }
+.mini-blocks .big { height: 34px; }
+.mini-blocks .red { background: var(--red); }
+.baseline { position: absolute; inset: 0; padding: 14px 16px; background: repeating-linear-gradient(to bottom, transparent 0 23px, rgba(226,35,26,.35) 23px 24px); background-position: 0 14px; }
+.baseline p { font: 500 15px/24px var(--grot); color: var(--ink); }
+html[data-lang="zh"] .baseline p { font: 500 14px/24px var(--zh); }
+.baseline p .hl { color: var(--red); }
+
+/* ---------- pricing ---------- */
+.plan { grid-column: span 4; border-top: 6px solid var(--ink); padding-top: 14px; display: grid; gap: 14px; align-content: start; }
+.plan.pro { border-color: var(--red); }
+.plan .price { font: 900 clamp(72px, 8vw, 120px)/.8 var(--grot); letter-spacing: -.06em; font-feature-settings: "tnum"; }
+.plan .price small { font: 700 16px var(--grot); letter-spacing: 0; margin-left: 6px; }
+.plan h3 { font: 700 22px var(--grot); }
+html[data-lang="zh"] .plan h3 { font: 900 20px var(--zh); }
+.plan ul { list-style: none; padding: 0; color: var(--ink-2); font-size: 15px; }
+.plan li { border-top: 1px solid rgba(17,17,17,.2); padding: 8px 0; }
+
+/* ---------- closing / footer ---------- */
+.closing { padding-block: 150px 110px; }
+.closing .big { grid-column: 1 / span 10; font: 700 clamp(64px, 11vw, 190px)/.86 var(--grot); letter-spacing: -.055em; }
+html[data-lang="zh"] .closing .big { font: 900 clamp(60px, 10vw, 170px)/1.06 var(--zh); letter-spacing: -.02em; }
+.closing .big .r { color: var(--red); }
+.closing .side { grid-column: 11 / -1; align-self: end; display: grid; gap: 16px; }
+footer { border-top: 2px solid var(--ink); padding: 26px 0 56px; font-size: 13px; line-height: 1.85; color: var(--ink-3); }
+footer .top { display: flex; justify-content: space-between; color: var(--ink-2); margin-bottom: 12px; gap: 20px; flex-wrap: wrap; }
+footer b { color: var(--ink-2); }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1100px) {
+  nav ul { display: none; }
+  .brand { grid-column: 1 / span 5; }
+  .nav-r { grid-column: 6 / -1; }
+  .sec-head h2 { grid-column: 1 / -1; }
+  .sec-head .no { grid-column: 1 / -1; }
+  .sec-head p { grid-column: 1 / span 8; }
+  .rh-copy { grid-column: 1 / -1; }
+  .poster-wrap { grid-column: 1 / -1; max-width: 560px; }
+  .rule .rn { grid-column: 1 / span 3; }
+  .rule h3 { grid-column: 4 / -1; }
+  .rule p { grid-column: 4 / -1; margin-top: 10px; }
+  .feat, .plan { grid-column: span 6; }
+  .closing .big, .closing .side { grid-column: 1 / -1; }
+  .closing .side { margin-top: 30px; }
+}
+@media (max-width: 700px) {
+  :root { --m: 18px; --g: 12px; --cols: 4; }
+  nav { height: 60px; }
+  .brand { grid-column: 1 / span 2; font-size: 20px; }
+  .brand small { display: none; }
+  .nav-r { grid-column: 3 / -1; }
+  .nav-r .btn { display: none; }
+  .stage { min-height: calc(100svh - 60px - 28px - 150px); }
+  .content { row-gap: 18px; }
+  .h-body { font-size: 16px; }
+  .controls { gap: 12px 16px; min-height: 0; }
+  .readout { margin-left: 0; text-align: left; width: 100%; }
+  section.sec { padding-top: 84px; }
+  .sec-head { margin-bottom: 36px; }
+  .sec-head p { grid-column: 1 / -1; }
+  .rule .rn { grid-column: 1 / -1; margin-bottom: 8px; }
+  .rule h3, .rule p { grid-column: 1 / -1; }
+  .feat, .plan { grid-column: 1 / -1; margin-bottom: 26px; }
+  .poster .pt .big { font-size: 64px; }
+  .poster .pt { font-size: 10px; }
+  .closing { padding-block: 100px 80px; }
+  .rh-row .ctl-label { width: auto; }
+  input[type=range] { min-width: 100px; }
+  .h-title h1 { font-size: 15cqi; }
+  html[data-lang="zh"] .h-title h1 { font-size: 17cqi; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-grid" aria-hidden="true"><div class="wrap g12" id="pageGrid"></div></div>
+
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#"><i></i>Raster <small>栅格</small></a>
+    <ul>
+      <li><a href="#grid"><span lang="en">Grid</span><span lang="zh">网格</span></a></li>
+      <li><a href="#rhythm"><span lang="en">Rhythm</span><span lang="zh">节奏</span></a></li>
+      <li><a href="#rules"><span lang="en">Rules</span><span lang="zh">原则</span></a></li>
+      <li><a href="#pricing"><span lang="en">Pricing</span><span lang="zh">价格</span></a></li>
+    </ul>
+    <div class="nav-r">
+      <button class="chip" id="gridBtn" aria-pressed="false" title="G"><span lang="en">Grid</span><span lang="zh">网格</span> G</button>
+      <button class="chip" data-lang-toggle aria-label="Switch language"><span lang="en">中文</span><span lang="zh">EN</span></button>
+      <a class="btn" href="#pricing"><span lang="en">Start setting</span><span lang="zh">开始排版</span></a>
+    </div>
+  </nav>
+
+  <section class="hero" id="grid">
+    <div class="stage" id="stage">
+      <div class="cols" id="cols" aria-hidden="true"></div>
+      <div class="content" id="content">
+        <div class="h-meta mono" data-el="meta" style="view-transition-name: hmeta">
+          <b>Raster 2.0</b>
+          <span><span lang="en">Layout engine for editorial teams</span><span lang="zh">给编辑部用的排版引擎</span></span>
+          <span>Vol. 3 / Nr. 18</span>
+          <span><span lang="en">Zürich · Shanghai</span><span lang="zh">苏黎世 · 上海</span></span>
+        </div>
+        <div class="h-num" data-el="num" style="view-transition-name: hnum">
+          <span class="n" id="numN">06</span>
+          <span class="cap mono"><span lang="en">Columns</span><span lang="zh">栏</span></span>
+        </div>
+        <div class="h-title" data-el="title" style="view-transition-name: htitle">
+          <h1>
+            <span lang="en"><span class="ln"><span style="--k:0">Grid first.</span></span><span class="ln"><span style="--k:1">The rest</span></span><span class="ln"><span style="--k:2">follows.</span></span></span>
+            <span lang="zh"><span class="ln"><span style="--k:0">先定网格，</span></span><span class="ln"><span style="--k:1">其余自然</span></span><span class="ln"><span style="--k:2">就位。</span></span></span>
+          </h1>
+        </div>
+        <p class="h-body" data-el="body" style="view-transition-name: hbody">
+          <span lang="en">Raster sets magazines, reports and landing pages on a real modular grid. Change the columns and every block finds its new place, the way a typesetter in Zürich would have done it by hand in 1959.</span>
+          <span lang="zh">栅格用真正的模块网格来排杂志、报告和落地页。栏数一改，每个版块都会自己找到新位置，就像 1959 年苏黎世的排字师傅用手做的那样。</span>
+        </p>
+        <div class="h-cta" data-el="cta" style="view-transition-name: hcta">
+          <a class="btn" href="#pricing"><span lang="en">Start setting</span><span lang="zh">开始排版</span> →</a>
+          <a class="btn ghost" href="#rules"><span lang="en">Read the rules</span><span lang="zh">先看原则</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <span class="ctl-label mono"><span lang="en">Columns</span><span lang="zh">栏数</span></span>
+      <div class="seg" id="seg"></div>
+      <button class="chip" id="resetBtn"><span lang="en">Even out</span><span lang="zh">恢复等宽</span></button>
+      <span class="mono ctl-label"><span lang="en">Drag the red tabs to resize columns</span><span lang="zh">拖动红色小方块，改栏宽</span></span>
+      <span class="readout mono" id="readout"></span>
+    </div>
+  </section>
+</div>
+
+<!-- rhythm -->
+<section class="sec wrap" id="rhythm">
+  <div class="sec-head g12 reveal">
+    <div class="no"><span class="k">02</span> / <span lang="en">Rhythm</span><span lang="zh">节奏</span></div>
+    <h2><span lang="en">Every poster has a tempo.</span><span lang="zh">每张海报，都有自己的拍子。</span></h2>
+    <p><span lang="en">Concentric arcs, each turning at a different subdivision of the beat. Scroll, move the cursor, or press play.</span><span lang="zh">一圈圈圆弧，各按不同的分拍转动。滚动、移动鼠标，或者直接按播放。</span></p>
+  </div>
+  <div class="g12 rhythm">
+    <div class="rh-copy reveal" style="--k:1">
+      <p class="lead"><span lang="en">Raster treats layout like a score. Columns are bars, margins are rests, and the red is the downbeat. The generator on the right sets a release poster for Raster 2.0 from one seed and one tempo.</span><span lang="zh">栅格把版面当成乐谱：栏是小节，留白是休止，红色是重拍。右边这台生成器，用一个种子和一个速度，排出 Raster 2.0 的发布海报。</span></p>
+      <div class="rh-ctl">
+        <div class="rh-row">
+          <button class="btn" id="playBtn" aria-pressed="false"><span id="playIcon">▶</span><span lang="en" class="pl-en">Play</span><span lang="zh" class="pl-zh">播放</span></button>
+          <button class="chip" id="soundBtn" aria-pressed="false"><span lang="en">Sound off</span><span lang="zh">声音：关</span></button>
+          <button class="chip" id="shuffleBtn"><span lang="en">New seed</span><span lang="zh">换一个种子</span></button>
+        </div>
+        <div class="rh-row">
+          <span class="ctl-label mono"><span lang="en">Tempo</span><span lang="zh">速度</span></span>
+          <span class="bpm" id="bpmOut">96</span>
+          <input type="range" id="bpm" min="60" max="168" value="96" aria-label="Tempo in BPM">
+          <span class="mono ctl-label">BPM</span>
+        </div>
+      </div>
+      <ol class="steps">
+        <li><b>1</b><span><span lang="en">Each ring turns at 1, 1/2, 1/3, 2/3 or 1/4 of the beat.</span><span lang="zh">每一圈按 1、1/2、1/3、2/3 或 1/4 拍转。</span></span></li>
+        <li><b>2</b><span><span lang="en">The red ring is the downbeat: it swells on every first beat of the bar.</span><span lang="zh">红色那圈是重拍，每小节第一拍都会鼓一下。</span></span></li>
+        <li><b>3</b><span><span lang="en">The type below never moves. It sits on a six-column grid.</span><span lang="zh">下面的字一动不动，固定在六栏网格上。</span></span></li>
+      </ol>
+    </div>
+    <div class="poster-wrap reveal" style="--k:2">
+      <div class="poster" id="poster">
+        <svg id="rings" viewBox="0 0 600 840" aria-label="Generated poster with concentric arcs"></svg>
+        <div class="tag"><span>Raster</span><span id="seedOut">Seed 0518</span><span>2.0</span></div>
+        <div class="pt">
+          <div class="big">Raster<br>2.0</div>
+          <div class="c1"><b><span lang="en">Release evening</span><span lang="zh">发布之夜</span></b><br><span lang="en">for a layout engine</span><span lang="zh">一台排版引擎</span></div>
+          <div class="c2"><b>18.3.2027</b><br>20.00 h · Halle 4</div>
+          <div class="c3"><span id="beatOut">1 · 2 · 3 · 4</span></div>
+        </div>
+      </div>
+      <div class="poster-cap mono"><span><span lang="en">Generated live · no images</span><span lang="zh">实时生成，没有用图片</span></span><span id="phaseOut">0.00</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- rules -->
+<section class="sec wrap" id="rules">
+  <div class="sec-head g12 reveal">
+    <div class="no"><span class="k">03</span> / <span lang="en">Rules</span><span lang="zh">原则</span></div>
+    <h2><span lang="en">Five rules Raster will not break.</span><span lang="zh">栅格不会破的五条规矩。</span></h2>
+    <p><span lang="en">Borrowed from the International Typographic Style, and written into the engine.</span><span lang="zh">从国际主义平面设计借来，直接写进了引擎。</span></p>
+  </div>
+  <div>
+    <div class="rule g12 reveal"><span class="rn">01</span><h3><span lang="en">The grid comes first.</span><span lang="zh">网格先于内容。</span></h3><p><span lang="en">You pick columns, margins and a baseline before a single word goes in. Everything else is placed, never pushed.</span><span lang="zh">一个字还没放，先定栏、边距和基线。之后的东西都是摆上去的，不是挤进去的。</span></p></div>
+    <div class="rule g12 reveal"><span class="rn">02</span><h3><span lang="en">Flush left, ragged right.</span><span lang="zh">左边对齐，右边自然参差。</span></h3><p><span lang="en">No forced justification, no rivers of white. Raster watches the rag and fixes the lines that leave holes.</span><span lang="zh">不硬拉两端对齐，也不留一条条白河。栅格盯着右边的参差，专修那些留下大洞的行。</span></p></div>
+    <div class="rule g12 reveal"><span class="rn">03</span><h3><span lang="en">One typeface, few sizes.</span><span lang="zh">一种字体，几个字号。</span></h3><p><span lang="en">A modular scale with six steps. If you need a seventh, you probably need fewer words.</span><span lang="zh">一套六级的字号阶梯。要是还想加第七级，多半是字太多了。</span></p></div>
+    <div class="rule g12 reveal"><span class="rn">04</span><h3><span lang="en">Asymmetry is balance.</span><span lang="zh">不对称也是平衡。</span></h3><p><span lang="en">Weight on one side, air on the other. Centred layouts are allowed, but Raster will ask you why.</span><span lang="zh">一边放分量，一边留空气。居中也可以，但栅格会问你一句：为什么？</span></p></div>
+    <div class="rule g12 reveal"><span class="rn">05</span><h3><span lang="en">Leave the white alone.</span><span lang="zh">留白不用填。</span></h3><p><span lang="en">Empty columns are part of the design. Raster never fills them with stock photos to look busy.</span><span lang="zh">空着的栏也是设计的一部分。栅格不会为了显得热闹，往里面塞图库照片。</span></p></div>
+  </div>
+</section>
+
+<!-- features -->
+<section class="sec wrap" id="features">
+  <div class="sec-head g12 reveal">
+    <div class="no"><span class="k">04</span> / <span lang="en">Engine</span><span lang="zh">引擎</span></div>
+    <h2><span lang="en">Three things it does all day.</span><span lang="zh">它整天在做的三件事。</span></h2>
+  </div>
+  <div class="g12">
+    <div class="feat reveal" style="--k:0">
+      <div class="diag" id="miniDiag"><div class="mini-grid" id="miniGrid"></div><div class="mini-blocks" id="miniBlocks"></div></div>
+      <h3><span lang="en">Live grids</span><span lang="zh">活的网格</span></h3>
+      <p><span lang="en">Change the column count on a 40-page report and every spread reflows in place. Hover the drawing to watch.</span><span lang="zh">一份 40 页的报告改一次栏数，每一页都会原地重排。把鼠标放到图上看看。</span></p>
+    </div>
+    <div class="feat reveal" style="--k:1">
+      <div class="diag"><div class="baseline">
+        <p><span lang="en">Every line of text in Raster lands on the same <span class="hl">24-point</span> baseline, across columns, captions and footnotes, so facing pages read as one block.</span><span lang="zh">栅格里的每一行字，都落在同一条 <span class="hl">24 点</span>基线上。正文、图注、脚注跨栏对齐，左右两页读起来像一整块。</span></p>
+      </div></div>
+      <h3><span lang="en">Baseline lock</span><span lang="zh">基线锁定</span></h3>
+      <p><span lang="en">The red rules are the baseline. Captions and body text share it, even at different sizes.</span><span lang="zh">红线就是基线。图注和正文字号不同，也踩在同一套线上。</span></p>
+    </div>
+    <div class="feat reveal" style="--k:2">
+      <div class="diag">
+        <svg viewBox="0 0 400 300" aria-hidden="true">
+          <g fill="#111">
+            <rect x="24" y="30" width="318" height="12"/><rect x="24" y="58" width="290" height="12"/><rect x="24" y="86" width="330" height="12"/>
+            <rect x="24" y="114" width="196" height="12" fill="#e2231a"/><rect x="24" y="142" width="304" height="12"/><rect x="24" y="170" width="322" height="12"/>
+            <rect x="24" y="198" width="278" height="12"/><rect x="24" y="226" width="62" height="12" fill="#e2231a"/>
+          </g>
+          <line x1="360" y1="20" x2="360" y2="250" stroke="#e2231a" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <text x="230" y="125" font-family="JetBrains Mono, monospace" font-size="12" fill="#e2231a">← hole</text>
+          <text x="96" y="237" font-family="JetBrains Mono, monospace" font-size="12" fill="#e2231a">← widow</text>
+        </svg>
+      </div>
+      <h3><span lang="en">Rag control</span><span lang="zh">参差控制</span></h3>
+      <p><span lang="en">Short lines that leave holes and lonely last words are marked in red, with a fix suggested before print.</span><span lang="zh">留下大洞的短行、孤零零的末行单字，都会被标成红色，付印前给出改法。</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- pricing -->
+<section class="sec wrap" id="pricing">
+  <div class="sec-head g12 reveal">
+    <div class="no"><span class="k">05</span> / <span lang="en">Pricing</span><span lang="zh">价格</span></div>
+    <h2><span lang="en">Priced per seat, set in one size.</span><span lang="zh">按人收费，字号只有一种。</span></h2>
+  </div>
+  <div class="g12">
+    <div class="plan reveal" style="--k:0"><div class="price">0<small>/ <span lang="en">mo</span><span lang="zh">月</span></small></div><h3><span lang="en">Student</span><span lang="zh">学生</span></h3><ul><li><span lang="en">3 documents</span><span lang="zh">3 份文档</span></li><li><span lang="en">All grids up to 12 columns</span><span lang="zh">最多 12 栏的全部网格</span></li><li><span lang="en">PDF export</span><span lang="zh">导出 PDF</span></li></ul></div>
+    <div class="plan pro reveal" style="--k:1"><div class="price">18<small>$ / <span lang="en">seat</span><span lang="zh">人</span></small></div><h3><span lang="en">Studio</span><span lang="zh">工作室</span></h3><ul><li><span lang="en">Unlimited documents</span><span lang="zh">文档不限</span></li><li><span lang="en">Shared grid libraries</span><span lang="zh">团队共用网格库</span></li><li><span lang="en">Rag and baseline reports</span><span lang="zh">参差与基线报告</span></li></ul></div>
+    <div class="plan reveal" style="--k:2"><div class="price">∞<small><span lang="en">talk to us</span><span lang="zh">来聊聊</span></small></div><h3><span lang="en">Press</span><span lang="zh">出版社</span></h3><ul><li><span lang="en">House styles and print profiles</span><span lang="zh">社内版式与印刷配置</span></li><li><span lang="en">On-site typesetting workshop</span><span lang="zh">上门排版工作坊</span></li><li><span lang="en">Priority support</span><span lang="zh">优先支持</span></li></ul></div>
+  </div>
+</section>
+
+<section class="wrap closing">
+  <div class="g12">
+    <div class="big reveal"><span lang="en">Set it<br>straight<span class="r">.</span></span><span lang="zh">把字<br>排正<span class="r">。</span></span></div>
+    <div class="side reveal" style="--k:1">
+      <p style="color:var(--ink-2)"><span lang="en">Free for students. No credit card, no stock photos.</span><span lang="zh">学生免费。不用信用卡，也不送图库照片。</span></p>
+      <a class="btn" href="#grid"><span lang="en">Start setting</span><span lang="zh">开始排版</span> →</a>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <div class="top"><span class="brand" style="font-size:18px"><i style="width:16px;height:16px"></i>Raster <small>栅格</small></span><span><span lang="en">A fictional product, built as a design study.</span><span lang="zh">虚构产品，仅作设计练习。</span></span></div>
+  <b>图源</b>：本页没有使用任何图片，网格、圆环海报与示意图全部由代码实时生成。版式致敬 20 世纪 50 至 60 年代的瑞士国际主义平面设计（Josef Müller-Brockmann、Emil Ruder、Armin Hofmann 等），圆环构成只借其节奏，未复制任何具体海报。
+  字体：Inter Tight、Noto Sans SC、JetBrains Mono（均为 OFL-1.1）。本页为学习用 demo，品牌与文案均为虚构。<br>
+  侵权请联系删除。
+</footer>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = s => document.querySelector(s);
+
+/* ---------- page grid overlay ---------- */
+function buildPageGrid() {
+  const n = +getComputedStyle(document.documentElement).getPropertyValue("--cols");
+  $("#pageGrid").innerHTML = "<i></i>".repeat(n);
+}
+const gridBtn = $("#gridBtn");
+function toggleGrid(on = !document.documentElement.classList.contains("grid-on")) {
+  document.documentElement.classList.toggle("grid-on", on);
+  gridBtn.setAttribute("aria-pressed", on);
+}
+gridBtn.addEventListener("click", () => toggleGrid());
+addEventListener("keydown", e => { if ((e.key === "g" || e.key === "G") && !e.metaKey && !e.ctrlKey && !/INPUT|TEXTAREA/.test(e.target.tagName)) toggleGrid(); });
+
+/* ---------- hero: live grid ---------- */
+// Placement per column count: [colStart, span, rowStart, rowSpan]. Rows: 1 meta/num, 2 title, 3 body, 4 cta.
+const LAYOUT = {
+  2:  { meta: [1,1,1,1], num: [2,1,1,1], title: [1,2,2,1], body: [1,2,3,1], cta: [1,2,4,1] },
+  3:  { meta: [1,1,1,1], num: [3,1,1,2], title: [1,2,2,1], body: [1,2,3,1], cta: [1,3,4,1] },
+  4:  { meta: [1,1,1,1], num: [4,1,1,2], title: [1,3,2,1], body: [1,2,3,1], cta: [3,2,3,1] },
+  6:  { meta: [1,2,1,1], num: [5,2,1,3], title: [1,4,2,1], body: [1,3,3,1], cta: [1,3,4,1] },
+  8:  { meta: [1,2,1,1], num: [6,3,1,3], title: [1,5,2,1], body: [3,3,3,1], cta: [3,3,4,1] },
+  12: { meta: [1,3,1,1], num: [9,4,1,3], title: [1,8,2,1], body: [5,4,3,1], cta: [5,4,4,1] },
+};
+// Phones get their own placements: the headline always takes the full measure there.
+const LAYOUT_M = {
+  2: LAYOUT[2],
+  3: { meta: [1,2,1,1], num: [3,1,1,1], title: [1,3,2,1], body: [2,2,3,1], cta: [1,3,4,1] },
+  4: { meta: [1,2,1,1], num: [3,2,1,1], title: [1,4,2,1], body: [2,3,3,1], cta: [1,4,4,1] },
+};
+const stage = $("#stage"), colsEl = $("#cols"), content = $("#content"), seg = $("#seg"), readout = $("#readout");
+const els = [...content.querySelectorAll("[data-el]")];
+let cols = 6, fr = [], handles = [];
+const options = () => innerWidth <= 700 ? [2, 3, 4] : [3, 4, 6, 8, 12];
+
+function tracks() { return fr.map(f => `minmax(0, ${f.toFixed(3)}fr)`).join(" "); }
+function applyTracks() {
+  const t = tracks();
+  colsEl.style.setProperty("--tracks", t);
+  content.style.setProperty("--tracks", t);
+  const sum = fr.reduce((a, b) => a + b, 0);
+  const ratio = fr.map(f => (f * cols / sum).toFixed(1).replace(/\.0$/, "")).join(" : ");
+  readout.innerHTML = `${cols} col · gutter ${parseInt(getComputedStyle(content).columnGap)} px · <b>${ratio}</b>`;
+  placeHandles();
+}
+function applyLayout() {
+  const L = (innerWidth <= 700 ? LAYOUT_M : LAYOUT)[cols];
+  for (const el of els) {
+    const [c, s, r, rs] = L[el.dataset.el];
+    el.style.gridColumn = `${c} / span ${s}`;
+    el.style.gridRow = `${r} / span ${rs}`;
+  }
+  $("#numN").textContent = String(cols).padStart(2, "0");
+  colsEl.innerHTML = Array.from({ length: cols }, (_, k) => `<i style="--k:${k}"></i>`).join("");
+  handles.forEach(h => h.remove());
+  handles = Array.from({ length: cols - 1 }, (_, i) => makeHandle(i));
+  seg.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", +b.dataset.c === cols));
+  applyTracks();
+}
+function setCols(n, animate = true) {
+  if (n === cols && fr.length === n) return;
+  const run = () => { cols = n; fr = Array(n).fill(1); applyLayout(); };
+  if (animate && !reduce && document.startViewTransition) document.startViewTransition(run);
+  else run();
+}
+function buildSeg() {
+  seg.innerHTML = options().map(n => `<button data-c="${n}" aria-pressed="false" aria-label="${n} columns">${n}</button>`).join("");
+  seg.querySelectorAll("button").forEach(b => b.addEventListener("click", () => setCols(+b.dataset.c)));
+}
+
+// Gutter handles: dragging moves width between the two neighbouring columns.
+function makeHandle(i) {
+  const h = document.createElement("div");
+  h.className = "handle"; h.setAttribute("role", "separator"); h.setAttribute("aria-label", `Resize columns ${i + 1} and ${i + 2}`);
+  h.tabIndex = 0;
+  let x0 = 0, a0 = 0, b0 = 0, perFr = 1;
+  h.addEventListener("pointerdown", e => {
+    h.setPointerCapture(e.pointerId); h.classList.add("drag"); stage.classList.add("dragging");
+    const gap = parseFloat(getComputedStyle(content).columnGap);
+    perFr = (content.clientWidth - gap * (cols - 1)) / fr.reduce((a, b) => a + b, 0);
+    x0 = e.clientX; a0 = fr[i]; b0 = fr[i + 1];
+  });
+  h.addEventListener("pointermove", e => {
+    if (!h.hasPointerCapture(e.pointerId)) return;
+    const d = (e.clientX - x0) / perFr, min = .3;
+    const da = Math.max(min - a0, Math.min(b0 - min, d));
+    fr[i] = a0 + da; fr[i + 1] = b0 - da;
+    applyTracks();
+  });
+  const end = () => { h.classList.remove("drag"); stage.classList.remove("dragging"); };
+  h.addEventListener("pointerup", end); h.addEventListener("pointercancel", end);
+  h.addEventListener("dblclick", evenOut);
+  h.addEventListener("keydown", e => {
+    const step = e.key === "ArrowLeft" ? -.1 : e.key === "ArrowRight" ? .1 : 0;
+    if (!step) return; e.preventDefault();
+    const min = .3, da = Math.max(min - fr[i], Math.min(fr[i + 1] - min, step));
+    fr[i] += da; fr[i + 1] -= da; applyTracks();
+  });
+  stage.append(h);
+  return h;
+}
+function placeHandles() {
+  const cells = colsEl.children, base = stage.getBoundingClientRect().left;
+  handles.forEach((h, i) => {
+    const a = cells[i].getBoundingClientRect(), b = cells[i + 1].getBoundingClientRect();
+    h.style.left = `${(a.right + b.left) / 2 - base}px`;
+  });
+}
+function evenOut() {
+  const run = () => { fr = Array(cols).fill(1); applyTracks(); };
+  if (!reduce && document.startViewTransition) document.startViewTransition(run); else run();
+}
+$("#resetBtn").addEventListener("click", evenOut);
+
+let wasMobile = innerWidth <= 700;
+function boot() {
+  buildPageGrid(); buildSeg();
+  cols = 0; setCols(wasMobile ? 3 : 6, false);
+}
+boot();
+new ResizeObserver(() => {
+  const mobile = innerWidth <= 700;
+  if (mobile !== wasMobile) { wasMobile = mobile; boot(); } else placeHandles();
+}).observe(stage);
+new MutationObserver(() => requestAnimationFrame(placeHandles)).observe(document.documentElement, { attributes: true, attributeFilter: ["data-lang"] });
+
+/* ---------- reveals ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .15 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+/* ---------- mini live grid in the features ---------- */
+(() => {
+  const diag = $("#miniDiag"), g = $("#miniGrid"), b = $("#miniBlocks");
+  const draw = n => {
+    diag.style.setProperty("--mc", n);
+    g.innerHTML = "<i></i>".repeat(n);
+    const span = { 3: [3, 2, 1, 1, 2], 4: [4, 2, 2, 1, 3], 6: [6, 3, 2, 2, 4] }[n];
+    b.innerHTML = `<b class="big" style="grid-column:span ${span[0] - (n > 3 ? 1 : 0)}"></b><b class="red" style="grid-column:span 1;height:34px"></b>`
+      + `<b style="grid-column:span ${span[1]}"></b><b style="grid-column:span ${span[2]}"></b><b style="grid-column:span ${span[3]}"></b><b style="grid-column:span ${span[4]}"></b>`
+      + `<b style="grid-column:span ${n}"></b><b style="grid-column:span ${span[1]}"></b>`;
+  };
+  let n = 4, t = null;
+  draw(n);
+  const cycle = () => { n = n === 4 ? 6 : n === 6 ? 3 : 4; draw(n); };
+  diag.addEventListener("pointerenter", () => { if (!reduce) { cycle(); t = setInterval(cycle, 1100); } });
+  diag.addEventListener("pointerleave", () => { clearInterval(t); n = 3; cycle(); });
+})();
+
+/* ---------- rhythm poster ---------- */
+(() => {
+  const svg = $("#rings"), NS = "http://www.w3.org/2000/svg";
+  const CX = 372, CY = 318, N = 27;
+  const SPEEDS = [1, -1/2, 1/3, -2/3, 1/4, -1/3, 1/2, -1/4];
+  let rings = [], seed = 518, red = 0;
+  function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function build() {
+    const r = rng(seed);
+    svg.innerHTML = "";
+    rings = [];
+    red = 6 + Math.floor(r() * 12);
+    for (let i = 0; i < N; i++) {
+      const rad = 34 + i * 10.6;
+      const w = [2, 5, 1.2, 8, 3, 1.6, 6][Math.floor(r() * 7)];
+      const frac = .14 + r() * .5;
+      const c = document.createElementNS(NS, "circle");
+      c.setAttribute("cx", CX); c.setAttribute("cy", CY); c.setAttribute("r", rad);
+      c.setAttribute("fill", "none");
+      c.setAttribute("stroke", i === red ? "#e2231a" : "#f3f2ed");
+      c.setAttribute("stroke-width", i === red ? 9 : w);
+      const C = 2 * Math.PI * rad;
+      c.setAttribute("stroke-dasharray", `${(frac * C).toFixed(1)} ${C.toFixed(1)}`);
+      svg.append(c);
+      rings.push({ el: c, base: r() * 360, s: SPEEDS[Math.floor(r() * SPEEDS.length)] * (1 + Math.floor(r() * 2)), w: i === red ? 9 : w });
+    }
+    $("#seedOut").textContent = `Seed ${String(seed).padStart(4, "0")}`;
+    render();
+  }
+  let playing = false, bpm = 96, beats = 0, lastT = 0, mouse = 0, scrollP = 0, pulse = 0, lastBeat = -1, raf = 0, visible = false;
+  function render() {
+    const phase = beats + scrollP * 6 + mouse * 1.5;
+    for (const g of rings) g.el.setAttribute("transform", `rotate(${(g.base + phase * g.s * 90).toFixed(2)} ${CX} ${CY})`);
+    rings[red].el.setAttribute("stroke-width", (9 + pulse * 10).toFixed(2));
+    $("#phaseOut").textContent = phase.toFixed(2);
+  }
+  // Audio stays off until the user turns it on (and creates the context with that click).
+  let actx = null, sound = false;
+  function click(down) {
+    if (!sound || !actx) return;
+    const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime;
+    o.frequency.value = down ? 1320 : 880; o.type = "sine";
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(down ? .25 : .12, t + .005); g.gain.exponentialRampToValueAtTime(.0001, t + .08);
+    o.connect(g).connect(actx.destination); o.start(t); o.stop(t + .1);
+  }
+  function tick(t) {
+    raf = 0;
+    const dt = lastT ? Math.min(.05, (t - lastT) / 1000) : 0; lastT = t;
+    if (playing) {
+      beats += dt * bpm / 60;
+      const b = Math.floor(beats);
+      if (b !== lastBeat) {
+        lastBeat = b;
+        const inBar = b % 4;
+        if (inBar === 0) pulse = 1;
+        click(inBar === 0);
+        $("#beatOut").innerHTML = [1, 2, 3, 4].map((n, k) => k === inBar ? `<u style="text-decoration:none;color:#f3f2ed">${n}</u>` : n).join(" · ");
+      }
+    }
+    pulse *= Math.pow(.02, dt * 2);
+    render();
+    if ((playing || pulse > .01) && visible) raf = requestAnimationFrame(tick); else lastT = 0;
+  }
+  const kick = () => { if (!raf) raf = requestAnimationFrame(tick); };
+  const playBtn = $("#playBtn");
+  function setPlay(on) {
+    playing = on; playBtn.setAttribute("aria-pressed", on);
+    $("#playIcon").textContent = on ? "❚❚" : "▶";
+    playBtn.querySelector(".pl-en").textContent = on ? "Pause" : "Play";
+    playBtn.querySelector(".pl-zh").textContent = on ? "暂停" : "播放";
+    kick();
+  }
+  playBtn.addEventListener("click", () => setPlay(!playing));
+  $("#soundBtn").addEventListener("click", e => {
+    sound = !sound;
+    if (sound && !actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    const b = e.currentTarget; b.setAttribute("aria-pressed", sound);
+    b.querySelector('[lang="en"]').textContent = sound ? "Sound on" : "Sound off";
+    b.querySelector('[lang="zh"]').textContent = sound ? "声音：开" : "声音：关";
+  });
+  $("#shuffleBtn").addEventListener("click", () => { seed = Math.floor(Math.random() * 9999); build(); });
+  $("#bpm").addEventListener("input", e => { bpm = +e.target.value; $("#bpmOut").textContent = bpm; });
+  const poster = $("#poster");
+  poster.addEventListener("pointermove", e => { if (reduce) return; const r = poster.getBoundingClientRect(); mouse = (e.clientX - r.left) / r.width - .5; kick(); });
+  const sec = $("#rhythm");
+  addEventListener("scroll", () => {
+    if (reduce || !visible) return;
+    const r = sec.getBoundingClientRect();
+    scrollP = (innerHeight - r.top) / (innerHeight + r.height);
+    kick();
+  }, { passive: true });
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) kick(); }).observe(poster);
+  build();
+})();
+</script>
+</body>
+</html>
